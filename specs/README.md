@@ -1,14 +1,14 @@
-# ดัชนี spec ของระบบ
+# ดัชนี specs
 
-1 use case ที่ผู้ใช้ได้คุณค่า = 1 โฟลเดอร์ specs/NNN-ชื่อ/
-เลข NNN คือลำดับที่เริ่มทำ ไม่ใช่เลข UC
+| โฟลเดอร์ | Use case | ฟีเจอร์ | สถานะ | ผู้รับผิดชอบ |
+|---|---|---|---|---|
+| 001-auth-session | - | รักษา Session Login แบบ Persistent | Draft | ทีม |
+| 002-notification | - | Push Notification | Draft | ทีม |
+| 003-line-bot | - | LINE Bot | Draft | ทีม |
+| 004-trainer-roster | - | Trainer Roster | Draft | ทีม |
+| 005-class-booking | - | จองคลาสออกกำลังกาย | Draft | ทีม |
+| 006-inventory | - | จัดการสินค้าคงคลังและอุปกรณ์ | Draft | ทีม |
+| 007-occupancy-dashboard | - | Occupancy Dashboard | Draft | ทีม |
+| 008-network-segmentation | - | Network Segmentation | Draft | ทีม |
 
-| UC | โฟลเดอร์ | สถานะ | Depends on | ผู้รับผิดชอบ |
-|----|----------|-------|------------|--------------|
-| UC-xx | 001-feature | draft | - | |
-
-สถานะ: draft -> clarified -> planned -> done
-
-- ของที่หลายฟีเจอร์ใช้ร่วม (data model, glossary) อยู่ที่ 000-shared/ ทุก spec อ้างถึง ไม่ copy
-- ฟีเจอร์ที่พึ่งพากัน ใส่ Depends on ทั้งในตารางนี้และหัวไฟล์ spec.md
-- ถ้า use case ใหม่เปลี่ยนพฤติกรรมของฟีเจอร์เดิม ให้แก้ spec เดิมเป็น v2 พร้อม changelog ไม่เปิดโฟลเดอร์ใหม่
+กติกา: 1 โฟลเดอร์ = 1 ฟีเจอร์ระดับ use case ชื่อโฟลเดอร์ขึ้นต้นด้วยเลข 3 หลัก ตามด้วยชื่อฟีเจอร์ภาษาอังกฤษตัวเล็ก
