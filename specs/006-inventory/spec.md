@@ -1,5 +1,5 @@
 # Feature: จัดการสินค้าคงคลังและอุปกรณ์
-Spec ID: FR-INV-01, FR-INV-02, FR-INV-03, NFR-DATA-01, DOM-INV-01, DOM-INV-02, CON-DB-01 (หลัก: FR-INV-01) | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-INV-01, FR-INV-02, FR-INV-03, NFR-DATA-01, DOM-INV-01, DOM-INV-02, CON-DB-01 (หลัก: FR-INV-01) | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 เจ้าหน้าที่จัดการรายการอุปกรณ์และพัสดุ ติดตามการเบิก ยืม-คืน และการรับของเข้าสต็อก และรับการแจ้งเตือนเมื่อจำนวนคงเหลือถึงจุดสั่งซื้อขั้นต่ำ (ขอบเขตนี้มาจาก FR-INV-01, FR-INV-02 และ FR-INV-03; pain point ใน refine-req §1 ไม่ได้กล่าวถึงสต็อกโดยตรง)

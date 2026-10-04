@@ -1,5 +1,5 @@
 # Feature: จองคลาสออกกำลังกาย
-Spec ID: FR-BKG-01, FR-BKG-02, DOM-BKG-01, NFR-PERF-01, CON-DB-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-BKG-01, FR-BKG-02, DOM-BKG-01, NFR-PERF-01, CON-DB-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 สมาชิกเลือกและจองคลาสออกกำลังกายที่เปิดรับผ่านระบบออนไลน์ โดยระบบบล็อกการจองซ้อนทันทีเมื่อเทรนเนอร์ติดสอนคลาสอื่นหรืออยู่นอกเวลาปฏิบัติงาน

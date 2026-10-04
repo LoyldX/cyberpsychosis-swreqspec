@@ -1,5 +1,5 @@
 # Feature: รักษา Session Login แบบ Persistent
-Spec ID: FR-AUTH-01, NFR-REL-01, CON-CACHE-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-AUTH-01, NFR-REL-01, CON-CACHE-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 สมาชิกเข้าสู่ระบบและใช้งานต่อเนื่องได้ โดยระบบรักษา session ด้วย Refresh Token เพื่อลดการถูก Auto-logout บ่อยครั้ง (pain point ข้อ 2 ใน refine-req §1)

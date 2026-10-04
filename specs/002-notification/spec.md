@@ -1,5 +1,5 @@
 # Feature: Push Notification
-Spec ID: FR-NOTI-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-NOTI-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 สมาชิกได้รับการแจ้งเตือนวันและเวลาเปิด-ปิดยิม รวมถึงข่าวสารประชาสัมพันธ์ผ่านแอปพลิเคชันสมาชิก (pain point ข้อ 5 ใน refine-req §1 ติดตามข่าวผ่าน Facebook Page เป็นหลัก)

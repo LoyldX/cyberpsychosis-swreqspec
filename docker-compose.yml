@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gym-db
+    environment:
+      POSTGRES_USER: gym_user
+      POSTGRES_PASSWORD: gym_password_dev
+      POSTGRES_DB: gym_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gym_user -d gym_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: gym-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  # Optional: pgAdmin for database inspection during development
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: gym-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gym.local
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_dev
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: gym-network

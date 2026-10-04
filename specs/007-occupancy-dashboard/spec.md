@@ -1,5 +1,5 @@
 # Feature: Occupancy Dashboard
-Spec ID: FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 ดึงข้อมูลการผ่านประตูทางเข้ายิมมาประมวลผลและแสดงจำนวนผู้ใช้บริการภายในยิมแบบทันที แทนการนับและคีย์ Excel (pain point ข้อ 3 ใน refine-req §1)

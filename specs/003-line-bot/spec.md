@@ -1,5 +1,5 @@
 # Feature: LINE Bot
-Spec ID: FR-LINE-01, FR-LINE-02, IF-LINE-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-LINE-01, FR-LINE-02, IF-LINE-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 สมาชิกดูข้อมูลและสถานะการจองคลาสของตนเอง และถามคำถามทั่วไปเกี่ยวกับยิมผ่าน LINE Bot

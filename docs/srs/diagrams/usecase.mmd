@@ -1,0 +1,53 @@
+%% Use Case Diagram: ระบบบริหารจัดการฟิตเนส
+%% แหล่งอ้างอิง: docs/srs/srs.md หัวข้อ 2, 3, 6
+%% Mermaid ไม่มี use case diagram แบบ UML โดยตรง จึงใช้ flowchart แทน
+%% กรอบ = ระบบ, เส้นประ = Candidate หรือยังไม่ยืนยัน
+flowchart LR
+    member(["ผู้ใช้บริการ / สมาชิก"])
+    staff(["เจ้าหน้าที่"])
+    manager(["ผู้จัดการ"])
+    gate(["ประตู Turnstile<br/>(ระบบภายนอก)"])
+    linesys(["LINE Messaging API<br/>(ระบบภายนอก)"])
+
+    subgraph SYS["ระบบบริหารจัดการฟิตเนส"]
+        uc_auth["เข้าสู่ระบบและรักษา Session<br/>(FR-AUTH-01)"]
+        uc_noti["รับ Push Notification<br/>เปิด-ปิดยิม ข่าวสาร (FR-NOTI-01)"]
+        uc_book["จองคลาสออนไลน์<br/>(FR-BKG-01)"]
+        uc_block["บล็อกการจองซ้อนเมื่อเทรนเนอร์ไม่ว่าง<br/>(FR-BKG-02, DOM-BKG-01)"]
+        uc_linebk["ดูข้อมูลการจองผ่าน LINE Bot<br/>(FR-LINE-01)"]
+        uc_faq["ถามคำถามทั่วไปผ่าน LINE Bot<br/>(FR-LINE-02)"]
+        uc_roster["จัดตารางงานเทรนเนอร์<br/>(FR-ROST-01)"]
+        uc_inv["จัดการรายการอุปกรณ์และพัสดุ<br/>(FR-INV-01)"]
+        uc_move["บันทึกเบิก ยืม-คืน รับเข้าสต็อก<br/>(FR-INV-02, DOM-INV-01)"]
+        uc_low["แจ้งเตือนสต็อกถึง Reorder Point<br/>(FR-INV-03, DOM-INV-02)"]
+        uc_dash["ดูจำนวนผู้ใช้บริการปัจจุบัน<br/>(FR-BI-01, NFR-PERF-02)"]
+        uc_count["นับผู้ใช้บริการจากประตู<br/>(DOM-CAP-01, IF-GATE-01)"]
+        uc_reg["ลงทะเบียนเข้าใช้ยิมด้วย QR Code<br/>(FR-REG-01, Candidate)"]
+        uc_regon["ลงทะเบียนออนไลน์ล่วงหน้า<br/>(FR-REG-02, Candidate)"]
+    end
+
+    member --> uc_auth
+    member --> uc_noti
+    member --> uc_book
+    member --> uc_linebk
+    member --> uc_faq
+    member -.-> uc_reg
+    member -.-> uc_regon
+
+    staff --> uc_roster
+    staff --> uc_inv
+    staff --> uc_move
+    staff --> uc_low
+
+    manager --> uc_roster
+    manager --> uc_dash
+
+    uc_book -.->|"include"| uc_block
+    uc_dash -.->|"ใช้ข้อมูล"| uc_count
+    gate --> uc_count
+    linesys --> uc_linebk
+    linesys --> uc_faq
+    uc_noti -.->|"ส่งผ่าน"| linesys
+
+    classDef candidate stroke-dasharray: 5 5
+    class uc_reg,uc_regon candidate

@@ -1,5 +1,5 @@
 # Feature: Trainer Roster
-Spec ID: FR-ROST-01, CON-DB-01 | Source: `req/refine-req.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+Spec ID: FR-ROST-01, CON-DB-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
 
 ## Goal
 เจ้าหน้าที่หรือผู้จัดการจัด กำหนด และปรับปรุงตารางงาน (เวลาเข้างานและเวลาสอน) ของเทรนเนอร์แต่ละคนได้ ข้อมูลนี้เป็นฐานของการบล็อกคิวในการจองคลาส (005)
