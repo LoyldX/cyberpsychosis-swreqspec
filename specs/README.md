@@ -10,5 +10,6 @@
 | 006-inventory | - | จัดการสินค้าคงคลังและอุปกรณ์ | Draft | ทีม |
 | 007-occupancy-dashboard | - | Occupancy Dashboard | Draft | ทีม |
 | 008-network-segmentation | - | Network Segmentation | Draft | ทีม |
+| 009-gym-registration | - | ลงทะเบียนเข้าใช้ยิม (QR Code / ออนไลน์ล่วงหน้า) | Draft — รอยืนยัน ID (Candidate) | ทีม |
 
 กติกา: 1 โฟลเดอร์ = 1 ฟีเจอร์ระดับ use case ชื่อโฟลเดอร์ขึ้นต้นด้วยเลข 3 หลัก ตามด้วยชื่อฟีเจอร์ภาษาอังกฤษตัวเล็ก
