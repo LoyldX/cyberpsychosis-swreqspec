@@ -1,0 +1,359 @@
+/* OccupancyDashboard Styles */
+
+.dashboard {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.dashboard h1 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 32px;
+}
+
+.spec-info {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 24px;
+  white-space: pre-wrap;
+  background: #e3f2fd;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #1976d2;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.occupancy-card,
+.activity-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.occupancy-card h2,
+.activity-card h2 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.occupancy-number {
+  font-size: 72px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0 8px 0;
+  transition: all 0.3s ease;
+}
+
+.occupancy-label {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.progress-bar {
+  height: 12px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.occupancy-percent {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+  background-color: #4caf50;
+}
+
+.status-dot.disconnected {
+  background-color: #d32f2f;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.last-update {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  margin-top: 12px;
+}
+
+.activity-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-hint {
+  color: #999;
+  font-size: 12px;
+  margin: -8px 0 16px 0;
+  font-style: italic;
+}
+
+.activity-log {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item .time {
+  color: #999;
+  flex-shrink: 0;
+}
+
+.activity-item .action {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 11px;
+  margin: 0 12px;
+}
+
+.activity-item .action.entry {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.activity-item .action.exit {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.activity-item .count {
+  font-weight: 600;
+  color: #007aff;
+}
+
+/* Timeline Chart */
+.timeline-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.timeline-card h2 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.chart-container {
+  display: flex;
+  gap: 8px;
+  height: 200px;
+  align-items: flex-end;
+}
+
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 40px;
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.chart {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  align-items: flex-end;
+}
+
+.chart-bar {
+  flex: 1;
+  min-width: 4px;
+  border-radius: 2px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.chart-bar:hover {
+  opacity: 1;
+}
+
+/* Status Cards */
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-card h3 {
+  margin: 0 0 12px 0;
+  color: #666;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-card p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-card p.critical {
+  color: #d32f2f;
+  font-size: 18px;
+}
+
+.status-card p.warning {
+  color: #ff9800;
+  font-size: 18px;
+}
+
+.status-card p.normal {
+  color: #4caf50;
+  font-size: 18px;
+}
+
+.available-count {
+  font-size: 32px;
+  color: #007aff;
+  margin-bottom: 4px;
+}
+
+.available-label {
+  color: #999;
+  font-size: 12px;
+}
+
+.connected-text {
+  color: #4caf50;
+  font-size: 16px;
+}
+
+.disconnected-text {
+  color: #d32f2f;
+  font-size: 16px;
+}
+
+/* Notes Box */
+.notes-box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ff9800;
+}
+
+.notes-box h3 {
+  margin: 0 0 12px 0;
+  color: #ff6f00;
+}
+
+.notes-box ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notes-box li {
+  margin-bottom: 8px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notes-box strong {
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 16px;
+  }
+
+  .dashboard h1 {
+    font-size: 24px;
+  }
+
+  .occupancy-number {
+    font-size: 48px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 150px;
+  }
+
+  .status-cards {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,304 @@
+// Gym Management System Database Schema
+// Spec-Driven Development: Every table references FR/NFR/DOM/CON/IF IDs from specs
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// SPEC 001: Auth & Session (FR-AUTH-01, NFR-REL-01, CON-CACHE-01)
+// ============================================================================
+
+/// ASSUMPTION Q2: Member model = student_id (PK) + name, email, phone
+/// Represents a gym member/user who can log in and book classes
+model Member {
+  id        Int      @id @default(autoincrement())
+  studentId String   @unique
+  name      String
+  email     String?  @unique
+  phone     String?
+
+  // Relations
+  bookings           Booking[]
+  inventoryRequests  InventoryTransaction[]
+  notificationTokens NotificationToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("members")
+}
+
+/// Session data is stored in Redis, not in database
+/// Key pattern: user:{user_id}:session:{token_id}
+/// Payload: { user_id, student_id, iat, exp, type: 'access'|'refresh' }
+/// This model tracks issued refresh tokens for invalidation (logout)
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  memberId  Int
+  token     String   @unique
+  expiresAt DateTime
+  revokedAt DateTime? // NULL = still valid; set when user logs out
+
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+  @@index([memberId])
+}
+
+// ============================================================================
+// SPEC 004: Trainer Roster (FR-ROST-01)
+// SPEC 005: Class Booking (FR-BKG-01, FR-BKG-02, DOM-BKG-01, NFR-PERF-01)
+// ============================================================================
+
+/// ASSUMPTION Q3: Trainer shifts = recurring schedule (Mon-Sun, start-end time)
+/// Used by booking system to check trainer availability (DOM-BKG-01)
+model TrainerShift {
+  id        Int    @id @default(autoincrement())
+  trainerId Int
+  dayOfWeek Int    // 0=Sunday, 1=Monday, ..., 6=Saturday
+  startTime String // HH:mm format (e.g., "09:00")
+  endTime   String // HH:mm format (e.g., "10:00")
+
+  // Relations
+  classes Class[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([trainerId, dayOfWeek, startTime, endTime])
+  @@map("trainer_shifts")
+  @@index([trainerId])
+}
+
+/// Trainer = Staff member who conducts classes
+model Trainer {
+  id   Int    @id @default(autoincrement())
+  name String
+  email String? @unique
+  phone String?
+
+  // Relations
+  shifts  TrainerShift[]
+  classes Class[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("trainers")
+}
+
+/// ASSUMPTION Q3: Class = scheduled instance of a trainer shift
+/// Member books a spot in a class (DOM-BKG-01: check trainer availability)
+/// @@unique(trainerId, scheduledAt) prevents double-booking trainer (FR-BKG-02)
+model Class {
+  id           Int      @id @default(autoincrement())
+  trainerId    Int
+  shiftId      Int?     // Reference to recurring shift
+  scheduledAt  DateTime // When this class is scheduled
+  durationMins Int      @default(60)
+  capacity     Int      @default(1) // ASSUMPTION: 1-to-1 trainer:student (per IMPLEMENTATION_PLAN)
+  createdBy    Int?     // Staff member who created this class
+
+  // Relations
+  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([trainerId, scheduledAt]) // Prevent trainer double-booking (FR-BKG-02, DOM-BKG-01)
+  @@map("classes")
+  @@index([trainerId])
+  @@index([scheduledAt])
+}
+
+/// Booking: Member reserves a spot in a Class (FR-BKG-01)
+/// @@unique(memberId, classId) prevents duplicate bookings (FR-BKG-02)
+model Booking {
+  id        Int     @id @default(autoincrement())
+  memberId  Int
+  classId   Int
+  status    String  @default("confirmed") // confirmed, cancelled, no_show
+  cancelledAt DateTime?
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  class  Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([memberId, classId]) // No duplicate bookings (FR-BKG-02, DOM-BKG-01)
+  @@map("bookings")
+  @@index([memberId])
+  @@index([classId])
+  @@index([status])
+}
+
+// ============================================================================
+// SPEC 006: Inventory (FR-INV-01, FR-INV-02, FR-INV-03, NFR-DATA-01, DOM-INV-01)
+// ============================================================================
+
+/// Inventory Item: Equipment or consumables (FR-INV-01)
+model InventoryItem {
+  id              Int    @id @default(autoincrement())
+  code            String @unique // Equipment/item code
+  name            String
+  description     String?
+  category        String // equipment, consumable, tool, etc.
+  quantity        Int    @default(0) // Current stock (ACID guaranteed via NFR-DATA-01)
+  reorderPoint    Int    @default(5) // Trigger low-stock alert (FR-INV-03)
+  reorderQuantity Int    @default(10)
+  unitPrice       Float?
+  supplier        String?
+
+  // Relations
+  transactions InventoryTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("inventory_items")
+  @@index([category])
+}
+
+/// ACID Transaction for inventory movements (FR-INV-02, NFR-DATA-01)
+/// Every stock change = 1 transaction record (audit trail)
+/// Must use database-level ACID guarantees to prevent negative stock
+model InventoryTransaction {
+  id           Int    @id @default(autoincrement())
+  itemId       Int
+  transactionType String // rent, return, consume, receive, adjust
+  quantity     Int    // Positive=in, Negative=out
+  notes        String?
+  requestedBy  Int?   // Member who requested rental (if applicable)
+
+  // Relations
+  item Member? @relation(fields: [requestedBy], references: [id], onDelete: SetNull)
+  inventoryItem InventoryItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@map("inventory_transactions")
+  @@index([itemId])
+  @@index([transactionType])
+  @@index([requestedBy])
+}
+
+// ============================================================================
+// SPEC 007: Occupancy Dashboard (FR-BI-01, NFR-PERF-02, DOM-CAP-01)
+// ============================================================================
+
+/// Door Access Event: Webhook from IF-GATE-01 (door sensors)
+/// Used to track occupancy in real-time (FR-BI-01)
+model DoorAccessEvent {
+  id        Int      @id @default(autoincrement())
+  memberId  Int?     // NULL if access denied/unknown
+  direction String   // in, out
+  timestamp DateTime
+  deviceId  String   // Which door sensor reported this
+  success   Boolean  // Access granted or denied
+
+  // Relations
+  member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@map("door_access_events")
+  @@index([memberId])
+  @@index([timestamp])
+  @@index([deviceId])
+}
+
+/// Current Occupancy Snapshot: Updated when door event occurs (NFR-PERF-02)
+/// Dashboard subscribes via WebSocket to get real-time updates
+model OccupancySnapshot {
+  id              Int      @id @default(autoincrement())
+  currentCount    Int      @default(0) // Current member count inside gym
+  capacity        Int      // Gym max capacity (from config)
+  utilizationRate Float    @default(0) // currentCount / capacity * 100
+  lastUpdated     DateTime
+
+  @@map("occupancy_snapshots")
+}
+
+// ============================================================================
+// SPEC 002: Notifications (FR-NOTI-01)
+// ============================================================================
+
+/// FCM Registration Tokens for push notifications (FR-NOTI-01)
+model NotificationToken {
+  id        Int     @id @default(autoincrement())
+  memberId  Int
+  platform  String  // android, ios, web
+  token     String  @unique // FCM device token
+  isActive  Boolean @default(true)
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_tokens")
+  @@index([memberId])
+}
+
+/// Notification History: Log of all sent push notifications (audit trail)
+model NotificationLog {
+  id        Int      @id @default(autoincrement())
+  memberId  Int?
+  title     String
+  body      String
+  type      String   // gym_update, booking_confirmation, low_stock_alert, etc.
+  sentAt    DateTime
+  status    String   // sent, failed, bounced
+
+  createdAt DateTime @default(now())
+
+  @@map("notification_logs")
+  @@index([memberId])
+  @@index([type])
+}
+
+// ============================================================================
+// SPEC 003: LINE Bot (FR-LINE-01, FR-LINE-02)
+// ============================================================================
+
+/// LINE User Link: Map LINE user ID to gym member (for FR-LINE-01, FR-LINE-02)
+model LineUserLink {
+  id       Int    @id @default(autoincrement())
+  lineUserId String @unique
+  memberId Int?   // NULL if not yet linked to member
+  displayName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("line_user_links")
+  @@index([memberId])
+}
+
+// ============================================================================
+// SPEC 008: Network Segmentation (NFR-SEC-01)
+// ============================================================================
+
+/// Network Config: Store VLAN settings for staff/member Wi-Fi separation (NFR-SEC-01)
+/// This is primarily infrastructure config; backend serves config API
+model NetworkConfig {
+  id            Int    @id @default(autoincrement())
+  configKey     String @unique
+  configValue   String
+  description   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("network_config")
+}

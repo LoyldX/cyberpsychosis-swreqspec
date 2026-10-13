@@ -1,0 +1,27 @@
+{
+  "name": "@gym-mgmt/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gym Management System - React Native Member App",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.73.0",
+    "@react-navigation/native": "^6.1.0",
+    "@react-navigation/bottom-tabs": "^6.5.0",
+    "@react-navigation/stack": "^6.3.0",
+    "axios": "^1.6.0",
+    "@gym-mgmt/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.73.0"
+  }
+}

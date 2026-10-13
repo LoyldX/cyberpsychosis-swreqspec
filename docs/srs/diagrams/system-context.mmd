@@ -1,0 +1,29 @@
+%% System Context: ระบบบริหารจัดการฟิตเนส
+%% แหล่งอ้างอิง: docs/srs/srs.md หัวข้อ 1, 2, 7
+%% เส้นประ = ยังไม่ยืนยัน (Candidate หรือ Open Question)
+flowchart LR
+    member["ผู้ใช้บริการ / สมาชิก"]
+    staff["เจ้าหน้าที่"]
+    manager["ผู้จัดการ"]
+    trainer["เทรนเนอร์<br/>(ไม่ทราบว่าใช้ระบบเองหรือไม่)"]
+
+    sys["ระบบบริหารจัดการฟิตเนส"]
+
+    line["LINE Messaging API<br/>(IF-LINE00)"]
+    gate["ประตูทางเข้ายิม Turnstile<br/>(IF-GATE-01)"]
+    push["บริการ Push Notification<br/>(ทีมเลือกเอง ไม่ได้มาจาก spec)"]
+    fb["Facebook Page<br/>(ยังไม่ตกลง Q9)"]
+
+    member -->|"ลงทะเบียนเข้าใช้ยิม (Candidate)<br/>จองคลาส ดูการจอง"| sys
+    member -->|"ถาม FAQ / ดูการจองผ่าน LINE"| line
+    line -->|"ข้อความผู้ใช้"| sys
+    sys -->|"ตอบกลับผ่าน LINE"| line
+    sys -->|"แจ้งเตือนเปิด-ปิดยิม และข่าวสาร"| push
+    push -.->|"push notification"| member
+
+    staff -->|"จัดการอุปกรณ์ เบิก-ยืม-คืน<br/>จัดตารางเทรนเนอร์"| sys
+    manager -->|"ดู Dashboard จำนวนผู้ใช้<br/>จัดตารางเทรนเนอร์"| sys
+    trainer -.->|"ถูกจองคลาส"| sys
+
+    gate -->|"สัญญาณผ่านเข้า-ออก"| sys
+    fb -.->|"ความสัมพันธ์ยังไม่ชัด"| sys
