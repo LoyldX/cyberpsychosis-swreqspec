@@ -1,0 +1,62 @@
+%% Architecture Overview: ระบบบริหารจัดการฟิตเนส
+%% แหล่งอ้างอิง: docs/srs/srs.md หัวข้อ 3, 4, 7
+%% โครงสร้างภายในของ Backend และเทคโนโลยีเป็นการเลือกของทีม ไม่ได้มาจาก spec
+%% เส้นประ = ยังไม่ยืนยัน หรือทีมเลือกเอง
+flowchart TB
+    subgraph CLIENT["ฝั่งผู้ใช้งาน"]
+        app["Member Mobile App<br/>(FR-AUTH-01, FR-NOTI-01)"]
+        lineclient["LINE แชต<br/>(FR-LINE-01, FR-LINE-02)"]
+        portal["Staff Portal<br/>(FR-ROST-01, FR-INV-01..03)"]
+        bi["BI Dashboard<br/>(FR-BI-01)"]
+    end
+
+    subgraph NET["เครือข่ายแยก VLAN (NFR-SEC-01)"]
+        wifim["Wi-Fi สมาชิก"]
+        wifis["Wi-Fi พนักงาน"]
+    end
+
+    subgraph BACK["Backend API (ทีมเลือกเอง)"]
+        authsvc["Session Service<br/>Refresh Token (FR-AUTH-01)"]
+        bookingsvc["Booking Service<br/>บล็อกคิวเทรนเนอร์ (FR-BKG-01, FR-BKG-02, DOM-BKG-01)"]
+        rostersvc["Trainer Roster Service<br/>(FR-ROST-01)"]
+        invsvc["Inventory Service<br/>ACID transaction (FR-INV-01..03, NFR-DATA-01)"]
+        occsvc["Occupancy Service<br/>+1 เข้า / -1 ออก (FR-BI-01, DOM-CAP-01)"]
+        notisvc["Notification Service<br/>(FR-NOTI-01)"]
+        linesvc["LINE Bot Service<br/>(FR-LINE-01, FR-LINE-02)"]
+    end
+
+    subgraph DATA["ที่เก็บข้อมูล"]
+        redis[("Redis<br/>Session (CON-CACHE-01)")]
+        rdb[("PostgreSQL หรือ MySQL<br/>(CON-DB-01, รอ Q4)")]
+    end
+
+    subgraph EXT["ระบบภายนอก"]
+        gate["ประตู Turnstile<br/>(IF-GATE-01)"]
+        lineapi["LINE Messaging API<br/>(IF-LINE-01)"]
+        pushsvc["Push Notification<br/>(ทีมเลือกเอง)"]
+    end
+
+    app --> authsvc
+    app --> bookingsvc
+    app --> notisvc
+    lineclient --> lineapi
+    lineapi --> linesvc
+    portal --> rostersvc
+    portal --> invsvc
+    bi --> occsvc
+
+    wifim x--x|"แยกเครือข่าย"| wifis
+
+    authsvc --> redis
+    authsvc --> rdb
+    bookingsvc --> rdb
+    rostersvc --> rdb
+    invsvc --> rdb
+    occsvc --> rdb
+    linesvc --> bookingsvc
+    linesvc --> rdb
+
+    gate -->|"ผ่านเข้า-ออก"| occsvc
+    notisvc --> pushsvc
+    pushsvc -.-> app
+    linesvc --> lineapi
