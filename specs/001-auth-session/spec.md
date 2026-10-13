@@ -1,46 +1,47 @@
-# Feature: รักษา Session Login แบบ Persistent
-Spec ID: FR-AUTH-01, NFR-REL-01, CON-CACHE-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดต: 4 ตุลาคม 2569
+# Feature: Auth Session Persistence
+Spec ID: FR-AUTH-01, NFR-REL-01, CON-CACHE-01 | Source: `docs/srs/srs.md` (v5) | Status: Draft v1 | อัปเดก: 13 ตุลาคม 2569
 
 ## Goal
-สมาชิกเข้าสู่ระบบและใช้งานต่อเนื่องได้ โดยระบบรักษา session ด้วย Refresh Token เพื่อลดการถูก Auto-logout บ่อยครั้ง (pain point ข้อ 2 ใน refine-req §1)
+ระบบต้องรองรับการเข้าสู่ระบบของสมาชิกด้วยวิธีล็อกอินหลักแบบรหัสนักศึกษา/SSO และรักษา Session ให้คงอยู่ผ่าน Refresh Token เพื่อป้องกันการถูก Auto-logout บ่อยครั้ง โดยใช้ Redis เป็นแหล่งจัดการ Session และให้การเข้าถึงแอปต่อเนื่องแม้ผู้ใช้เปิดแอปซ้ำ
 
 ## Scope
 ### In scope
-- FR-AUTH-01 รองรับการเข้าสู่ระบบของสมาชิกและรักษา session ด้วย refresh token
-- NFR-REL-01 การจัดการ session ผ่าน Redis ร่วมกับ refresh token
-- CON-CACHE-01 ใช้ Redis บริหาร session login
+- FR-AUTH-01 รองรับการเข้าสู่ระบบของสมาชิกด้วยรหัสนักศึกษา/SSO เป็นช่องทางหลัก
+- FR-AUTH-01 รักษา Session Login แบบ Persistent ด้วย Refresh Token เพื่อป้องกันการถูก Auto-logout บ่อยครั้ง
+- NFR-REL-01 การจัดการ Session ผ่าน Redis ร่วมกับ Refresh Token ต้องมีความน่าเชื่อถือและความต่อเนื่องตามที่กำหนด
+- CON-CACHE-01 ใช้ Redis เพื่อบริหาร Session Login
 ### Out of scope
 - ตัดออกทั้งระบบ (refine-req §2.1–2.2): POS และการขายหน้าร้าน; เครื่องสแกนเวลาและการซิงค์ HR; Data Privacy & Encryption (TLS 1.3, AES-256, PDPA); Nutrition (FR-NUT-01, IF-NUT-01); ระบบเช็กสถานะเครื่องเล่นและคิวเครื่องเล่น (Q10)
 
 ## Constraints
-- CON-CACHE-01 ใช้ Redis สำหรับบริหาร session login
+- CON-CACHE-01 ใช้ Redis เพื่อบริหาร Session Login
+- ช่วงอายุของ Refresh Token ที่ยอมรับแล้วคือ 7 วัน เพื่อให้ผู้ใช้เปิดแอปต่อเนื่องโดยไม่ต้องล็อกอินซ้ำบ่อยเกินไป
+- การเข้าสู่ระบบหลักของสมาชิกใช้รหัสนักศึกษา/SSO ตามคำตัดสินของทีม ไม่ได้มาจากเอกสารต้นทางเดิมด้วยความระบุชัดเจนก็ตาม
 
 ## Requirements (ยอมรับแล้ว)
 | ID | ข้อกำหนด |
 |---|---|
-| FR-AUTH-01 | **รักษา Session Login แบบ Persistent**: รองรับการเข้าสู่ระบบของสมาชิกและรักษา Session ด้วย Refresh Token เพื่อป้องกันการถูก Auto-logout บ่อยครั้ง |
+| FR-AUTH-01 | **รักษา Session Login แบบ Persistent**: ระบบต้องรองรับการเข้าสู่ระบบของสมาชิกด้วยรหัสนักศึกษา/SSO เป็นช่องทางหลัก และต้องรักษา Session ให้คงอยู่ผ่าน Refresh Token เพื่อป้องกันการถูก Auto-logout บ่อยครั้ง โดย Refresh Token มีอายุ 7 วัน |
 
 ## Quality Requirements (ยอมรับแล้ว)
 | ID | ข้อกำหนด |
 |---|---|
-| NFR-REL-01 | Session Persistence & Reliability: การจัดการ Session ผ่าน Redis ร่วมกับ Refresh Token ต้องมีอัตรา Session หลุดโดยไม่ตั้งใจไม่เกินเกณฑ์ที่กำหนด — อายุ Session และอัตราหลุดสูงสุด = **TBD (Q2)** |
+| NFR-REL-01 | Session Persistence & Reliability: การจัดการ Session ผ่าน Redis ร่วมกับ Refresh Token ต้องคงความต่อเนื่องให้ผู้ใช้เข้าสู่แอปได้ต่อเนื่องตามเงื่อนไขที่กำหนด และลดการหลุดโดยไม่ตั้งใจให้ต่ำกว่าค่าที่ทีมกำหนดภายหลัง — อายุ Refresh Token ที่กำหนดในระบบคือ 7 วัน |
 
 ## Domain Rules
 ไม่มีใน spec นี้
 
 ## Assumptions & Open Questions
-- **Q2** "User" ที่โดน Auto-logout คือผู้ใช้กลุ่มใด และ Session ต้องคงอยู่นานเท่าใด (ยังไม่มีคำตอบ ค่าเดา: สมาชิกทุกคน และอายุ session ตามค่าที่ทีมพัฒนาตั้งเอง ผู้ตอบที่น่าจะได้: ทีม Mobile App / Product Owner) เกี่ยวกับ FR-AUTH-01, NFR-REL-01 — อายุ session ย้ายมาจาก Out of scope เพราะยังไม่ได้ตัดสิน
-- **Q7** ผู้ใช้บริการมีเฉพาะนักศึกษาหรือไม่ และผู้ใช้ที่ไม่มีรหัสนักศึกษา (เช่น บุคลากร บุคคลภายนอก) ลงทะเบียนอย่างไร (ยังไม่มีคำตอบ ค่าเดา: มีเฉพาะนักศึกษา ผู้ตอบที่น่าจะได้: ผู้ดูแลยิม) เกี่ยวกับ FR-AUTH-01
-- ผลต่อ FR-AUTH-01: วิธีเข้าสู่ระบบของผู้ไม่มีรหัสนักศึกษา
-- ยังไม่มีหมายเลข Q: สมาชิกเข้าสู่ระบบด้วยวิธีใด (refine-req ระบุเพียง "รองรับการเข้าสู่ระบบของสมาชิก" ไม่ระบุวิธี)
-- ยังไม่มีหมายเลข Q: ใครเป็นเจ้าของข้อมูลสมาชิก (member record) เพราะ 001, 003 และ 005 อ้างถึงสมาชิก
-- คำถามข้อเสนอ UI (ไม่มี ID): เมื่อเปิดแอปภายในอายุ session ควรให้เข้าใช้งานได้ทันทีโดยไม่ต้องกรอกข้อมูลล็อกอินซ้ำหรือไม่? (ยังไม่มีหมายเลข Q เกี่ยวข้องกับ Q2)
-- หมายเหตุ: ค่าหมดอายุของ session (TTL) ยังไม่ถูกตั้งค่า จนกว่าจะตอบ Q2
+- **Q2** "User" ที่โดน Auto-logout คือกลุ่มใด และ Session ต้องคงอยู่นานเท่าใด (ยังมีคำถามที่เหลือเกี่ยวกับเกณฑ์อัตราการหลุดโดยไม่ตั้งใจ) — คำตอบที่ยอมรับแล้วในตอนนี้: สมาชิกทุกคน และ Refresh Token ใช้ TTL 7 วัน
+- ยังไม่มีหมายเลข Q: เกณฑ์อัตราการหลุดโดยไม่ตั้งใจของ NFR-REL-01 นับในช่วงเวลาใดและจำกัดเท่าใด
+- ยังไม่มีหมายเลข Q: กลุ่มสมาชิกที่ใช้ SSO/รหัสนักศึกษาเป็นหลักมีเงื่อนไขเฉพาะหรือไม่
+- ยังไม่มีหมายเลข Q: จะมีการล็อกเอาท์แบบบังคับหรือการรีเฟรช token เฉพาะเมื่อหมดอายุเท่านั้นหรือไม่
+- คำถามข้อเสนอ UI (ไม่มี ID): เมื่อ Session ยังใช้งานได้ ผู้ใช้ควรเปิดแอปแล้วเข้าสู่ระบบทันทีโดยไม่ต้องกรอกข้อมูลซ้ำใช่หรือไม่? (UI-AUTH-01)
 
 ## Traceability
 | Source | ส่วนใน spec | ที่มา (refine-req v5) |
 |---|---|---|
-| FR-AUTH-01 | Requirements | §3 บรรทัดที่ 69 (v4) |
-| NFR-REL-01 | Quality Requirements | §4 (v4) |
-| CON-CACHE-01 | Constraints | §7 (v4) |
-| ข้อเสนอ UI เข้าใช้งานต่อเนื่อง | Assumptions & Open Questions | §6.3 (ไม่มี ID ใน spec) |
+| FR-AUTH-01 | Requirements | §3 บรรทัดที่ 61 (v4) |
+| NFR-REL-01 | Quality Requirements | §4 บรรทัดที่ 76–78 (v4) |
+| CON-CACHE-01 | Constraints | §7 บรรทัดที่ 135–136 (v4) |
+| Q2 | Assumptions & Open Questions | §8.1 ข้อ 4 / §8.2 Q2 |
