@@ -13,7 +13,7 @@
       }
     }
   },
-  "postCreateCommand": "pip install -r backend/requirements.txt && npm install --prefix frontend --no-audit --no-fund",
+  "postCreateCommand": "go -C backend mod download && npm install --prefix frontend --no-audit --no-fund",
   "forwardPorts": [
     5173
   ],

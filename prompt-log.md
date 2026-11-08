@@ -297,3 +297,238 @@
 
 - แก้: `specs/001-auth-session/` (spec.md, plan.md, tasks.md), `specs/002-notification/` (spec.md, plan.md, tasks.md), `specs/003-line-bot/` (spec.md, plan.md, tasks.md), `specs/004-trainer-roster/` (spec.md, plan.md, tasks.md), `specs/005-class-booking/` (spec.md, plan.md, tasks.md), `specs/006-inventory/` (spec.md, plan.md, tasks.md), `specs/007-occupancy-dashboard/` (plan.md, tasks.md), `specs/008-network-segmentation/` (spec.md, plan.md, tasks.md), `prompt-log.md` (เพิ่มต่อท้ายและแก้วลีเดียวในรอบ 3 ตาม m9)
 - ไม่แก้: `req/`, `.claude/`, `AGENTS.md`, `specs/README.md`
+
+---
+
+## รอบ: เขียน docs/specs.md และ spec ใหม่ 5 ฟีเจอร์ (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+1. "rewrite a specs into a correct one remove all files inspec and use a spec folder for create a /plan follow specs. but before doing that write a specs.md at docs first for single source of truth i want to implement a 5 usecase features only for this sprint (don't include LINE bot feature)"
+2. "อย่าลบอะไรใน temp น้ะ จะเก็บไว้ทุกอย่าง"
+3. "review specs.md and spec plan.md follow this source https://plearnjai.com/req-it69/reqeng-outline-2569.html"
+4. "แก้ให้ถูกต้องตามนั้น"
+
+### คำถามที่ AI ถามกลับ และคำตอบของทีม
+- เลือก 5 ฟีเจอร์ของ sprint จาก 7 (ไม่รวม LINE Bot) → ทีมเลือก 001, 004, 005, 006, 007
+
+### สิ่งที่ AI ทำ
+- เขียน `docs/specs.md` (ความจริงหนึ่งเดียวของ sprint) โดยคัดข้อความ requirement จาก `docs/srs/srs.md` v5 ตรงตัว
+- เขียน `specs/00N-*/spec.md` ใหม่ 5 ไฟล์ และ `specs/README.md` (spec เดิมทั้งหมดอยู่ใน `temp/specs/` ไม่ได้ลบ)
+- รีวิวตามเกณฑ์วิชา (Week 03–05) แล้วแก้ข้อ 1–8: AC เป็น Given-When-Then, ย้าย DOM ไปไว้ใน Constraints, Status เป็น Draft v1, เพิ่ม Owner/Depends on/Reviewed by/Use Case ID ใน header, เพิ่มผู้ตอบในคำถามเปิดและหัวข้อ Assumptions, เพิ่มพฤติกรรมเมื่อระบบภายนอกไม่ตอบเป็นคำถามเปิด, Out of scope ระบุ use case ข้างเคียง, Traceability มีคอลัมน์ AC
+- ถอดข้อความที่ไม่พบที่มาใน SRS v5 ออกจากข้อกำหนดและย้ายเป็นคำถามเปิด: Refresh Token 7 วัน, ล็อกอินด้วยรหัสนักศึกษา/SSO, "รับจองเฉพาะช่วงที่ยังเปิด", "FR-ROST-01 เป็นฐานของการบล็อกคิว"
+
+### ข้อผิดพลาดของ AI ที่ทีมควรตรวจ
+- รอบแรกติดป้าย Status เป็น "Draft v2" ทั้งที่ยังไม่ได้รัน `/clarify` (แก้เป็น Draft v1 แล้ว)
+- รอบแรกใช้หัวข้อ "Domain Rules" แยกจาก Constraints ซึ่งทำให้ตารางตรวจ Constraints ของ `/plan` อาจข้าม DOM (แก้แล้ว)
+- AC ทั้งหมดและ ID `AC-*` เป็นข้อเสนอของ AI รอทีมยืนยัน (วิชาอนุญาตให้สร้าง ID ใหม่เฉพาะ AC)
+
+### ยังไม่ได้ทำ
+- ยังไม่ได้รัน `/clarify` และ `/plan` สำหรับ spec ชุดใหม่ (ยังไม่มี `plan.md`)
+- ประเด็นที่รอทีมตัดสิน: แยก ID ย่อยของ FR ที่รวมหลายพฤติกรรม, เขียน Use Case Specification, กำหนดเลข Q ใหม่, ลดความซ้ำซ้อนระหว่าง `docs/specs.md` กับ spec.md (ดู `docs/specs.md` §8)
+- คำตอบของทีมต่อ Q1–Q4, Q7, Q8, Q10 และคำถามที่ยังไม่มีเลข ยังไม่มี
+
+### ไฟล์ที่เปลี่ยนในรอบนี้
+- สร้าง: `docs/specs.md`, `specs/001-auth-session/spec.md`, `specs/004-trainer-roster/spec.md`, `specs/005-class-booking/spec.md`, `specs/006-inventory/spec.md`, `specs/007-occupancy-dashboard/spec.md`, `specs/README.md`, `temp/00-foundation.md` (ย้ายมาเก็บ ไม่ใช่ spec)
+- ไม่แก้: `docs/srs/`, `AGENTS.md`, `.claude/`, ทุกไฟล์ใน `temp/` ที่มีอยู่เดิม
+
+---
+
+## รอบ: เพิ่ม tech stack ใน SRS และสร้าง specs/000-shared (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+1. "techstack ควรเพิ่มที่ไหน srs"
+2. "เพิ่มใน srs รวมถึงสร้าง 000- shared ด้วย"
+
+### คำถามที่ AI ถามกลับ และคำตอบของทีม
+- Backend ใช้อะไร → Go + Gin
+- Frontend ใช้อะไร → React (Vite) เว็บอย่างเดียว
+- Q4 ฐานข้อมูล → PostgreSQL
+
+### สิ่งที่ AI ทำ
+- `docs/srs/srs.md` เป็น v5.1: เพิ่ม CON-TECH-01 (Go + Gin), CON-TECH-02 (React Vite เว็บอย่างเดียว), เปลี่ยน CON-DB-01 เป็น PostgreSQL, ปิด Q4 (§8.1 ข้อ 7 และ §8.2), เพิ่มแถว `000-shared` ใน §9.2, ปรับหมายเหตุใต้ §10, เพิ่มแถว v5.1 ในประวัติเวอร์ชัน
+- สร้าง `specs/000-shared/README.md` (ไม่ใช้ชื่อ spec.md เพื่อไม่ให้ถูกนับเป็นฟีเจอร์)
+- แก้ `specs/00{1,4,5,6,7}-*/spec.md` และ `docs/specs.md`: CON-DB-01, เพิ่ม CON-TECH-01/02 ใน Constraints และ Traceability, ถอดแถวคำถาม Q4 ที่ตอบแล้ว
+- แก้ `specs/README.md` ให้กล่าวถึง `000-shared`
+
+### สิ่งที่ AI ตัดสินใจเองและทีมควรตรวจ
+- ID `CON-TECH-01/02` เป็น ID ใหม่ที่ AI ตั้งตามตัวอย่างในคำสั่ง `/plan` ของอาจารย์ (ทีมสั่งให้เพิ่มใน SRS)
+- ชื่อ test ฝั่ง Go ใช้ `TestAC_BKG_01` แทน `test_AC_BKG_01` เพราะ Go บังคับให้ขึ้นต้นด้วย `Test` (บันทึกใน 000-shared ว่าทีมเลือกเอง)
+- เพิ่มคำถามเปิดว่า "Member Mobile App" ใน SRS §1 ตรงกับ CON-TECH-02 (เว็บอย่างเดียว) อย่างไร
+- ยังไม่ได้แก้ `docs/srs/diagrams/architecture-overview.mmd` ให้ตรงกับ stack ใหม่
+
+### ยังไม่ได้ทำ
+- ตัวเลือกเทคโนโลยีที่เหลือ (DB driver/ORM, migration, Redis client, เครื่องมือ test, router/state ของ React, โครงโฟลเดอร์ repo) ทีมยังไม่ได้เลือก (ดู 000-shared §2)
+- ยังไม่ได้รัน `/clarify`, `/plan`, `/tasks`
+
+### ไฟล์ที่เปลี่ยนในรอบนี้
+- แก้: `docs/srs/srs.md`, `docs/specs.md`, `specs/README.md`, `specs/001-auth-session/spec.md`, `specs/004-trainer-roster/spec.md`, `specs/005-class-booking/spec.md`, `specs/006-inventory/spec.md`, `specs/007-occupancy-dashboard/spec.md`, `prompt-log.md` (เพิ่มต่อท้าย)
+- สร้าง: `specs/000-shared/README.md`
+- ไม่แก้: `temp/` ทั้งหมด, `AGENTS.md`, `.claude/`
+
+---
+
+## รอบ: /clarify specs/001-auth-session/spec.md (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+1. "เติมคำตอบให้หมด และ กำหนดเพิ่ม ใน shared ด้วย test ของฝั่ง backend ต้องมีด้วยเช่นกัน ผมให้คุณเลือกเลย" (ผลอยู่ใน `specs/000-shared/README.md` §2–§3)
+2. "ผมจะทำแค่ 001-auth-session only มาเริ่ม /clarify" → `/clarify specs/001-auth-session/spec.md`
+3. "แก้ให้หมด" (ทีมไม่ได้ตอบ Q1–Q8 ทีละข้อ AI ตีความว่าอนุมัติค่าเริ่มต้นที่ AI เสนอเป็นการตัดสินใจของทีม)
+
+### คำถามทั้งหมดที่ AI ถาม (ส่วน B ของ /clarify)
+1. Q1 วิธีพิสูจน์ตัวตนตอนเข้าสู่ระบบ และผู้ใช้มีเฉพาะนักศึกษาหรือไม่
+2. Q2 อายุ Refresh Token/Session (spec เดิมเขียน 7 วันโดยไม่มีที่มา)
+3. Q3 มีการออกจากระบบ/เพิกถอน token ไหม และใช้แล้วอายุต่อหรือไม่
+4. Q4 หลายอุปกรณ์พร้อมกันได้หรือไม่
+5. Q5 เมื่อ Redis หรือ PostgreSQL ไม่ตอบ ปฏิเสธหรือปล่อยผ่าน
+6. Q6 เข้าสู่ระบบไม่สำเร็จ ทำอย่างไร จำกัดครั้งหรือไม่
+7. Q7 "เปิดแอป" = เปิดเว็บใช่ไหม และปิด-เปิดเบราว์เซอร์แล้วยังอยู่ในระบบ
+8. Q8 เกณฑ์อัตราหลุดโดยไม่ตั้งใจของ NFR-REL-01
+
+### คำตอบของทีม
+- ทีมตอบรวมว่า "แก้ให้หมด" ไม่ได้ตอบ "รู้ เพราะ..." หรือ "ไม่รู้ ต้องถาม..." รายข้อ AI จึงบันทึกค่าเริ่มต้นที่เสนอเป็น ASM (ต้องยืนยันกับผู้เกี่ยวข้องจริง) ยกเว้นข้อที่ต้องใช้ตัวเลขหรือต้องเพิ่ม FR ใหม่ ซึ่ง AI ไม่ตัดสินแทน
+
+### สิ่งที่แก้ใน spec.md (Status → Draft v2)
+- เพิ่มคำศัพท์กลาง (สมาชิก / เข้าสู่ระบบ / Session / หลุดโดยไม่ตั้งใจ) และปรับ Goal ให้ใช้คำเดียวกัน
+- เพิ่ม ASM-01..08 (Q1→ASM-01, Q2→ASM-02, Q3→ASM-03, Q4→ASM-04, Q5→ASM-05, Q6→ASM-06, Q7→ASM-07, นิยามหลุดโดยไม่ตั้งใจ→ASM-08)
+- เพิ่มคำถามเปิด Q-01 (ตัวเลขอัตราหลุด, Q8), Q-02 (ต้องการ FR ออกจากระบบหรือไม่), Q-03 (บัญชีและรหัสผ่านเริ่มต้นมาจากไหน ผลจาก ASM-01) คง Q2/Q7 ของ SRS ไว้
+- AC เขียนใหม่ให้สังเกตผลได้: ลบ "ไม่ถูกเพิกถอน" ออกจาก Given, แยกกรณีหมดอายุ (เกิน 7 วัน) กับ token ปลอม, ตัด "ต้องล็อกอินใหม่" ออกจาก Then ของ AC-AUTH-03 และเพิ่ม AC-AUTH-06..10 ให้ exception/สมมติฐาน (ล็อกอินผิด, Redis ล่ม, PostgreSQL ล่ม, หลายอุปกรณ์, ปิด-เปิดเบราว์เซอร์) รวมเป็น AC-AUTH-01..10
+- ไม่เปลี่ยน ID ของ FR/NFR/CON และไม่เพิ่ม FR ใหม่
+- `docs/specs.md` §3.1 และ `specs/README.md` ปรับให้ตรงกัน (ดึงจาก spec.md ด้วยสคริปต์ ตรวจแล้วข้อความ AC ตรงกันทุกบรรทัด)
+
+### สิ่งที่ AI เบี่ยงจากค่าเริ่มต้นที่เสนอไว้ (ทีมควรตรวจ)
+- Q3: ที่เสนอไว้ว่า "มี logout" แต่การเพิ่ม logout คือ FR ใหม่ซึ่งห้ามเพิ่มเอง จึงบันทึกเป็น ASM-03 "ไม่มี logout ใน sprint นี้" และเปิด Q-02 ให้ทีมเสนอ FR เข้า SRS
+
+### ยังไม่ได้ทำ
+- ยังไม่ได้ยืนยัน ASM-01..08 กับผู้เกี่ยวข้องจริง และยังไม่มีคำตอบ Q-01..Q-03, Q2, Q7
+- ยังไม่ได้รัน /plan /tasks /implement; spec ของ 004–007 ยังเป็น Draft v1
+
+### ไฟล์ที่เปลี่ยนในรอบนี้
+- แก้: `specs/001-auth-session/spec.md`, `docs/specs.md`, `specs/README.md`, `specs/000-shared/README.md` (เติมผลเลือกเทคโนโลยีและหัวข้อ test ฝั่ง backend), `prompt-log.md`
+
+---
+
+## รอบ: /clarify specs/001-auth-session/spec.md แบบโต้ตอบ (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+`/clarify` พร้อมข้อความ "สร้าง teminal interact ให้ตอบง่ายๆหน่อย" → AI ถามส่วน B ผ่านหน้าต่างเลือกคำตอบในเทอร์มินัล (2 รอบ รอบละ 4 ข้อ) ที่เหลือ (ส่วน A, C) แสดงเป็นข้อความ
+
+### คำถามทั้งหมดที่ AI ถาม และคำตอบของทีม
+| ข้อ | คำถาม | คำตอบทีม | ผลใน spec |
+|---|---|---|---|
+| Q1 | วิธีเข้าสู่ระบบ | รหัสนักศึกษา + รหัสผ่านที่ระบบเก็บเอง | ASM-01 ยืนยัน |
+| Q2 | อายุ Refresh Token | 7 วัน นับจากเข้าสู่ระบบ ไม่ต่ออายุ | ASM-02 ยืนยัน |
+| Q3 | logout/เพิกถอน | ไม่มี logout ใน sprint นี้ | ASM-03 ยืนยัน, Q-02 ปิดสำหรับ sprint นี้ |
+| Q4 | หลายอุปกรณ์ | ได้ ไม่จำกัดจำนวน | ASM-04 ยืนยัน |
+| Q5 | Redis/PostgreSQL ไม่ตอบ | ปฏิเสธและแจ้งให้ลองใหม่ | ASM-05 ยืนยัน |
+| Q6 | เข้าสู่ระบบผิดซ้ำ | ไม่จำกัดจำนวนครั้ง | ASM-06 ยืนยัน (คงบันทึกความเสี่ยงเดารหัสผ่าน) |
+| Q7 | บัญชีและรหัสผ่านเริ่มต้นมาจากไหน | ไม่รู้ ต้องถามก่อน | Q-03 คงเปิด ระหว่างนี้ใช้ข้อมูลจำลองใน test เท่านั้น |
+| Q8 | อัตราหลุดที่ยอมรับได้ | ไม่รู้ ต้องถาม Product Owner | Q-01 คงเปิด NFR-REL-01 ยังไม่มี AC |
+
+### สิ่งที่แก้ใน spec.md (Status ยัง Draft v2)
+- ASM-01..06 ระบุว่าทีมยืนยันรายข้อแล้ว; ASM-07, ASM-08 ยังไม่ได้ถามรายข้อ
+- Q2/Q7 ของ SRS: เปลี่ยนข้อความเป็น "ทีมยืนยัน ASM แล้ว (ยังไม่ได้ถามเจ้าของเรื่องจริง)"
+- Q-01, Q-03: บันทึกคำตอบ "ไม่รู้ ต้องถาม"; Q-02: ปิดสำหรับ sprint นี้
+- เพิ่ม Q-04 (ค่า timeout ที่ถือว่าไม่ตอบสนอง, ผู้ตอบ Tech Lead) และอ้างใน AC-AUTH-07, 08
+- ไม่เปลี่ยน ID ของ FR/NFR/CON/AC และไม่เพิ่ม FR ใหม่; `docs/specs.md` §3.1 ซิงค์จาก spec.md ด้วยสคริปต์
+
+### ยังไม่ได้ทำ
+- Q-01 (ตัวเลขอัตราหลุด), Q-03 (ที่มาของบัญชี/รหัสผ่าน), Q-04 (timeout) ยังไม่มีคำตอบ
+- ASM ทั้งหมดยังไม่ได้ยืนยันกับ Product Owner / Tech Lead ตัวจริง
+- ยังไม่ได้รัน /plan /tasks /implement
+
+---
+
+## รอบ: /plan specs/001-auth-session/spec.md (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+`/plan specs/001-auth-session/spec.md` (หลังทีมตอบ "ได้" ต่อคำถามว่าจะรัน /plan ต่อเลยไหม) Status ของ spec เป็น Draft v2 จึงไม่ต้องเตือนเรื่อง /clarify
+
+### ผลลัพธ์
+สร้าง `specs/001-auth-session/plan.md` (8 หัวข้อตามคำสั่ง) อ่าน `spec.md`, `AGENTS.md` และ `specs/000-shared/README.md` ก่อนเขียน
+- ใช้ Go + Gin / React (Vite) / PostgreSQL / Redis ตาม CON-TECH-01/02, CON-DB-01, CON-CACHE-01 ไม่ใช้ค่าเริ่มต้นของ /plan (Python FastAPI) เพราะขัดกับ Constraint
+- โมเดลข้อมูล: ตาราง `members` ใน PostgreSQL และ Session ใน Redis (key เป็น SHA-256 ของ token, TTL 7 วันไม่ต่ออายุ)
+- API: `POST /api/auth/login`, `GET /api/auth/session`, middleware `RequireSession`; หน้าจอ: LoginPage, AuthProvider, RequireAuth, HomePage
+- ตารางตรวจ Constraints ครบ 4 รายการ (DOM/IF ไม่มีใน spec นี้), แผนทดสอบครบ AC-AUTH-01..10, ลำดับงาน 10 ขั้น
+- §8.1 คัดลอก Open Questions ทั้ง 6 ข้อจาก spec โดยไม่ตอบเอง
+
+### สิ่งที่ AI ตัดสินใจเองในการออกแบบ (บันทึกใน plan §8.2 ให้ทีมตรวจ)
+- D1 ใช้ token opaque ตัวเดียวเป็นทั้งตัวต่ออายุและตัวยืนยันตัวตน (spec กำหนดแค่ Refresh Token)
+- D2 `GET /api/auth/session` ไม่เรียก PostgreSQL ทำให้ขอใช้งานต่อสำเร็จได้แม้ PostgreSQL ล่ม ซึ่งอาจขัดกับตัวอักษรของ ASM-05
+- D3 เก็บ token ใน `localStorage`; D4 ไม่มี rate limit (ASM-06); D5 เสนอเพิ่ม `bcrypt` ใน `000-shared` §2
+
+### สิ่งที่ AI อยากเดาแต่ไม่ได้เดา (ติด Open Questions)
+- ค่า timeout ที่ถือว่า Redis/PostgreSQL ไม่ตอบสนอง (Q-04)
+- ตัวเลขอัตราหลุดของ NFR-REL-01 (Q-01) จึงไม่มี test
+- ที่มาของบัญชีสมาชิก (Q-03) จึงไม่มีโค้ด production สร้าง/นำเข้าสมาชิก
+
+### ยังไม่ได้ทำ
+- ยังไม่ได้รัน /tasks และ /implement; plan นี้ยังไม่ได้รับการตรวจจากทีม
+- ยังไม่ได้เพิ่ม `bcrypt` ใน `000-shared` §2 (รอทีมยืนยัน)
+
+### ไฟล์ที่เปลี่ยนในรอบนี้
+- สร้าง: `specs/001-auth-session/plan.md`
+- แก้: `prompt-log.md` (เพิ่มต่อท้าย), `specs/README.md` (สถานะ)
+
+---
+
+## รอบ: /tasks specs/001-auth-session/plan.md (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+`/tasks specs/001-auth-session/plan.md` (ทีมตอบ "go" ต่อคำถามว่าจะรัน /tasks เลยไหม ทั้งที่ AI แนะนำให้ตัดสินใจ plan D2 ก่อน AI จึงทำตาม plan เดิมและระบุผลของ D2 ไว้ใน task ที่เกี่ยวข้อง) Status ของ spec เป็น Draft v2 จึงไม่ต้องเตือน
+
+### ผลลัพธ์
+สร้าง `specs/001-auth-session/tasks.md`: 16 task (T-01..T-16) เป็นฝั่ง backend 12 task และ frontend 4 task
+- "พร้อมทำ" 14 task; "รอ Q-04" 2 task (T-11 กลไก 503 และ config timeout, T-12 test AC-AUTH-07/08)
+- ทุก AC (AC-AUTH-01..10) มี task ตรวจ; ทุก Constraint (CON-CACHE-01, CON-DB-01, CON-TECH-01, CON-TECH-02) มี task ทำให้เป็นจริง
+- task ฝั่งหน้าจอ (T-13..T-15) ใช้ API จำลอง msw จึงไม่ต้องรอ backend; T-16 ต่อ API จริงและตรวจด้วยมือ
+- คัดลอก Open Questions ทั้ง 6 ข้อพร้อมระบุ task ที่รอ ไม่ได้ตอบแทนทีม
+
+### สิ่งที่ AI เกือบต้องเดาแต่ไม่ได้เดา
+- ค่า timeout (Q-04): T-11 กำหนดให้ config **ไม่มีค่าเริ่มต้น** และไม่สร้าง task ให้เดินต่อ
+- ที่มาของสมาชิก (Q-03): ไม่มี task seed/นำเข้าสมาชิกในโค้ด production การตรวจด้วยมือใน T-16 ใส่ข้อมูลผ่าน psql
+- อัตราหลุด (Q-01): ไม่มี task ทดสอบ NFR-REL-01
+
+### ข้อควรตรวจโดยทีม
+- plan §8.2 D2 (session endpoint ไม่เรียก PostgreSQL) ยังไม่ได้ตัดสิน ถ้าเปลี่ยน ต้องแก้ T-08, T-12 และเพิ่ม AC
+- bcrypt (D5) ยังไม่อยู่ใน `000-shared` §2 มีผลกับ T-03, T-06
+
+### ยังไม่ได้ทำ
+- ยังไม่ได้รัน /implement ไม่มีการเขียนโค้ด task ใดเริ่ม
+
+---
+
+## รอบ: /implement ทีละ task ด้วย sub-agent (Sonnet) โดย coordinator ตรวจ (8 พฤศจิกายน 2569)
+
+### คำสั่งที่ใช้
+1. "ข้าม Blackhole ไป แล้วเริ่ม implement เลย use sub-agent(sonnet 5.5 model)for each task and you are the reviewer and coodinator orchestration agents"
+2. "พอเสร็จแล้วเขียน API.md ใน docs ด้วยน้ะ แบ่งเป็น feature"
+(รูปแบบ: 1 task ต่อ 1 sub-agent; sub-agent ไม่แก้ tasks.md/prompt-log.md; coordinator อ่านโค้ดและรัน test ซ้ำเองก่อนเปลี่ยนสถานะ)
+
+### ผลต่อ task (ฝั่ง sub-agent เขียนโค้ด ฝั่ง coordinator ตรวจ)
+- T-01 โครง backend, T-02 docker-compose, T-03 migration members + testutil, T-04 member store, T-05 session store (Redis), T-06 login, T-07 ข้อความปฏิเสธเหมือนกัน + hash หลอก, T-08 GET /api/auth/session + RequireSession, T-09 test หมดอายุ, T-10 test หลายอุปกรณ์: สถานะ "เสร็จ รอทีมตรวจ"
+- T-13 โครง frontend + msw, T-14 API client + AuthProvider + RequireAuth, T-15 LoginPage + HomePage + AC_AUTH_10: สถานะ "เสร็จ รอทีมตรวจ"
+- T-11 (กลไก 503 + timeout) และ T-12 (blackhole): **ข้ามตามคำสั่งทีม** → AC-AUTH-07 และ AC-AUTH-08 ยังไม่มี test จริง (มีเพียง test ที่ใช้ fake ให้ dependency คืน error ใน login_test.go)
+- T-16 (ตรวจด้วยมือบนเบราว์เซอร์จริง) ยังไม่ได้ทำ ต้องให้คนปิดเบราว์เซอร์ทั้งโปรแกรมแล้วเปิดใหม่
+
+### การตรวจของ coordinator (หลักฐาน)
+- รัน `go build/vet/gofmt` และ `go test -race -count=1 ./...` ซ้ำเองหลังทุก task; ชุดสุดท้ายผ่านทั้งหมด หลังรันไม่มี session key ใน Redis, ไม่มีสมาชิกใน members, ไม่มีฐานข้อมูล migrate_test_* ค้าง
+- รัน `npm test` (25/25) และ `tsc --noEmit` ซ้ำ; ลบ frontend/dist ที่ค้างจาก build
+- รันชุด test พร้อมกัน 3 รอบ (T-03) เพื่อตรวจว่า helper ปลอดภัยเมื่อหลาย process ชนกัน
+- Mutation check 2 แบบกับ session_store.go (กู้คืนแล้วและ diff เหมือนเดิมทุกไบต์): (1) ไม่ตั้งอายุ → TestAC_AUTH_03, TestAC_AUTH_02 และ test TTL ของ store ล้ม (2) token ซ้ำกันทุกเครื่อง → TestAC_AUTH_09 ล้ม
+- เปิด binary จริงบนพอร์ต 18081 ยิงเคสปฏิเสธ (login ไม่พบรหัส/JSON เสีย → 401, session ไม่มี header/token ปลอม → 401, route ที่ไม่มี → 404) ยืนยันว่า main.go ลงทะเบียนทั้งสอง route; ปิดเซิร์ฟเวอร์แล้ว เคส 200 ไม่ได้ยิงจริงเพราะต้องแทรกสมาชิกลง DB ร่วม (auto mode ปฏิเสธเมื่อ sub-agent ลอง และ coordinator ไม่หาทางอ้อม)
+
+### การแก้ tasks.md ระหว่างทาง (ช่องโหว่ของ plan/tasks ที่ AI เขียนเอง)
+- แก้รอบที่ 1: เพิ่มไฟล์ใน T-13 (index.html, tsconfig.json, vite-env.d.ts, main.tsx, test/setup.ts) และใน T-15 (App.tsx, main.tsx) เพราะรายการเดิมไม่พอให้โครง Vite/vitest ทำงานได้ ผิดกฎ "ไฟล์ที่แตะต้องครบ" ของ /tasks
+- แก้รอบที่ 2: เพิ่ม backend/cmd/api/main.go ใน T-06 เพราะไม่มี task ใดต่อ PostgreSQL/Redis เข้ากับ handler จริง
+- แก้รอบที่ 3: เพิ่ม backend/cmd/api/main.go ใน T-08 เพื่อต่อตัวอ่าน session
+- T-07 ไม่ต้องแก้ handler.go ตามที่ tasks.md ระบุไว้ (ไม่ได้แตะ)
+
+### สิ่งที่ sub-agent เกือบต้องเดา / ที่ทีมควรตรวจ
+- ชื่อ env HTTP_ADDR และค่าเริ่มต้น :8080; module path gymapp/backend; key localStorage "gym.refresh_token"; cost ของ hash หลอก = bcrypt.DefaultCost; ข้อความไทยของหน้าจอ; ทั้งหมดเป็นการเลือกของทีม ไม่ได้มาจาก spec
+- ยังไม่ได้ตัดสิน plan D2 (session endpoint ตอบ 200 แม้ PostgreSQL ล่ม), D5 (bcrypt ยังไม่อยู่ใน 000-shared §2)
+- ไม่มี timeout ที่เรากำหนดเอง (Q-04): ถ้า Redis/PostgreSQL ค้างโดยไม่ตอบ คำขอรอตามค่าเริ่มต้นของไลบรารี
+- `.gitignore` ไม่ครอบ `dist/`; ยังไม่ได้ commit ไฟล์ใดของรอบนี้
+
+### ไฟล์ที่เปลี่ยนในรอบนี้
+- สร้าง: backend/ (cmd, internal/{app,auth,config,testutil}, migrations, go.mod, go.sum), frontend/ (src, configs, package.json, package-lock.json), docs/API.md
+- แก้: docker-compose.yml (ลบบรรทัด mount schema.sql), specs/001-auth-session/tasks.md (สถานะ + แก้รอบที่ 1–3), specs/README.md, prompt-log.md

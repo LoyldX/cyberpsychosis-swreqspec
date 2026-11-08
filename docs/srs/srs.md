@@ -15,6 +15,7 @@
 |---|---|---|
 | v4 | 20 กันยายน 2569 | ความต้องการหลัก 11 FR, 5 NFR, 4 DOM, 2 CON, 2 IF และ Open Questions Q1–Q5 |
 | v5 | 4 ตุลาคม 2569 | เพิ่มข้อเสนอด้านการลงทะเบียน (Candidate), หมวด Product Design / UI (Candidate), Q6–Q12, ตัดระบบคิวเครื่องเล่นออกจากขอบเขต (รอ Q10), บันทึกความต้องการที่ไม่ใช่ซอฟต์แวร์ NS-1 และ NS-2, แก้ "User 2" เป็น "User" |
+| v5.1 | 8 พฤศจิกายน 2569 | เพิ่ม CON-TECH-01 (Go + Gin) และ CON-TECH-02 (React Vite เว็บอย่างเดียว), เลือก PostgreSQL ให้ CON-DB-01 (ตอบ Q4), เพิ่มแถว `000-shared` ใน §9.2 |
 
 ## 1. บริบทและผู้มีส่วนได้ส่วนเสีย
 
@@ -175,7 +176,9 @@
 
 | ID | ประเภท | รายการ | รายละเอียด |
 |---|---|---|---|
-| CON-DB-01 | Constraint | Relational Database | ใช้ PostgreSQL หรือ MySQL เก็บข้อมูลสมาชิก ตารางงานเทรนเนอร์ การจองคลาส และ Inventory (ยังไม่เลือก ดู Q4) |
+| CON-DB-01 | Constraint | Relational Database | ใช้ PostgreSQL เก็บข้อมูลสมาชิก ตารางงานเทรนเนอร์ การจองคลาส และ Inventory (เลือกแล้ว ตอบ Q4 เมื่อ 8 พฤศจิกายน 2569) |
+| CON-TECH-01 | Constraint | Backend | ใช้ภาษา Go และ Gin framework พัฒนา Backend API |
+| CON-TECH-02 | Constraint | Frontend | ใช้ React (Vite) เป็นเว็บแอปพลิเคชันอย่างเดียว ครอบคลุม Staff Portal, BI Dashboard และหน้าของสมาชิก (ไม่มีแอปมือถือเนทีฟ) |
 | CON-CACHE-01 | Constraint | In-Memory Database | ใช้ Redis บริหาร Session Login |
 | IF-GATE-01 | Interface | ประตูทางเข้ายิม (Turnstile / Access Control) | เชื่อมสัญญาณผ่านเข้า-ออก เพื่อคำนวณจำนวนผู้ใช้บริการ |
 | IF-LINE-01 | Interface | LINE Messaging API | ให้บริการ LINE Bot และดึงข้อมูลการจอง |
@@ -194,7 +197,7 @@
 | 4 | เพื่อแก้ปัญหา User โดน Auto-logout บ่อย | ยังไม่ชัดว่า "User" หมายถึงกลุ่มใด และ "บ่อย" วัดผลไม่ได้ | Q2 |
 | 5 | ระบบจองคลาสออนไลน์แบบ Real-time | "Real-time" ไม่มีตัวเลข | กำหนด latency ของ NFR-PERF-01 (ยังไม่มีหมายเลข Q) |
 | 6 | แสดงผลจำนวนผู้ใช้บริการแบบ Real-time | ไม่มีรอบเวลารีเฟรช | กำหนดรอบเวลาของ NFR-PERF-02 (ยังไม่มีหมายเลข Q) |
-| 7 | PostgreSQL / MySQL | ยังไม่เลือก | Q4 |
+| 7 | PostgreSQL / MySQL | เลือก PostgreSQL แล้ว (v5.1) | Q4 (ตอบแล้ว) |
 | 8 | Inventory Management | ไม่ระบุประเภทพัสดุ และไม่ชัดว่าทุกรายการต้องมีระดับแจ้งเตือนหรือไม่ | Q1 และคำถามเรื่องการบังคับใช้ DOM-INV-02 (ยังไม่มีหมายเลข Q) |
 | 9 | ติดตามข่าวสารผ่าน Facebook Page เป็นหลัก | ไม่ชัดว่า FR-NOTI-01 มาแทนหรือเสริม Facebook Page | Q9 |
 | 10 | THIS IS Main Prior REQ | ไม่ชัดว่า "Prior" หมายถึงลำดับความสำคัญสูง หรือความต้องการเดิมก่อนหน้า | Q12 |
@@ -208,7 +211,7 @@
 | Q1 | Inventory ครอบคลุมพัสดุประเภทใดบ้าง | FR-INV-01, FR-INV-02, DOM-INV-01 | เฉพาะอุปกรณ์ยืม-คืนและของใช้สิ้นเปลือง ไม่รวมสินค้าขาย | เจ้าหน้าที่ดูแลอุปกรณ์ / Product Owner |
 | Q2 | "User" ที่โดน Auto-logout คือกลุ่มใด และ Session ต้องคงอยู่นานเท่าใด | FR-AUTH-01, NFR-REL-01, UI-AUTH-01 | สมาชิกทุกคน และอายุ Session ตามค่าที่ทีมพัฒนาตั้งเอง | ทีม Mobile App / Product Owner |
 | Q3 | ประตูทางเข้าบันทึกทั้งขาเข้าและขาออกหรือไม่ | FR-BI-01, DOM-CAP-01, IF-GATE-01 | บันทึกทั้งสองทาง | ฝ่ายอาคารสถานที่ / ผู้จัดการยิม |
-| Q4 | เลือก PostgreSQL หรือ MySQL | CON-DB-01 | PostgreSQL | Tech Lead |
+| Q4 | เลือก PostgreSQL หรือ MySQL | CON-DB-01 | **ตอบแล้ว (8 พฤศจิกายน 2569): PostgreSQL** | Tech Lead |
 | Q5 | ผู้ใช้ยืนยันตัวตนบน LINE Bot อย่างไรเพื่อผูกกับข้อมูลการจอง | FR-LINE-01, IF-LINE-01, UI-LINE-01 | ผูกบัญชีครั้งแรกด้วยการล็อกอิน | ทีมพัฒนาระบบ |
 | Q6 | การลงทะเบียนต้องมีทั้ง QR Code และออนไลน์ หรือเลือกอย่างเดียว / ใครสแกน QR / ลงทะเบียนทุกครั้งหรือครั้งเดียว | FR-REG-01, FR-REG-02, UI-REG-02 | ลงทะเบียนทุกครั้งที่เข้าใช้ โดยผู้ใช้สแกน QR ที่จุดลงทะเบียนด้วยมือถือของตนเอง | ผู้ดูแลยิม / Product Owner |
 | Q7 | ผู้ใช้บริการมีเฉพาะนักศึกษาหรือไม่ และผู้ที่ไม่มีรหัสนักศึกษาลงทะเบียนอย่างไร | DOM-REG-01, UI-REG-01, FR-AUTH-01 | มีเฉพาะนักศึกษา | ผู้ดูแลยิม |
@@ -252,6 +255,7 @@
 | `006-inventory` | FR-INV-01, FR-INV-02, FR-INV-03, NFR-DATA-01, DOM-INV-01, DOM-INV-02 |
 | `007-occupancy-dashboard` | FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01 |
 | `008-network-segmentation` | NFR-SEC-01 |
+| `000-shared` (ไม่ใช่ feature spec: การตัดสินใจร่วม) | CON-TECH-01, CON-TECH-02, CON-DB-01, CON-CACHE-01 |
 
 ข้อเสนอการลงทะเบียน (FR-REG-01/02, DOM-REG-01, NFR-PERF-03, UI-REG-01–04) ยังไม่มี feature spec จนกว่าทีมจะยืนยัน ดู[ภาคผนวก ก](#ภาคผนวก-ก-ข้อเสนอการลงทะเบียนเข้าใช้ยิม)
 
@@ -265,7 +269,7 @@
 | Architecture Overview | [architecture-overview.mmd](diagrams/architecture-overview.mmd) | ส่วนประกอบฝั่งผู้ใช้ Backend ที่เก็บข้อมูล และระบบภายนอก |
 | Use Case | [usecase.mmd](diagrams/usecase.mmd) | ผู้ใช้ เจ้าหน้าที่ ผู้จัดการ และ use case ตาม FR (Candidate เป็นเส้นประ) |
 
-> ใน Architecture Overview รายชื่อ service ภายใน Backend และเทคโนโลยีเป็นการเลือกของทีม ไม่ได้มาจาก spec
+> ใน Architecture Overview รายชื่อ service ภายใน Backend เป็นการเลือกของทีม ไม่ได้มาจาก spec ส่วนภาษา/framework หลักถูกกำหนดเป็น CON-TECH-01 และ CON-TECH-02 (v5.1) แผนภาพยังไม่ได้ปรับให้ตรง
 
 ## ภาคผนวก ก: ข้อเสนอการลงทะเบียนเข้าใช้ยิม
 
