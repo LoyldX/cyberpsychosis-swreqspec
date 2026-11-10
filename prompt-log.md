@@ -586,3 +586,18 @@
 - แผนไม่รวม login หรือ authorization ตาม Out of scope และยังไม่ตอบ Q-01
 - บันทึกการตัดสินใจของทีมใน plan: ลบแบบซ่อนรายการและรักษาประวัติ; รายการใหม่เริ่มที่ยอด 0 และใช้ movement รับเข้า
 - ไม่มีการเขียนโค้ดหรือแก้ไฟล์อื่นในรอบนี้
+
+## 10 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/006-inventory/plan.md`
+
+### คำสั่งที่ใช้
+ผู้ใช้พิมพ์ `/taks specs/006-inventory/plan.md` (ตีความเป็น `/tasks specs/006-inventory/plan.md`)
+- เครื่องมือ: Copilot ใน Codespaces
+- ไฟล์อ้างอิง: `specs/006-inventory/spec.md` (Draft v2), `specs/006-inventory/plan.md`, `AGENTS.md`, `specs/000-shared/README.md`
+
+### ผลลัพธ์
+- สร้าง `specs/006-inventory/tasks.md` จำนวน 19 tasks แบ่งเป็น migration/model, API และ transaction, tests จาก AC, หน้าจอที่ใช้ API จำลอง, และ tasks เชื่อมต่อ API จริง
+- ทุก AC-INV-01..14 มี task ตรวจอย่างน้อยหนึ่งรายการ; ตารางตรวจ Constraints ครบ CON-DB-01, CON-TECH-01/02, DOM-INV-01/02 และระบุว่าไม่มี IF ใน spec
+- Q-01 เรื่องวิธีระบุตัวตน/สิทธิ์เจ้าหน้าที่คงไว้โดยไม่เดา ไม่มี task รอเพราะเป็นเรื่องนอก scope
+- task ที่ยากที่สุดคือ AC-INV-14 (T-11) เพราะต้องตรวจ transaction และ concurrency ด้วย PostgreSQL จริง; วิธีทดสอบตาม AC คือใช้คำขอพร้อมกัน 2 คำขอต่อรายการเดียวผ่าน integration test
+- AC-INV-14 ต้องมี PostgreSQL จริงตามแนวทาง `specs/000-shared/README.md`; AC-INV-13 ตรวจได้ด้วย React test และการตรวจผลจาก API
+- ไม่มีการเริ่ม implement task ใดในรอบนี้
