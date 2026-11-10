@@ -605,3 +605,35 @@
 - ระบุแผนทดสอบครบ `AC-ROST-01` ถึง `AC-ROST-04`
 - ระบุส่วนที่ยังไม่สร้างจนกว่าจะได้คำตอบ Q-01 ถึง Q-06
 - ไม่สร้าง schema, endpoint, authentication/authorization หรือ integration กับ Spec 005 ที่ไม่ได้รับการตัดสินใจใน spec
+
+---
+
+## 10 พฤศจิกายน 2569 — คำสั่ง `/tasks` สำหรับ `specs/004-trainer-roster/plan.md`
+
+### คำสั่งที่ใช้
+
+แตก `specs/004-trainer-roster/plan.md` เป็น `tasks.md` โดยอ่าน `spec.md`, `plan.md` และ `AGENTS.md` ก่อนเริ่มงาน และยังไม่เริ่มทำ task ใด
+
+### ผลลัพธ์
+
+- สร้าง `specs/004-trainer-roster/tasks.md`
+- แตกงานทั้งหมด 13 tasks ตามลำดับข้อมูล → migration/store → API → tests → หน้าจอ → integration
+- มี 12 tasks ที่รอ `Q-01` ถึง `Q-06` และไม่เดาคำตอบ Open Questions
+- ตารางตรวจความครบมี `AC-ROST-01` ถึง `AC-ROST-04` และ `CON-DB-01`, `CON-TECH-01`, `CON-TECH-02`, `DOM`, `IF`
+- คัดลอก Open Questions ทุกข้อพร้อมระบุ task ที่รอ
+- ยังไม่มีการเขียนโค้ดหรือเริ่ม task ใด
+
+### งานที่ยากที่สุด
+
+T-12 ยากที่สุด เพราะต้องเชื่อมหน้าจอกับ API จริงและทำให้ behavior ของ frontend/backend ตรงกันโดยไม่ขัดกับ Q-01 ถึง Q-06
+
+### AC ที่ทดสอบยาก
+
+`AC-ROST-04` ต้องพิสูจน์ isolation ระหว่างเทรนเนอร์ A และ B; วิธีทดสอบย่อส่วนคือใช้ข้อมูลจำลอง 2 เทรนเนอร์ใน PostgreSQL test database แล้วตรวจค่าของ B หลังแก้ A
+
+### แก้รอบที่ 1: ตรวจ tasks ก่อน commit
+
+- พบว่า T-13 ระบุสถานะ `พร้อมทำ` แต่ต้องทำหลัง T-12 ซึ่งรอ Q-01 ถึง Q-06 ทำให้สถานะไม่สอดคล้องกับ dependency
+- แก้ T-13 เป็น `รอ Q-01, Q-02, Q-03, Q-04, Q-05, Q-06`
+- แก้สรุปจำนวนจาก 12 เป็น 13 tasks ที่รอ Open Questions หรือ dependency ที่รอคำตอบ
+- เหตุผล: รักษากติกา tasks ที่ติด Open Question ต้องเป็น `รอ Q-xx` และต้องไม่เดินต่อโดยเดาคำตอบ
