@@ -20,7 +20,7 @@
 
 `000-shared/` ไม่ใช่ฟีเจอร์ (ไม่มี `spec.md`) เก็บ tech stack ที่ตกลงแล้ว (Go + Gin, React Vite เว็บ, PostgreSQL, Redis) ธรรมเนียมร่วม และสิ่งที่ทีมยังต้องเลือก `/plan` และ `/tasks` อ่านโฟลเดอร์นี้อัตโนมัติ ทุก `plan.md` ต้องอยู่ในกรอบของไฟล์นี้
 
-### สมาชิกทีม CYBERPSYCHOSIS (จาก `README.md` ราก)
+### สมาชิกทีม CYBERPSYCHOSIS (จาก `README.md`)
 
 
 | ชื่อ                  | รหัสนักศึกษา | GitHub User ID |
