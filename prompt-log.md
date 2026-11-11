@@ -637,3 +637,430 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - แก้ T-13 เป็น `รอ Q-01, Q-02, Q-03, Q-04, Q-05, Q-06`
 - แก้สรุปจำนวนจาก 12 เป็น 13 tasks ที่รอ Open Questions หรือ dependency ที่รอคำตอบ
 - เหตุผล: รักษากติกา tasks ที่ติด Open Question ต้องเป็น `รอ Q-xx` และต้องไม่เดินต่อโดยเดาคำตอบ
+
+## 10 พฤศจิกายน 2569 — คำสั่ง `/clarify specs/006-inventory/spec.md`
+
+### คำสั่งที่ใช้
+`/clarify specs/006-inventory/spec.md`
+- เครื่องมือ: Copilot ใน Codespaces
+- ไฟล์: `specs/006-inventory/spec.md` (v1)
+
+### คำถามที่ AI ถาม (ทั้งหมด)
+1. Inventory ครอบคลุมพัสดุและอุปกรณ์ประเภทใดบ้าง?
+2. รายการใดจำเป็นต้องมี Reorder Point และมีการแจ้งเตือนเมื่อถึงจุดสั่งซื้อขั้นต่ำ?
+3. ช่องทางแจ้งเตือนสำหรับรายการถึงจุดสั่งซื้อขั้นต่ำควรเป็นแบบใด?
+4. “ผู้รับผิดชอบ” ใน DOM-INV-01 หมายถึงใคร?
+5. เมื่อคำขอเบิกหรือยืมเกินยอดคงเหลือควรทำอย่างไร?
+6. NFR-DATA-01 ต้องรองรับคำขอพร้อมกันกี่รายการ?
+7. เมื่อฐานข้อมูลไม่ตอบสนองระหว่างทำรายการ ระบบควรทำอย่างไร?
+
+### คำตอบของทีมและเหตุผล
+1. อุปกรณ์ยืม-คืนและวัสดุสิ้นเปลือง ไม่รวมสินค้าขายหรือทรัพย์สินอื่น
+2. รายการที่กำหนด Reorder Point ไว้เท่านั้น และไม่บังคับทุกรายการ (ข้อความที่ส่งมามีอักษรต้นคำตกหล่น)
+3. แจ้งเตือนผ่านหน้าเว็บภายในระบบเท่านั้น
+4. เป็นผู้ยืม/ผู้เบิกที่ระบุในคำขอ
+5. ปฏิเสธคำขอทั้งหมดและไม่อนุญาตให้เบิก/ยืมเกินยอดคงเหลือ
+6. รองรับ 2 คำขอพร้อมกันที่ทำต่อรายการเดียว และต้องไม่เกิดยอดติดลบ
+7. ปฏิเสธคำขอและแสดงข้อผิดพลาดให้ผู้ใช้ทราบ โดยไม่ยอมให้ยอดเปลี่ยนแปลงแบบไม่สมบูรณ์
+
+### สิ่งที่แก้ใน spec.md (v1 เป็น v2)
+- เปลี่ยนสถานะเป็น Draft v2 และอัปเดตวันที่
+- ระบุขอบเขต inventory ว่ามีเฉพาะอุปกรณ์ยืม-คืนและวัสดุสิ้นเปลือง ไม่รวมสินค้าขายหรือทรัพย์สินอื่น
+- ระบุว่า Reorder Point ไม่บังคับทุกรายการ และแจ้งเตือนเฉพาะรายการที่กำหนดค่าไว้ ผ่านหน้าเว็บภายในระบบ; ปรับ AC-INV-13 และ traceability ให้สอดคล้อง
+- ระบุความหมายของผู้รับผิดชอบว่าเป็นผู้ยืมหรือผู้เบิกที่ระบุในคำขอ
+- ระบุว่าเมื่อคำขอทำให้ยอดติดลบต้องปฏิเสธคำขอทั้งหมด และกำหนด concurrency สำหรับสองคำขอพร้อมกันต่อรายการเดียว
+- ระบุการจัดการเมื่อฐานข้อมูลไม่ตอบสนอง: ปฏิเสธคำขอ แสดงข้อผิดพลาด และไม่เกิดการเปลี่ยนแปลงยอดแบบไม่สมบูรณ์
+- คงวิธีระบุตัวตนและสิทธิ์เจ้าหน้าที่ไว้เป็น Q-01 เพราะยังไม่มีคำตอบ
+
+## 10 พฤศจิกายน 2569 — คำสั่ง `/plan specs/006-inventory/spec.md`
+
+### คำสั่งที่ใช้
+`/plan specs/006-inventory/spec.md`
+- เครื่องมือ: Copilot ใน Codespaces
+- ไฟล์อ้างอิง: `specs/006-inventory/spec.md` (Draft v2), `AGENTS.md`, `specs/000-shared/README.md`
+
+### คำถามที่ AI ถามและคำตอบของทีม
+1. เมื่อรายการที่มีประวัติ movement ถูกลบ ควรซ่อนจาก catalog แต่เก็บประวัติ หรือลบประวัติด้วย?
+   - คำตอบ: ซ่อนจาก catalog แต่เก็บประวัติไว้ (สอดคล้องกับ FR-INV-02 ที่ต้องมีประวัติครบ)
+2. รายการใหม่ควรกำหนดจำนวนตั้งต้นอย่างไร?
+   - คำตอบ: สร้างด้วยยอด 0 แล้วเพิ่มยอดผ่านการรับเข้า (FR-INV-02)
+
+### ผลลัพธ์
+- สร้าง `specs/006-inventory/plan.md` ครบ 8 หัวข้อ: แนวทาง, เทคโนโลยี, โมเดลข้อมูล, API/หน้าจอ, ตารางตรวจ Constraints, test ครบ AC-INV-01..14, ลำดับงาน และ Q-01 ที่ยังไม่ทำ
+- ใช้เทคโนโลยีตาม CON-TECH-01/02 และ CON-DB-01; ส่วนไลบรารีและเครื่องมือที่ไม่ได้กำหนดใน spec ระบุว่า “ทีมเลือกเอง ไม่ได้มาจาก spec” ตาม `specs/000-shared/README.md`
+- แผนไม่รวม login หรือ authorization ตาม Out of scope และยังไม่ตอบ Q-01
+- บันทึกการตัดสินใจของทีมใน plan: ลบแบบซ่อนรายการและรักษาประวัติ; รายการใหม่เริ่มที่ยอด 0 และใช้ movement รับเข้า
+- ไม่มีการเขียนโค้ดหรือแก้ไฟล์อื่นในรอบนี้
+
+## 10 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/006-inventory/plan.md`
+
+### คำสั่งที่ใช้
+ผู้ใช้พิมพ์ `/taks specs/006-inventory/plan.md` (ตีความเป็น `/tasks specs/006-inventory/plan.md`)
+- เครื่องมือ: Copilot ใน Codespaces
+- ไฟล์อ้างอิง: `specs/006-inventory/spec.md` (Draft v2), `specs/006-inventory/plan.md`, `AGENTS.md`, `specs/000-shared/README.md`
+
+### ผลลัพธ์
+- สร้าง `specs/006-inventory/tasks.md` จำนวน 19 tasks แบ่งเป็น migration/model, API และ transaction, tests จาก AC, หน้าจอที่ใช้ API จำลอง, และ tasks เชื่อมต่อ API จริง
+- ทุก AC-INV-01..14 มี task ตรวจอย่างน้อยหนึ่งรายการ; ตารางตรวจ Constraints ครบ CON-DB-01, CON-TECH-01/02, DOM-INV-01/02 และระบุว่าไม่มี IF ใน spec
+- Q-01 เรื่องวิธีระบุตัวตน/สิทธิ์เจ้าหน้าที่คงไว้โดยไม่เดา ไม่มี task รอเพราะเป็นเรื่องนอก scope
+- task ที่ยากที่สุดคือ AC-INV-14 (T-11) เพราะต้องตรวจ transaction และ concurrency ด้วย PostgreSQL จริง; วิธีทดสอบตาม AC คือใช้คำขอพร้อมกัน 2 คำขอต่อรายการเดียวผ่าน integration test
+- AC-INV-14 ต้องมี PostgreSQL จริงตามแนวทาง `specs/000-shared/README.md`; AC-INV-13 ตรวจได้ด้วย React test และการตรวจผลจาก API
+- ไม่มีการเริ่ม implement task ใดในรอบนี้
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-01`
+
+### ไฟล์ที่สร้างหรือแก้
+- สร้าง `backend/migrations/0002_create_inventory.up.sql` และ `backend/migrations/0002_create_inventory.down.sql` สำหรับ schema รายการและประวัติ movement
+- สร้าง `backend/internal/inventory/model.go` และ `backend/internal/inventory/model_test.go`
+- เปลี่ยนสถานะ T-01 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามชนิดข้อมูลพื้นฐานของ schema เพราะ plan ระบุว่ายังไม่กำหนด; ทีมอนุมัติ BIGINT สำหรับ ID/จำนวน, TEXT สำหรับประเภท, DATE สำหรับ due date, TIMESTAMPTZ สำหรับ timestamps และ FK จาก movements ไป items
+- ถามขอบเขตไฟล์เพราะ T-01 ระบุไฟล์ implementation แต่ขั้นตอนบังคับให้เพิ่ม test และอัปเดต tasks.md/prompt-log.md; ทีมอนุญาตเพิ่ม `model_test.go` และแก้ไฟล์บันทึกสถานะทั้งสอง
+- PostgreSQL ไม่พร้อมในการรันครั้งแรก; ถามก่อนเริ่ม service และทีมอนุญาตให้ใช้ `docker compose up -d postgres`
+
+### ผลการทดสอบ
+- `gofmt -w backend/internal/inventory/model.go backend/internal/inventory/model_test.go` และ `git diff --check` ผ่าน
+- ครั้งแรก `GOTOOLCHAIN=auto go test ./internal/inventory` ไม่ผ่านเพราะ PostgreSQL ที่ `localhost:5432` ยังไม่ทำงาน
+- หลังเริ่ม PostgreSQL ตรวจพบว่า accepting connections และรัน `GOTOOLCHAIN=auto go test ./internal/inventory` ผ่าน: `ok gymapp/backend/internal/inventory 0.596s`; ทดสอบ optional fields และ migration up/down บนฐานข้อมูลชั่วคราว
+- หลังตรวจทานและปรับ test ให้ยืนยันว่าทั้งสองตารางถูกสร้างก่อน rollback รันซ้ำผ่าน: `ok gymapp/backend/internal/inventory 0.409s`
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-02`
+
+### ไฟล์ที่สร้างหรือแก้
+- สร้าง `backend/internal/inventory/store.go` สำหรับอ่าน/เขียนรายการและ movement ผ่าน PostgreSQL
+- สร้าง `backend/internal/inventory/store_test.go` สำหรับตรวจการบันทึกข้อมูล การค้นหา การซ่อนรายการ และการเก็บประวัติ movement
+- เปลี่ยนสถานะ T-02 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามพฤติกรรมค้นหาชื่อที่ plan ยังไม่ได้กำหนด; ทีมเลือกจับคู่บางส่วนโดยไม่แยกตัวพิมพ์เล็ก/ใหญ่
+- PostgreSQL ไม่ได้ทำงานและ test เชื่อมต่อไม่ได้; ถามก่อนเริ่ม service และทีมอนุญาตให้เริ่มด้วย `docker compose up -d postgres`
+
+### ผลการทดสอบ
+- ครั้งแรก `GOTOOLCHAIN=auto go test ./internal/inventory` ไม่ผ่านเพราะ PostgreSQL ที่ `localhost:5432` ยังไม่ทำงาน
+- หลังเริ่ม service ตรวจพบว่า accepting connections และรัน `GOTOOLCHAIN=auto go test ./internal/inventory` ผ่าน; รอบยืนยันสุดท้าย: `ok gymapp/backend/internal/inventory 0.511s`
+- ชุดทดสอบยืนยันว่า item ใหม่เริ่มด้วยยอด 0, ค้นหาชื่อบางส่วนแบบไม่แยกตัวพิมพ์, บันทึก/อ่าน movement และเมื่อซ่อน item แล้วไม่ปรากฏใน catalog แต่ประวัติยังอ่านได้
+- `gofmt` และ `git diff --check` ผ่าน
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-03`
+
+### ไฟล์ที่สร้างหรือแก้
+- สร้าง `backend/internal/inventory/handler.go` สำหรับสร้าง อ่าน ค้นหา แก้ไข และซ่อนรายการผ่าน Gin
+- สร้าง `backend/internal/inventory/routes.go` สำหรับลงทะเบียน route ของ catalog
+- แก้ `backend/cmd/api/main.go` ให้ประกอบ inventory handler เข้ากับ Gin router ที่มีอยู่
+- `backend/internal/app/router.go` ไม่ต้องแก้ เพราะ `NewRouter` รองรับ registrar หลายตัวอยู่แล้ว
+- เปลี่ยนสถานะ T-03 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามสัญญา JSON, HTTP status และพฤติกรรม PATCH ที่ spec/plan ยังไม่ระบุ; ทีมอนุมัติรูปแบบ JSON snake_case, CRUD status ตามข้อเสนอ, PATCH แบบแก้เฉพาะฟิลด์ และ `reorder_point: null` ใช้ล้างค่า
+- ขออนุญาตเริ่ม PostgreSQL/Redis สำหรับตรวจ API จริง; ทีมอนุญาตให้เริ่มด้วย Docker Compose
+- เนื่องจาก T-03 ไม่มีไฟล์ test ในช่อง “ไฟล์ที่แตะ” จึงถามก่อนเพิ่ม `handler_test.go`; ทีมยืนยันให้ใช้ smoke test ที่รันแล้วและไม่เพิ่มไฟล์นอกขอบเขต task
+
+### ผลการทดสอบ
+- `GOTOOLCHAIN=auto go test ./internal/inventory ./internal/app ./cmd/api` ผ่าน: `ok gymapp/backend/internal/inventory 0.635s`, `ok gymapp/backend/internal/app (cached)`, `? gymapp/backend/cmd/api [no test files]`
+- Smoke test ผ่านทุกกรณี: POST สร้างและยอดเริ่มต้น 0, GET รายการ, ค้นหาบางส่วนแบบไม่แยกตัวพิมพ์, PATCH ทั้งแก้ค่ากับล้าง Reorder Point, GET รายละเอียด, DELETE ซ่อน, รายการที่ซ่อนหายจาก catalog และ GET รายการที่ซ่อนตอบ 404
+- Smoke test รอบแรกสะดุดที่ URL query มีช่องว่างที่ยังไม่ encode; แก้เฉพาะคำสั่งทดสอบและรันซ้ำครบทุกกรณีผ่าน
+- ลบข้อมูลที่สร้างเพื่อ smoke test โดยระบุเฉพาะแถวทดสอบ และหยุด PostgreSQL/Redis หลังทดสอบ
+- `gofmt` และ `git diff --check` ผ่าน
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-04`
+
+### ไฟล์ที่สร้างหรือแก้
+- สร้าง `backend/internal/inventory/handler_test.go` สำหรับ `TestAC_INV_01` ถึง `TestAC_INV_05` ผ่าน Gin และ PostgreSQL จริง
+- เปลี่ยนสถานะ T-04 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- PostgreSQL ไม่ได้ทำงานและ AC tests ต้องใช้ PostgreSQL จริง; ถามก่อนเริ่ม service และทีมอนุญาตให้ใช้ `docker compose up -d postgres`
+
+### ผลการทดสอบ
+- ครั้งแรก `GOTOOLCHAIN=auto go test ./internal/inventory -run 'TestAC_INV_0[1-5]' -count=1` ไม่ผ่านเพราะ PostgreSQL ที่ `localhost:5432` ยังไม่ทำงาน
+- หลังเริ่ม service ตรวจพบว่า accepting connections; ชุด AC ผ่าน: `ok gymapp/backend/internal/inventory 0.105s`
+- รันทั้ง package ซ้ำโดยไม่ใช้ cache ผ่าน: `GOTOOLCHAIN=auto go test ./internal/inventory -count=1` → `ok gymapp/backend/internal/inventory 0.427s`
+- กรณีครอบคลุม: create + catalog + quantity 0, update + reread, soft delete + hidden-from-list + movement history retained, partial name search, และ detail quantity 10 จาก PostgreSQL
+- Test records ถูกล้างด้วย cleanup เฉพาะ IDs ที่สร้างโดยแต่ละ test; `gofmt` และ `git diff --check` ผ่าน
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-05`
+
+### ไฟล์ที่สร้างหรือแก้
+- สร้าง `backend/internal/inventory/service.go` สำหรับตรวจคำขอและประสาน stock movement
+- แก้ `backend/internal/inventory/store.go` ให้ปรับยอดและเพิ่ม movement ภายใน PostgreSQL transaction เดียว; ปฏิเสธยอดเบิกที่ไม่พอและรายการที่ถูกซ่อน
+- แก้ `backend/internal/inventory/handler.go` และ `backend/internal/inventory/routes.go` เพื่อเพิ่ม `POST /api/inventory/{id}/movements`
+- เพิ่ม integration tests สำหรับ T-05 ใน `backend/internal/inventory/handler_test.go`
+- เปลี่ยนสถานะ T-05 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามเพราะ route/test และขั้นปิดงานต้องแตะไฟล์นอกช่อง T-05; ทีมอนุญาตเพิ่ม `routes.go`, test ใน `handler_test.go`, และอัปเดต `tasks.md`/`prompt-log.md`
+- ทีมเลือก movement types ที่รองรับใน T-05 เป็น `issue` และ `receive`; quantity ต้องเป็นบวก; `issue` ต้องระบุผู้รับผิดชอบและวัตถุประสงค์; `receive` เว้นสองฟิลด์นี้ได้; ไม่รับ due date ใน task นี้
+- ทีมกำหนดให้ปฏิเสธ movement ของรายการที่ถูกซ่อนจาก catalog
+- PostgreSQL หยุดอยู่; ถามก่อนเริ่ม service และทีมอนุญาตให้ใช้ `docker compose up -d postgres`
+
+### ผลการทดสอบ
+- ครั้งแรก `GOTOOLCHAIN=auto go test ./internal/inventory -run 'TestStockMovement' -count=1` ไม่ผ่านเพราะ PostgreSQL ที่ `localhost:5432` ยังไม่ทำงาน
+- หลังเริ่ม service การทดสอบ T-05 ผ่าน: `ok gymapp/backend/internal/inventory 0.147s`
+- รันทั้ง package พร้อม race detector ผ่าน: `GOTOOLCHAIN=auto go test -race ./internal/inventory -count=1` → `ok gymapp/backend/internal/inventory 3.129s`
+- `TestStockMovementIssueUpdatesQuantityAndHistory` ยืนยันเบิก 3 จาก 10 เหลือ 7 พร้อม movement และข้อมูลผู้รับผิดชอบ/วัตถุประสงค์; `TestStockMovementReceiveUpdatesQuantityAndHistory` ยืนยันรับเข้า 10 จาก 5 เหลือ 15 พร้อม movement; `TestStockMovementInsufficientStockRollsBack` ยืนยันเบิกเกินยอดตอบ conflict โดยยอดและประวัติไม่เปลี่ยน
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-06`
+
+### ไฟล์ที่สร้างหรือแก้
+- แก้ `backend/internal/inventory/handler_test.go` โดยเปลี่ยนการทดสอบ issue/receive เป็น `TestAC_INV_06` และ `TestAC_INV_09` ตาม AC โดยตรง และยืนยันยอดคงเหลือพร้อมจำนวน/ชนิดประวัติ
+- เปลี่ยนสถานะ T-06 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- PostgreSQL ไม่ได้ทำงานและ T-06 ต้องตรวจข้อมูลจริง; ถามก่อนเริ่ม service และทีมอนุญาตให้ใช้ `docker compose up -d postgres`
+
+### ผลการทดสอบ
+- ครั้งแรก `GOTOOLCHAIN=auto go test ./internal/inventory -run 'TestAC_INV_(06|09)' -count=1` ไม่ผ่านเพราะ PostgreSQL ที่ `localhost:5432` ยังไม่ทำงาน
+- หลังเริ่ม service การรันแรกพบว่า PostgreSQL ยังอยู่ระหว่าง startup (`pg_isready: no response`); รอตรวจจน accepting connections แล้วรันซ้ำผ่าน: `ok gymapp/backend/internal/inventory 0.256s`
+- รันทั้ง package แบบไม่ใช้ cache ผ่าน: `GOTOOLCHAIN=auto go test ./internal/inventory -count=1` → `ok gymapp/backend/internal/inventory 0.716s`
+- `TestAC_INV_06` เตรียม consumable คงเหลือ 10 ส่งเบิก 3 พร้อมผู้รับผิดชอบ/วัตถุประสงค์ และตรวจยอด 7 กับประวัติ 1 รายการ; `TestAC_INV_09` เตรียมยอด 5 รับเข้า 10 และตรวจยอด 15 กับประวัติ 1 รายการ
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-07`
+
+### ไฟล์ที่สร้างหรือแก้
+- แก้ `backend/internal/inventory/service.go` ให้รองรับ movement `borrow`/`return`; ยืมต้องมีผู้รับผิดชอบ วัตถุประสงค์ และวันกำหนดคืน ส่วนคืนต้องมีผู้รับผิดชอบและวัตถุประสงค์
+- แก้ `backend/internal/inventory/handler.go` ให้รับและส่ง `due_date` รูปแบบ `YYYY-MM-DD` ผ่าน route movements เดิม
+- เพิ่ม `borrow`/`return` ใน `backend/internal/inventory/store.go` ให้ลด/เพิ่มยอดและบันทึก movement ใน transaction เดียว
+- เพิ่ม `TestBorrowReturnMovementFlow` ใน `backend/internal/inventory/handler_test.go` เป็น smoke test ไม่ใช่ AC test ของ T-08
+- เปลี่ยนสถานะ T-07 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามเรื่องการผูกการคืนกับรายการยืมเดิม; ทีมเลือกให้ return เป็น movement ของรายการโดยไม่ผูกกับ borrow เฉพาะรายการ
+- ทีมยืนยันให้ borrow มี `responsible_person`, `purpose`, `due_date`; return มีผู้รับผิดชอบและวัตถุประสงค์; ใช้ route `POST /api/inventory/{id}/movements`
+- ถามรูปแบบ JSON ของ `due_date`; ทีมเลือก `YYYY-MM-DD`
+- `store.go` และ `handler_test.go` ไม่อยู่ในรายการไฟล์ T-07 เดิม; ถามก่อนและทีมอนุญาตให้เพิ่มเพื่อคง atomic transaction และทดสอบการทำงานจริง
+- PostgreSQL หยุดอยู่; ถามก่อนเริ่ม service และทีมอนุญาตให้เริ่ม/หยุดเพื่อทดสอบ
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run 'TestBorrowReturnMovementFlow|TestAC_INV_06|TestAC_INV_09|TestStockMovementInsufficientStockRollsBack' -count=1` ผ่าน
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package
+- `TestBorrowReturnMovementFlow` ยืนยัน borrow จาก 5 เหลือ 4 พร้อมวันกำหนดคืนและประวัติ borrow; return เพิ่มยอดกลับเป็น 5 พร้อมประวัติ return; หยุด PostgreSQL หลังทดสอบ
+- `gofmt` และ `git diff --check` ผ่าน
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-08`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `TestAC_INV_07` และ `TestAC_INV_08` ใน `backend/internal/inventory/handler_test.go`; ตรวจยอดคงเหลือและประวัติการยืม/คืนผ่าน API
+- เปลี่ยนสถานะ T-08 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเริ่ม PostgreSQL เพื่อรัน integration tests; ทีมอนุญาตให้เริ่ม service และหยุดหลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-08; ทีมอนุญาต
+- ใช้พฤติกรรม borrow/return และรูปแบบ due date ที่ทีมยืนยันไว้ใน T-07; ไม่มีสมมติฐานเพิ่มเติมสำหรับ AC-INV-07/08
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestAC_INV_0[78]$' -count=1` ผ่าน: `ok gymapp/backend/internal/inventory 1.263s`
+- `TestAC_INV_07` ตรวจยืม 1 จาก 5, ยอด 4, ข้อมูลผู้รับผิดชอบ/วัตถุประสงค์/วันกำหนดคืน และประวัติ borrow หนึ่งรายการ
+- `TestAC_INV_08` เตรียมยืม 1 จนเหลือ 4 แล้วคืน 1; ตรวจยอด 5 และประวัติ borrow/return
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-09`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `TestAC_INV_10`, `TestAC_INV_11` และ `TestAC_INV_12` ใน `backend/internal/inventory/handler_test.go`; ตรวจคำขอผ่าน API ที่ขาดข้อมูลบังคับถูกปฏิเสธและยอด/ประวัติไม่เปลี่ยน
+- ไม่แก้ `backend/internal/inventory/handler.go` เพราะ handler ส่งต่อข้อมูลให้ service และแปลง `ErrInvalidMovement` เป็น HTTP 400 อยู่แล้ว; การตรวจข้อมูลบังคับสำหรับ FR-INV-02/DOM-INV-01 มีอยู่ใน service
+- เปลี่ยนสถานะ T-09 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเริ่ม PostgreSQL เพื่อรัน integration tests; ทีมอนุญาตให้เริ่ม service และหยุดหลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-09; ทีมอนุญาต
+- ใช้พฤติกรรมที่มีอยู่แล้ว: `issue`/`borrow` ต้องมีผู้รับผิดชอบและวัตถุประสงค์; `borrow` ต้องมี due date; ไม่มีการกำหนดพฤติกรรมเพิ่มเติม
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestAC_INV_1[012]$' -count=1` ผ่าน: `ok gymapp/backend/internal/inventory 1.204s`
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package: `ok gymapp/backend/internal/inventory 2.374s`
+- AC-INV-10/11 ครอบคลุมทั้ง issue และ borrow; ทุกรายการยืนยัน HTTP 400, quantity คงเดิมที่ 10 และไม่มี movement
+- AC-INV-12 ยืนยัน borrow ที่ไม่มี due date ถูกปฏิเสธ, quantity คงเดิมที่ 5 และไม่มี movement
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-10`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `TestMovementDatabaseFailureRollsBack` ใน `backend/internal/inventory/handler_test.go`; trigger จำลองความล้มเหลวเมื่อ insert movement หลัง transaction ปรับยอดแล้ว
+- ไม่แก้ `service.go` และ `handler.go`: service ห่อและส่งต่อ DB error; handler log ข้อผิดพลาดและตอบ HTTP 500; store มี rollback เมื่อ transaction ไม่สำเร็จ
+- เปลี่ยนสถานะ T-10 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเริ่ม PostgreSQL เพื่อรัน integration test ที่จำลอง DB error; ทีมอนุญาตให้เริ่ม service และหยุดหลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-10; ทีมอนุญาต
+- ใช้ trigger เฉพาะ test เพื่อสร้างความล้มเหลวที่เกิดหลังเปลี่ยนยอด; ไม่เพิ่มพฤติกรรมหรือข้อกำหนดใหม่
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestMovementDatabaseFailureRollsBack$' -count=1` ผ่าน: `ok gymapp/backend/internal/inventory 1.501s`
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package: `ok gymapp/backend/internal/inventory 2.406s`
+- `TestMovementDatabaseFailureRollsBack` ตรวจ HTTP 500 และ `internal_error`; หลัง insert ล้มเหลว ยอดคงเหลือกลับเป็น 10 และไม่มี movement
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-11`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `backend/internal/inventory/concurrency_test.go` พร้อม `TestAC_INV_14`; ใช้ PostgreSQL จริงและ barrier ปล่อยคำขอเบิก 3 สองคำขอพร้อมกันจากยอด 5
+- เปลี่ยนสถานะ T-11 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเริ่ม PostgreSQL เพื่อรันทดสอบ concurrency; ทีมอนุญาตให้เริ่ม service และหยุดหลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-11; ทีมอนุญาต
+- ใช้ AC-INV-14 ตามที่ระบุ: สองคำขอพร้อมกัน, คงเหลือเริ่มต้น 5, ขอเบิกคำขอละ 3; ไม่มีการกำหนดพฤติกรรมเพิ่มเติม
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestAC_INV_14$' -count=10` ผ่าน: `ok gymapp/backend/internal/inventory 1.853s`
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package: `ok gymapp/backend/internal/inventory 2.549s`
+- `TestAC_INV_14` ยืนยันว่าหนึ่งคำขอสำเร็จ อีกหนึ่งคำขอถูกปฏิเสธด้วย `ErrInsufficientStock`, ยอดสุดท้ายเป็น 2 และมีประวัติ issue 1 รายการ
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-12`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `Store.ListLowStockItems` ใน `backend/internal/inventory/store.go` ให้คืนเฉพาะรายการที่ยังมองเห็น มี Reorder Point และมียอดคงเหลือไม่เกินจุดดังกล่าว
+- เพิ่ม `Service.ListLowStockItems` ใน `backend/internal/inventory/service.go` เพื่อส่งต่อและ wrap ข้อผิดพลาดจาก store
+- เพิ่ม handler `listLowStockItems` ใน `backend/internal/inventory/handler.go` ให้ตอบรายการตาม response ของ inventory API หรือ HTTP 500 พร้อม log เมื่อเกิดข้อผิดพลาด
+- ลงทะเบียน `GET /api/inventory/alerts` ใน `backend/internal/inventory/routes.go`
+- เพิ่ม `TestLowStockAlertAPI` ใน `backend/internal/inventory/handler_test.go` เป็น smoke/integration test; ทีมอนุญาตเพิ่ม test file นี้ซึ่งอยู่นอกช่องไฟล์ T-12
+- เปลี่ยนสถานะ T-12 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเพิ่ม test ใน `handler_test.go` และเริ่ม PostgreSQL; ทีมอนุญาตให้เพิ่ม smoke test และใช้/หยุด PostgreSQL หลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-12; ทีมอนุญาต
+- ใช้เกณฑ์ตามช่อง “เสร็จเมื่อ”: เฉพาะรายการที่กำหนด Reorder Point และยอดถึงหรือต่ำกว่าจุด; ไม่เพิ่มกฎแจ้งเตือนอื่น
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestLowStockAlertAPI$' -count=1` ผ่าน: `ok gymapp/backend/internal/inventory 1.226s`
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package: `ok gymapp/backend/internal/inventory 2.480s`
+- `TestLowStockAlertAPI` ยืนยันรายการที่เท่ากับ/ต่ำกว่า Reorder Point ปรากฏ; รายการที่สูงกว่าจุดหรือไม่มีจุดไม่ปรากฏ
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-13`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `TestAC_INV_13` ใน `backend/internal/inventory/handler_test.go`; ตั้งรายการ A ให้มี Reorder Point 5 และคงเหลือ 6, ตั้งรายการ B ให้ไม่มี Reorder Point, เบิก 1 จาก A แล้วตรวจผล alert
+- เปลี่ยนสถานะ T-13 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนเริ่ม PostgreSQL เพื่อรัน integration test; ทีมอนุญาตให้เริ่ม service และหยุดหลังทดสอบ
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-13; ทีมอนุญาต
+- ใช้ AC-INV-13 ตามข้อความที่ระบุ; ไม่มีสมมติฐานเพิ่มเติม
+
+### ผลการทดสอบ
+- `go test ./internal/inventory -run '^$'` ผ่านสำหรับตรวจ compile
+- `go test -race ./internal/inventory -run '^TestAC_INV_13$' -count=1` ผ่าน: `ok gymapp/backend/internal/inventory 1.211s`
+- `go test -race ./internal/inventory -count=1` ผ่านทั้ง package: `ok gymapp/backend/internal/inventory 2.407s`
+- `TestAC_INV_13` ตรวจว่าการเบิก 1 ทำให้ A ลดจาก 6 ถึง 5 และปรากฏใน alert; B ที่ไม่มี Reorder Point ไม่ปรากฏ
+- `gofmt` และ `git diff --check` ผ่าน; หยุด PostgreSQL หลังทดสอบ
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-14`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `frontend/src/features/inventory/types.ts` สำหรับชนิดรายการ Inventory ที่ใช้ใน catalog (FR-INV-01, DOM-INV-02)
+- เพิ่ม `frontend/src/features/inventory/InventoryCatalogPage.tsx` สำหรับแสดง ค้นหา เพิ่ม แก้ไข ซ่อน และตรวจสอบยอดรายการผ่าน API
+- เพิ่ม `frontend/src/features/inventory/InventoryCatalogPage.test.tsx` สำหรับ AC-INV-01 ถึง AC-INV-05 ด้วย MSW และตรวจ route
+- เพิ่ม route `/inventory` ใน `frontend/src/App.tsx` โดยครอบด้วย `RequireAuth`
+- เปลี่ยนสถานะ T-14 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถาม path และการครอบ route เพราะ spec/plan ไม่ระบุ URL หน้า Catalog; ทีมเลือกเพิ่ม `/inventory` โดยใช้ `RequireAuth`
+- ถามก่อนแก้ `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-14; ทีมอนุญาต
+- ใช้ API path และฟิลด์ตาม handler inventory ที่มีอยู่; ไม่มีการเพิ่มกฎธุรกิจนอก FR-INV-01
+
+### ผลการทดสอบ
+- `npm --prefix frontend test`: ผ่าน 4 test files, 31 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน
+- ลบ output `frontend/dist/` ที่ได้จาก build แล้ว
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-15`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `frontend/src/features/inventory/StockMovementForm.tsx` สำหรับเลือก Inventory item และส่ง issue, borrow, return หรือ receive ไปยัง endpoint movement โดยแสดงยอดหลัง API ตอบกลับ
+- เพิ่ม `frontend/src/features/inventory/StockMovementForm.test.tsx` สำหรับ AC-INV-06 ถึง AC-INV-12 ด้วย MSW; ตรวจยอดและ movement ที่ถูกส่ง รวมถึงกรณีข้อมูลบังคับขาด
+- เพิ่มชนิด request, movement และ response ใน `frontend/src/features/inventory/types.ts`
+- เปลี่ยนสถานะ T-15 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามว่า form จะโหลดรายการเองหรือรับ item ID จาก parent; ทีมเลือกให้โหลด `GET /api/inventory` และให้ผู้ใช้เลือกสินค้า
+- ถามก่อนอัปเดต `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-15; ทีมอนุญาต
+- ใช้ข้อมูลผู้รับผิดชอบและวัตถุประสงค์ตาม DOM-INV-01 และแนวทางที่ทีมเลือกไว้ก่อนหน้าสำหรับ return; due date ส่งเฉพาะ borrow
+
+### ผลการทดสอบ
+- `npm --prefix frontend test -- --run src/features/inventory/StockMovementForm.test.tsx`: ผ่าน 1 test file, 9 tests
+- `npm --prefix frontend test`: ผ่าน 5 test files, 40 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน; ลบ output `frontend/dist/` ที่ได้จาก build แล้ว
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-16`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `frontend/src/features/inventory/LowStockAlerts.tsx` เพื่อโหลด `GET /api/inventory/alerts` และแสดงรายการที่มี Reorder Point และยอดไม่เกินจุดดังกล่าว; แสดงข้อความ error เมื่อ API ล้มเหลว
+- เพิ่ม `frontend/src/features/inventory/LowStockAlerts.test.tsx` สำหรับ `TestAC_INV_13` ด้วย MSW; ตรวจรายการที่ถึงจุดสั่งซื้อแสดง และรายการที่ไม่มี Reorder Point หรือมียอดเหนือจุดไม่แสดง
+- เปลี่ยนสถานะ T-16 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนแก้ `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-16; ทีมอนุญาต
+- ใช้ endpoint `GET /api/inventory/alerts` ที่กำหนดใน spec/plan; ใช้ชนิด `InventoryItem` ที่มีอยู่ใน `types.ts` จึงไม่ต้องเปลี่ยนไฟล์ดังกล่าว
+
+### ผลการทดสอบ
+- `npm --prefix frontend test -- --run src/features/inventory/LowStockAlerts.test.tsx`: ผ่าน 1 test file, 1 test
+- `npm --prefix frontend test`: ผ่าน 6 test files, 41 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน; ลบ output `frontend/dist/` ที่ได้จาก build แล้ว
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-19`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `listLowStockAlerts` ใน `frontend/src/features/inventory/api.ts` เพื่อเรียก `GET /api/inventory/alerts` และตรวจ HTTP status ก่อนคืนรายการให้หน้าเว็บ
+- ปรับ `frontend/src/features/inventory/LowStockAlerts.tsx` ให้ใช้ API helper แทนการเรียก `fetch` เฉพาะหน้า; แสดงเฉพาะรายการที่มี Reorder Point และยอดไม่เกินจุด พร้อมข้อความเมื่อ API ล้มเหลว
+- ปรับ `frontend/src/features/inventory/LowStockAlerts.test.tsx` ให้ตรวจ flow หน้าเว็บถึง API helper ผ่าน MSW ตาม AC-INV-13 และทดสอบการแสดง error เมื่อ API ตอบ 500
+- เปลี่ยนสถานะ T-19 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนแก้ `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-19; ทีมอนุญาต
+- ใช้ endpoint `GET /api/inventory/alerts` และ response `InventoryItem[]` ตาม spec/plan/backend ที่มีอยู่; ไม่เพิ่ม route หรือกฎธุรกิจใหม่
+
+### ผลการทดสอบ
+- `npm --prefix frontend test -- --run src/features/inventory/LowStockAlerts.test.tsx`: ผ่าน 1 test file, 2 tests (AC-INV-13 และกรณี API ตอบ error)
+- `npm --prefix frontend test`: ผ่าน 6 test files, 43 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน; ลบ output `frontend/dist/` ที่ได้จาก build แล้ว
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-18`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `createInventoryMovement` ใน `frontend/src/features/inventory/api.ts` เพื่อส่ง `POST /api/inventory/{id}/movements`, แปล HTTP 400/409 เป็นข้อความปฏิเสธที่แสดงได้ และส่งข้อผิดพลาดสถานะอื่นกลับให้ฟอร์ม
+- ปรับ `frontend/src/features/inventory/StockMovementForm.tsx` ให้โหลดรายการผ่าน `listInventoryItems` และส่ง movement ผ่าน API helper; ยอดคงเหลือเปลี่ยนตาม response เมื่อสำเร็จเท่านั้น
+- ปรับ `frontend/src/features/inventory/StockMovementForm.test.tsx` ให้ทดสอบ API จำลองผ่าน MSW ต่อ และเพิ่มกรณี API ตอบ 409 ที่ตรวจ error กับยอดเดิม
+- เปลี่ยนสถานะ T-18 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนแก้ `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-18; ทีมอนุญาต
+- ใช้ endpoint และรูปแบบ request/response จาก handler/plan ที่มีอยู่: `issue`, `borrow`, `return`, `receive`; ไม่เพิ่มข้อกำหนดธุรกิจใหม่
+
+### ผลการทดสอบ
+- `npm --prefix frontend test -- --run src/features/inventory/StockMovementForm.test.tsx`: ผ่าน 1 test file, 10 tests
+- `npm --prefix frontend test`: ผ่าน 6 test files, 42 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน; ลบ output `frontend/dist/` ที่ได้จาก build แล้ว
+
+## 11 พฤศจิกายน 2569 — คำสั่ง `/implement T-17`
+
+### ไฟล์ที่สร้างหรือแก้
+- เพิ่ม `frontend/src/features/inventory/api.ts` สำหรับ `GET /api/inventory` (รวมค้นหาด้วยชื่อ), `POST /api/inventory`, `PATCH /api/inventory/{id}` และ `DELETE /api/inventory/{id}`; ตรวจสถานะ HTTP และส่งข้อผิดพลาดกลับให้หน้าแสดงผล
+- ปรับ `frontend/src/features/inventory/InventoryCatalogPage.tsx` ให้เรียก API helper สำหรับโหลด ค้นหา เพิ่ม แก้ไข และซ่อนรายการ แทนการเรียก `fetch` โดยตรง
+- คง MSW handlers ใน `frontend/src/features/inventory/InventoryCatalogPage.test.tsx` เป็น API จำลองสำหรับ AC-INV-01 ถึง AC-INV-05; tests ครอบคลุมการเรียก helper ผ่าน UI
+- เปลี่ยนสถานะ T-17 ใน `specs/006-inventory/tasks.md` เป็น “เสร็จ รอทีมตรวจ”
+
+### คำถามที่ถามและคำตอบของทีม
+- ถามก่อนแก้ `tasks.md` และ `prompt-log.md` ซึ่งอยู่นอกช่องไฟล์ T-17; ทีมอนุญาต
+- ใช้ endpoints และรูปแบบข้อมูลตาม API ที่ระบุใน `plan.md` และ implementation backend ที่มีอยู่; ไม่ต้องเพิ่มการตั้งค่า URL หรือ dependency
+
+### ผลการทดสอบ
+- `npm --prefix frontend test -- --run src/features/inventory/InventoryCatalogPage.test.tsx`: ผ่าน 1 test file, 6 tests (AC-INV-01..05 และ route)
+- `npm --prefix frontend test`: ผ่าน 6 test files, 41 tests
+- `npm --prefix frontend run build`: ผ่าน TypeScript check และ Vite production build
+- `git diff --check`: ผ่าน; ลบ output `frontend/dist/` ที่ได้จาก build แล้ว

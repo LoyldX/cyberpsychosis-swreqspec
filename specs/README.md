@@ -12,7 +12,7 @@
 | `001-auth-session/`        | Auth Session        | FR-AUTH-01, NFR-REL-01, CON-CACHE-01               | *ธนะวิชช์ อุดมผล* | *660710712*  | *LUX14Zx*      |
 | `004-trainer-roster/`      | Trainer Roster      | FR-ROST-01                                         | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
 | `005-class-booking/`       | จองคลาส             | FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01      | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
-| `006-inventory/`           | Inventory           | FR-INV-01..03, NFR-DATA-01, DOM-INV-01, DOM-INV-02 | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
+| `006-inventory/`           | Inventory           | FR-INV-01..03, NFR-DATA-01, DOM-INV-01, DOM-INV-02 | *(ธนเสฏฐ์ ยิ้มประเสริฐ)*     | *660710711*   | *Falng*     |
 | `007-occupancy-dashboard/` | Occupancy Dashboard | FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01      | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
 
 
@@ -20,7 +20,7 @@
 
 `000-shared/` ไม่ใช่ฟีเจอร์ (ไม่มี `spec.md`) เก็บ tech stack ที่ตกลงแล้ว (Go + Gin, React Vite เว็บ, PostgreSQL, Redis) ธรรมเนียมร่วม และสิ่งที่ทีมยังต้องเลือก `/plan` และ `/tasks` อ่านโฟลเดอร์นี้อัตโนมัติ ทุก `plan.md` ต้องอยู่ในกรอบของไฟล์นี้
 
-### สมาชิกทีม CYBERPSYCHOSIS (จาก `README.md` ราก)
+### สมาชิกทีม CYBERPSYCHOSIS (จาก `README.md`)
 
 
 | ชื่อ                  | รหัสนักศึกษา | GitHub User ID |
@@ -28,7 +28,7 @@
 | ธนะวิชช์ อุดมผล       | 660710712    | *LUX14Zx*    |
 | พงษ์รพี สืบญาติ       | 660710724    | *(รอกรอก)*     |
 | วัชรพงษ์ สุขอรุณ      | 660710627    | *(รอกรอก)*     |
-| ธนเสฎฐ์ยิ้มประเสริฐ   | 660710711    | *(รอกรอก)*     |
+| ธนเสฎฐ์ยิ้มประเสริฐ   | 660710711    | *Falng*     |
 | นัธทวัฒน์ วิบูลย์มงคล | 660710718    | *(รอกรอก)*     |
 
 
