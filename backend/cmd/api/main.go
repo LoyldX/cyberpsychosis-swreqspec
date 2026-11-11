@@ -16,6 +16,7 @@ import (
 	"gymapp/backend/internal/app"
 	"gymapp/backend/internal/auth"
 	"gymapp/backend/internal/config"
+	"gymapp/backend/internal/inventory"
 )
 
 // main เรียก run แล้วจบด้วย log.Fatalf เมื่อมี error (CON-TECH-01); แยก run เพื่อให้ defer ปิด pool/client ทำงาน.
@@ -25,7 +26,7 @@ func main() {
 	}
 }
 
-// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth เข้ากับ Gin (CON-TECH-01, FR-AUTH-01)
+// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth และ inventory เข้ากับ Gin (CON-TECH-01, FR-AUTH-01, FR-INV-01)
 // แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration; ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
 func run() error {
 	cfg, err := config.Load()
@@ -47,8 +48,9 @@ func run() error {
 	sessions := auth.NewSessionStore(redisClient, auth.DefaultSessionTTL) // ASM-02: อายุ 7 วัน
 	// timeout ของ dependency มาจาก config (AC-AUTH-07, AC-AUTH-08, ASM-09)
 	handler := auth.NewHandler(auth.NewService(members, sessions, auth.DefaultSessionTTL)).WithSessionReader(sessions).WithDependencyTimeout(cfg.DependencyTimeout)
+	inventoryHandler := inventory.NewHandler(inventory.NewStore(pool))
 
-	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: app.NewRouter(handler.Register)}
+	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: app.NewRouter(handler.Register, inventoryHandler.Register)}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
