@@ -4,13 +4,22 @@ import { AuthProvider } from "./features/auth/AuthProvider";
 import { HomePage } from "./features/auth/HomePage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { RequireAuth } from "./features/auth/RequireAuth";
+import { InventoryCatalogPage } from "./features/inventory/InventoryCatalogPage";
 
-// รองรับ FR-AUTH-01, ASM-07: /login = เข้าสู่ระบบ, / = หน้าหลักที่ต้องเข้าสู่ระบบ, path อื่น → /
+// รองรับ FR-AUTH-01, FR-INV-01, CON-TECH-02: /inventory แสดง Catalog ภายใต้ route guard เดียวกับหน้าหลัก
 export function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/inventory"
+          element={
+            <RequireAuth>
+              <InventoryCatalogPage />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/"
           element={
