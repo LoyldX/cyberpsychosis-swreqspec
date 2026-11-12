@@ -10,7 +10,7 @@
 |---|---|
 | [001 auth-session](#001-auth-session) | พัฒนาแล้ว (2 endpoint + middleware) ยกเว้น AC-AUTH-07/08 ยังไม่มี test |
 | [004 trainer-roster](#004-trainer-roster) | ยังไม่ได้พัฒนา |
-| [005 class-booking](#005-class-booking) | ยังไม่ได้พัฒนา |
+| [005 class-booking](#005-class-booking) | โค้ด API 3 endpoint และ test ทุก AC ผ่านแล้ว แต่ **ยังไม่ได้ประกอบเข้า `main.go`** (รอ T-11 ซึ่งรอ 004) |
 | [006 inventory](#006-inventory) | พัฒนาแล้ว (7 endpoints; backend integration tests และ frontend mocked API tests) |
 | [007 occupancy-dashboard](#007-occupancy-dashboard) | พัฒนาแล้ว (3 endpoint รวม SSE) — test กับ PostgreSQL จริงผ่านแล้ว |
 | 002 notification, 003 line-bot, 008 network-segmentation | ไม่อยู่ใน sprint นี้ |
@@ -132,8 +132,73 @@ go run ./cmd/api
 ยังไม่มี endpoint ที่ตกลงกัน คำถามที่ต้องตอบก่อนออกแบบ API: การล็อกอินและสิทธิ์ของเจ้าหน้าที่/ผู้จัดการ, รูปแบบตารางงาน ดู spec
 
 ## 005 class-booking
-**ยังไม่ได้พัฒนา** Spec: `specs/005-class-booking/spec.md` — FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01
-จะใช้ `auth.RequireSession` จาก 001 เพื่อรู้ว่าสมาชิกคือใคร และใช้ข้อมูลเวลาปฏิบัติงานจาก 004 ยังไม่มี endpoint ที่ตกลงกัน คำถามที่ต้องตอบก่อน: คลาสเป็นกลุ่มหรือ 1:1, ใครสร้างคลาส, ยกเลิก/ดูรายการจองได้หรือไม่
+Spec: [`specs/005-class-booking/spec.md`](../specs/005-class-booking/spec.md) (Draft v2 ผ่าน /clarify รอบ 2) — FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01, CON-DB-01 | Backend: Go/Gin (CON-TECH-01) + PostgreSQL (CON-DB-01) | Web: React/Vite หน้า `/classes` (CON-TECH-02) | โค้ด: `backend/internal/booking/`
+
+> **ยังเรียกจากเซิร์ฟเวอร์จริงไม่ได้ (12 พฤศจิกายน 2569):** handler และ route มีแล้ว (`(*booking.Handler).Register(r, auth.RequireSession(...))`) แต่ยังไม่ได้ประกอบเข้า `backend/cmd/api/main.go` (T-11) เพราะต้องมีตัวอ่านเวลาเข้างานจากตารางของ 004 ก่อน (T-10 รอ Q-01, Q-02 ของ spec 004) ถ้าประกอบตอนนี้ทุกการจองจะถูกบล็อกว่านอกกะ (plan D6)
+> **สถานะการทดสอบ:** test ทั้งหมดของ `backend/internal/booking` ผ่านกับ PostgreSQL จริง (`go test -race`) รวม `TestAC_BKG_01_HTTP`, `TestAC_BKG_02_HTTP`, `TestAC_BKG_03_HTTP`, `TestAC_BKG_04_HTTP`, `TestAC_BKG_05` (20 รอบ ตอบภายใน 1 วินาที) — กะของเทรนเนอร์ใน test เป็นตัวจำลอง ส่วนหน้าเว็บทดสอบด้วย API จำลอง (msw)
+
+### ธรรมเนียม Booking API
+- **ทุก endpoint ต้องล็อกอิน:** ห่อด้วย `auth.RequireSession` ของ 001 ไม่มี/ผิด token ได้ `401 {"error":"unauthorized"}` และ Redis ล่มได้ `503 {"error":"service_unavailable"}` จาก middleware
+- **ผู้จองคือสมาชิกใน session** (`members.id` ของ 001, ASM-06) ไม่รับ member id จาก body
+- **รูปแบบ error ของ 005:** `{"error": "<รหัส>", "message": "<ข้อความภาษาไทย>"}`
+- **ข้อมูลคลาสเตรียมไว้ล่วงหน้าในฐานข้อมูล** ไม่มี API สร้าง/แก้คลาส (ASM-04) และไม่มี API ยกเลิกการจองหรือดูรายการจองทั้งหมด (Out of scope, Q-04)
+- **เวลา:** ISO 8601 (RFC 3339) มี offset เขตเวลาเสมอ ให้ฝั่งเว็บแปลงเป็นเวลา Asia/Bangkok เอง
+
+| Method | Path | รองรับ |
+|---|---|---|
+| GET | `/api/classes` | FR-BKG-01 (เลือกคลาส) |
+| POST | `/api/bookings` | FR-BKG-01, FR-BKG-02, DOM-BKG-01, NFR-PERF-01 |
+| GET | `/api/bookings/{id}` | FR-BKG-01 (AC-BKG-01 "เรียกดูการจองนั้นได้") |
+
+### รูปแบบ Class และ Booking
+```json
+{"id": 11, "trainer_id": 1, "starts_at": "2026-11-13T10:00:00+07:00", "ends_at": "2026-11-13T11:00:00+07:00", "capacity": 10}
+```
+```json
+{"id": 101, "class_id": 11, "member_id": 1, "created_at": "2026-11-13T08:00:00+07:00"}
+```
+`trainer_id` ยังไม่ผูก foreign key กับข้อมูลเทรนเนอร์ของ 004 (plan D1)
+
+### GET /api/classes
+- **200:** JSON array ของ Class ที่ยังไม่ถึงเวลาเริ่ม เรียงตาม `starts_at` (ไม่มีคลาสได้ `[]`) ไม่แสดงจำนวนที่นั่งเหลือ (plan D4)
+- **503:** `unavailable`
+
+### POST /api/bookings
+Request: `{"class_id": 11}`
+
+| HTTP | `error` | เมื่อไร |
+|---|---|---|
+| 201 | — | จองสำเร็จ คืน Booking |
+| 400 | `invalid_request` | body ไม่ใช่ JSON, ไม่มี `class_id`, หรือ `class_id` ไม่ใช่จำนวนเต็มบวก |
+| 404 | `class_not_found` | ไม่มีคลาสนี้ |
+| 409 | `class_started` | ถึงเวลาเริ่มคลาสแล้ว (ASM-05, Q-12) |
+| 409 | `already_booked` | สมาชิกจองคลาสนี้ไว้แล้ว (ASM-05) |
+| 409 | `class_full` | ที่นั่งเต็ม (ASM-03, ASM-05) |
+| 409 | `trainer_off_shift` | คลาสไม่อยู่ในเวลาเข้างานของเทรนเนอร์ทั้งหมด ขอบพอดีนับว่าอยู่ในกะ หรือไม่มีข้อมูลกะ (DOM-BKG-01, ASM-08, ASM-11, ASM-13, plan D6) |
+| 409 | `trainer_busy` | เวลาทับกับคลาสอื่นของเทรนเนอร์คนเดียวกันที่มีผู้จองแล้ว ต่อกันพอดีนับว่าทับ (DOM-BKG-01, ASM-09, ASM-10, ASM-12) |
+| 503 | `unavailable` | ฐานข้อมูลหรือแหล่งข้อมูลกะไม่ตอบ ไม่บันทึกอะไรเลย ไม่ retry (ASM-07) |
+
+- ถ้าผิดหลายข้อ ตอบเหตุผลแรกตามลำดับในตาราง (`class_not_found` → `class_started` → `already_booked` → `class_full` → `trainer_off_shift` → `trainer_busy`, plan D3)
+- คำขอของเทรนเนอร์คนเดียวกันถูกเรียงทีละรายการใน transaction (advisory lock, plan D2) จึงไม่เกิดการจองซ้อนเมื่อยิงพร้อมกัน (AC-BKG-05)
+
+ตัวอย่าง:
+```sh
+curl -i -X POST http://localhost:8080/api/bookings \
+  -H 'Authorization: Bearer <refresh_token>' -H 'Content-Type: application/json' \
+  -d '{"class_id": 11}'
+# HTTP/1.1 409 Conflict
+# {"error":"trainer_busy","message":"จองไม่สำเร็จ เพราะเทรนเนอร์ไม่ว่าง มีคิวสอนคลาสอื่นในช่วงเวลานี้"}
+```
+
+### GET /api/bookings/{id}
+- **200:** Booking ถ้าเป็นของสมาชิกใน session
+- **404 `booking_not_found`:** ไม่พบ หรือเป็นของสมาชิกคนอื่น (ตอบเหมือนกัน plan D5)
+- **400 `invalid_request`:** `{id}` ไม่ใช่จำนวนเต็มบวก
+- **503 `unavailable`**
+
+### ยังไม่ได้พัฒนา
+- ประกอบเข้า `main.go` (T-11), ตัวอ่านเวลาเข้างานจาก 004 (T-10), ข้อมูลคลาสตัวอย่างและตรวจด้วยมือ (T-12) — รอ Q-01, Q-02 ของ spec 004
+- ยกเลิกการจอง / ดูรายการจองของตนเอง — Q-04 ยังเปิด ต้องเสนอ FR ใหม่ก่อน
 
 ## 006 inventory
 Spec: [`specs/006-inventory/spec.md`](../specs/006-inventory/spec.md) — FR-INV-01..03, NFR-DATA-01, DOM-INV-01, DOM-INV-02 | Backend: Go/Gin + PostgreSQL (CON-TECH-01, CON-DB-01); Web client: React/Vite (CON-TECH-02)
