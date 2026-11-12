@@ -1605,3 +1605,11 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล: `go build ./...` และ `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริงกับ PostgreSQL 18 (`HTTP_ADDR=:8091`) แล้ว `GET /api/trainers` ได้ `200 []` โดยไม่ส่ง token, `GET /api/trainers/999/roster` ได้ `404 trainer_not_found`; SIGINT แล้วเซิร์ฟเวอร์ปิดเอง
 - Constraint ในโค้ด: CON-TECH-01; ASM-06 route ไม่ครอบ `RequireSession`
 - สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (005-class-booking)
+
+- ตรวจก่อนเริ่ม: สถานะ "พร้อมทำ" (Q-01, Q-02 ของ 004 ปิดแล้ว), "ต้องทำหลัง" T-04 ของ 005 และ T-04, T-05 ของ 004 เสร็จแล้ว
+- ไฟล์ที่สร้าง: `backend/internal/booking/roster_shift.go`, `backend/internal/booking/roster_shift_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_BKG_03_Roster` (เวลาเข้างานจริงของ 004 ศุกร์ 09:00–12:00: คลาส 08:30 → 409 `trainer_off_shift` ไม่บันทึก, 09:00–10:00 → 201), `TestAC_BKG_04_Roster` (11:30–12:30 → 409, 11:00–12:00 → 201) PASS
+- Constraint ในโค้ด: DOM-BKG-01/ASM-11 `RosterShifts` ห่อ `roster.Store.Covers` เป็น `ShiftChecker` (plan D6 — แทน `noShiftData` เมื่อประกอบใน T-11)
+- สิ่งที่เกือบต้องเดา: ไม่มี

@@ -88,7 +88,7 @@
 - ไฟล์ที่แตะ: `backend/internal/booking/roster_shift.go`, `backend/internal/booking/roster_shift_test.go`
 - ต้องทำหลัง: T-04 และ T-05 ของ spec 004 (`roster.Covers`)
 - เสร็จเมื่อ: ตัวอ่านที่ทำตาม interface `ShiftChecker` (ห่อ `roster.Covers` ของ 004) อ่านเวลาเข้างานจริงจาก PostgreSQL แล้ว test ทั้ง 2 ผ่าน (กะ 09:00–12:00: คลาสเริ่มก่อน 09:00 และคลาส 11:30–12:30 ไม่อยู่ในกะ, คลาส 09:00–10:00 และ 11:00–12:00 อยู่ในกะ)
-- สถานะ: พร้อมทำ (Q-01, Q-02 ของ spec 004 ปิดแล้ว 12 พ.ย. 2569 → 004 ASM-03, ASM-04)
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-11 ประกอบการจองเข้ากับ API server
 - รองรับ: CON-TECH-01, FR-BKG-01, FR-BKG-02
