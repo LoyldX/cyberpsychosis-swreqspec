@@ -43,7 +43,7 @@
 - ไฟล์ที่แตะ: `backend/internal/occupancy/broadcaster.go`, `backend/internal/occupancy/service.go`, `backend/internal/occupancy/service_test.go`
 - ต้องทำหลัง: T-03
 - เสร็จเมื่อ: `TestAC_BI_06` ผ่าน: ใช้นาฬิกาจำลอง จำนวน 10 ตอน 23:59 แล้วเลื่อนไป 00:00 Asia/Bangkok ได้ `CurrentCount` = 0 และผู้ฟังได้รับค่า `count: 0`; บันทึกสัญญาณผ่าน service แล้วผู้ฟังทุกรายได้รับจำนวนใหม่
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
 
 ### T-05 สร้าง API อ่านจำนวนและ endpoint ตัวจำลองสัญญาณ
 - รองรับ: FR-BI-01, IF-GATE-01 (ตัวจำลองเท่านั้น), DOM-CAP-01, CON-TECH-01 (ASM-07)

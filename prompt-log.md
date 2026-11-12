@@ -1235,3 +1235,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `go vet` ผ่าน; `TestStoreRejectsInvalidDirection` PASS (ไม่ใช้ DB); `TestAC_BI_02_Store` (รวม subtest สัญญาณพร้อมกัน 20 goroutine), `TestAC_BI_05_Store`, `TestAC_BI_07_Store` FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์ advisory lock กับฐานข้อมูลจริง
 - Constraint ในโค้ด: DOM-CAP-01/ASM-04 ผ่าน `ApplySignal` ใน `RecordSignal`; ASM-05 ผ่าน `pg_advisory_xact_lock` + เรียงตาม `id`; ASM-03 ผ่าน `StartOfDay`; ASM-02 อ่านจำนวนจากตารางเสมอ ไม่เก็บในหน่วยความจำ
 - สิ่งที่เกือบต้องเดา: (1) `RecordSignal` รับเวลา `at` จากผู้เรียกแทน `now()` ของ DB เพื่อให้ T-04 ใช้นาฬิกาจำลองได้ (2) test ต้องล้างตาราง `gate_signals` ก่อน/หลังแต่ละ test เพราะจำนวนเป็นค่ารวมทั้งตาราง — ฐานข้อมูลทดสอบคือฐานเดียวกับ dev ใน `docker-compose.yml` ข้อมูลสัญญาณใน dev จะถูกล้างเมื่อรัน test (ทีมควรรับรู้)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/broadcaster.go`, `backend/internal/occupancy/service.go`, `backend/internal/occupancy/service_test.go`
+- ผล test (`go test -race`): PASS — `TestAC_BI_06_MidnightPublish` (นาฬิกาจำลอง + counter ในหน่วยความจำ), `TestServiceRecordPublishesToAllSubscribers`, `TestBroadcasterKeepsLatestForSlowSubscriber`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_06` (Store จริง + นาฬิกาจำลอง)
+- Constraint ในโค้ด: ASM-03/plan D3 ใน `Service.RunMidnightReset` (รอถึง `NextStartOfDay` แล้ว publish จำนวนของวันใหม่); NFR-PERF-02 ใน `Broadcaster.Publish` (ไม่ block ผู้ฟังที่ช้าได้ค่าล่าสุด); ASM-05 ใน `Service.mu` (ลำดับการ publish ตรงกับลำดับบันทึก)
+- สิ่งที่เกือบต้องเดา: ผู้ฟังที่อ่านไม่ทันควรได้ "ทุกค่า" หรือ "ค่าล่าสุด" — spec ต้องการให้เห็นจำนวนปัจจุบัน จึงเลือกค่าล่าสุด (ไม่ใช่ requirement ใหม่ เป็นรายละเอียด implementation ของ D1)
