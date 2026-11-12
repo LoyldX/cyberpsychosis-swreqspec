@@ -1420,3 +1420,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestServiceRejectsOffShift`, `TestServiceWithoutShiftDataBlocks`, `TestServiceShiftReadFailure`, `TestServiceUsesClock` PASS
 - Constraint ในโค้ด: DOM-BKG-01/ASM-08 — `checkShift` แปลง "ไม่อยู่ในกะ" เป็น `ErrTrainerOffShift`; plan D6 — `NewService(..., nil, ...)` ใช้ `noShiftData` (ไม่มีข้อมูลกะ = นอกกะ = บล็อก); `Clock` แยกเวลาปัจจุบันให้ test กำหนดได้
 - สิ่งที่เกือบต้องเดา: ถ้าอ่านข้อมูลกะไม่ได้ (เช่น DB ของ 004 ล่ม) จะตอบอะไร — เลือกส่ง error ที่ไม่ใช่เหตุผลการจอง ให้ handler ตอบ 503 ไม่บันทึก ตาม ASM-07 (ฐานข้อมูลไม่ตอบ = ไม่บันทึก แจ้งให้ลองใหม่) ไม่ได้ตีเป็น "นอกกะ"
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/handler.go`, `backend/internal/booking/routes.go`, `backend/internal/booking/handler_test.go`
+- ผล test (`-race`): `TestAC_BKG_01_HTTP` (PostgreSQL จริง: POST 201 → GET 200 ตรงกัน, 1 แถว), `TestListClassesHTTP`, `TestCreateBookingErrorsHTTP` (400/404/409), `TestGetBookingOfOtherMemberHTTP` (404, 400), `TestBookingUnavailableHTTP` (503 ทั้ง 3 endpoint), `TestBookingRequiresSessionHTTP` (401) PASS
+- Constraint ในโค้ด: CON-TECH-01 Gin handler; `Register(r, requireSession)` ครอบทุก route ด้วย `auth.RequireSession` ของ 001; ผู้จองมาจาก session ไม่ใช่ body (ASM-06); error เป็น `{"error","message"}` ไทย (ASM-05); ปัญหาระบบตอบ 503 ไม่บันทึก (ASM-07)
+- สิ่งที่เกือบต้องเดา: (1) รูปแบบ body ของ error — ใช้ `{"error","message"}` แบบเดียวกับ 503 ของ 001; (2) `GET /api/bookings/abc` (id ไม่ใช่ตัวเลข) ตอบ 400 `invalid_request` ซึ่ง plan ไม่ได้ระบุ แต่ตรงกับ `400 invalid_request` ของ POST — ทีมควรตรวจ; (3) ข้อความภาษาไทยของแต่ละรหัสเป็นร่างของ AI

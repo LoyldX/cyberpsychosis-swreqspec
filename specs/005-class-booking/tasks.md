@@ -48,7 +48,7 @@
 - ไฟล์ที่แตะ: `backend/internal/booking/handler.go`, `backend/internal/booking/routes.go`, `backend/internal/booking/handler_test.go`
 - ต้องทำหลัง: T-04
 - เสร็จเมื่อ: `TestAC_BKG_01_HTTP` ผ่าน (`POST /api/bookings` → `201` แล้ว `GET /api/bookings/:id` → `200` ตรงกัน) และ test เพิ่มผ่าน: `GET /api/classes` คืนเฉพาะคลาสที่ยังไม่เริ่ม, `400` / `404` / `409` ตามรหัสใน plan ข้อ 4, `GET /api/bookings/:id` ของคนอื่นได้ `404`, ไม่มี session ได้ `401`, store ล่มได้ `503 unavailable`
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-06 ทดสอบการบล็อกผ่าน API ตาม AC-BKG-02/03/04
 - รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-08, ASM-10, ASM-12, ASM-13)
