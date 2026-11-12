@@ -56,7 +56,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `backend/internal/roster/handler.go`, `backend/internal/roster/routes.go`, `backend/internal/roster/handler_test.go`
 - ต้องทำหลัง: T-04, T-05
 - เสร็จเมื่อ: `TestAC_ROST_01_HTTP` และ `TestAC_ROST_02_HTTP` ผ่าน และ test เพิ่มผ่าน: `GET /api/trainers`, `400` / `404` / `409` ตามรหัสใน plan ข้อ 4, `503 unavailable` เมื่อ store ล่ม, ไม่ต้องมี token
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-07 ทดสอบการปรับปรุงตารางตาม AC-ROST-03/04
 - รองรับ: FR-ROST-01 (ASM-01, ASM-05)

@@ -1570,3 +1570,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestCovers` PASS 13 กรณี (ในกะ, ขอบพอดี, คร่อมสองกะ, เริ่มก่อน/จบหลังกะ, กะยกเลิก, เทรนเนอร์อื่น, ไม่มีกะ, วันอื่น, สัปดาห์หน้า, ข้ามวัน, เวลา UTC)
 - Constraint ในโค้ด: `Store.Covers` ใช้ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่อยู่ในกะ ASM-03) + `Slot.Within` (ASM-10, 005 ASM-13) กับเวลาเข้างานที่ไม่ถูกยกเลิก (ASM-01) — พร้อมให้ 005 T-10 ห่อเป็น `ShiftChecker`
 - สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/handler.go`, `backend/internal/roster/routes.go`, `backend/internal/roster/handler_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_01_HTTP`, `TestAC_ROST_02_HTTP`, `TestListTrainersHTTP`, `TestCreateEntryErrorsHTTP` (400/404/409), `TestChangeEntryHTTP` (404, ยกเลิก 200, ลบ 204), `TestRosterUnavailableHTTP` (503 ทั้ง 6 endpoint) PASS — ทุกคำขอไม่ส่ง Authorization
+- Constraint ในโค้ด: CON-TECH-01 Gin handler 6 endpoint; ASM-06 `Register` ไม่ครอบ middleware ยืนยันตัวตน; ASM-08 ปัญหาระบบตอบ 503 ไม่บันทึก; `Clock` ส่งเวลาปัจจุบันให้กฎ ASM-07/Q-11
+- สิ่งที่เกือบต้องเดา: (1) รหัสใน path ที่ไม่ใช่ตัวเลขตอบ 400 `invalid_request` เหมือน 005; (2) ข้อความภาษาไทยเป็นร่างของ AI
