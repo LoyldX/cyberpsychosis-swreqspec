@@ -1577,3 +1577,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_01_HTTP`, `TestAC_ROST_02_HTTP`, `TestListTrainersHTTP`, `TestCreateEntryErrorsHTTP` (400/404/409), `TestChangeEntryHTTP` (404, ยกเลิก 200, ลบ 204), `TestRosterUnavailableHTTP` (503 ทั้ง 6 endpoint) PASS — ทุกคำขอไม่ส่ง Authorization
 - Constraint ในโค้ด: CON-TECH-01 Gin handler 6 endpoint; ASM-06 `Register` ไม่ครอบ middleware ยืนยันตัวตน; ASM-08 ปัญหาระบบตอบ 503 ไม่บันทึก; `Clock` ส่งเวลาปัจจุบันให้กฎ ASM-07/Q-11
 - สิ่งที่เกือบต้องเดา: (1) รหัสใน path ที่ไม่ใช่ตัวเลขตอบ 400 `invalid_request` เหมือน 005; (2) ข้อความภาษาไทยเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-07` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/update_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_03_HTTP` (PATCH เวลาเข้างานและเวลาสอน แล้ว GET เห็นค่าใหม่), `TestAC_ROST_04_HTTP` (แก้/ยกเลิก/ลบของ A ตารางของ B เหมือนเดิมทุกฟิลด์) PASS
+- Constraint ในโค้ด: FR-ROST-01 ผ่าน API จริง; ASM-05 แก้ทีละรายการ; ASM-01 ยกเลิกยังเห็นในตาราง
+- สิ่งที่เกือบต้องเดา: ไม่มี
