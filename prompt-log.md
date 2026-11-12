@@ -1556,3 +1556,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestStoreListTrainers`, `TestStoreCreateAndList`, `TestStoreCreateRejectsOverlap`, `TestStoreCreateTeachOutsideWork`, `TestStoreCreateInvalidAndMissingTrainer` PASS
 - Constraint ในโค้ด: CON-DB-01 `Create` ใน transaction + `pg_advisory_xact_lock(5005, trainer_id)` key เดียวกับการจองของ 005 (plan D2); `checkSchedule` ตรวจทับซ้อน (ASM-02/ASM-10) และเวลาสอนอยู่ในเวลาเข้างาน (ASM-04); รายการที่ยกเลิกไม่นับ (ASM-01); JSON ตามสัญญา plan ข้อ 4
 - สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/store_change.go`, `backend/internal/roster/store_change_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestStoreUpdate`, `TestStoreCancel`, `TestStoreDelete`, `TestStoreBookedClassGuard`, `TestStoreBookedClassGuardIgnoresUnbookedAndUncovered` PASS (test ของ T-03 ยังผ่าน)
+- Constraint ในโค้ด: CON-DB-01 `apply` ทำใน transaction + ล็อกเทรนเนอร์ อ่านรายการซ้ำหลังล็อก; ASM-04 ตรวจเวลาสอนทั้งวันเดิมและวันใหม่เมื่อย้ายวัน; ASM-07/Q-11 `checkBookedClasses` อ่าน `classes`/`bookings` ของ 005 เฉพาะคลาสที่มีผู้จองและ `starts_at > now`; ASM-01 ยกเลิก = `cancelled = true`, ลบ = ลบแถว
+- สิ่งที่เกือบต้องเดา: ASM-07 เขียนว่า "ทำให้คลาส...ไม่อยู่ในเวลาเข้างาน**อีกต่อไป**" — ตีความว่าบล็อกเฉพาะคลาสที่อยู่ในเวลาเข้างานก่อนแก้แล้วหลุดหลังแก้ คลาสที่อยู่นอกกะอยู่แล้ว (เช่นเตรียมไว้ก่อนมีตารางงาน) ไม่ขวาง — ทีมควรยืนยัน; ยกเลิกรายการที่ยกเลิกแล้วได้ผลเดิม (ไม่ error)

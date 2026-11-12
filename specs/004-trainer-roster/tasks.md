@@ -40,7 +40,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `backend/internal/roster/store_change.go`, `backend/internal/roster/store_change_test.go`
 - ต้องทำหลัง: T-03
 - เสร็จเมื่อ: test กับ PostgreSQL จริงผ่าน — `Update`, `Cancel`, `Delete` ทำใน transaction พร้อม advisory lock ตรวจตามลำดับ plan ข้อ 4 และไม่ผ่านแล้วไม่บันทึก
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-05 สร้าง Covers ให้ 005 ตรวจว่าคลาสอยู่ในเวลาเข้างาน
 - รองรับ: FR-ROST-01, CON-DB-01 (ASM-01, ASM-03, ASM-10; 005 ASM-11, ASM-13)
