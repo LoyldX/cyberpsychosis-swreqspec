@@ -16,7 +16,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `backend/migrations/0005_create_trainer_roster.up.sql`, `backend/migrations/0005_create_trainer_roster.down.sql`, `backend/internal/roster/migration_test.go`
 - ต้องทำหลัง: ไม่มี
 - เสร็จเมื่อ: `TestMigration0005CreatesTrainerRoster` ผ่านกับ PostgreSQL จริง (CHECK `kind`, `weekday` 1..7, `end_time > start_time` ทำงาน, `trainer_id` ต้องมีใน `trainers`, migrate down กลับ version 4 แล้วตารางหายไป)
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-02 เขียนกฎเวลาของตารางงาน
 - รองรับ: FR-ROST-01 (ASM-02, ASM-03, ASM-04, ASM-10)

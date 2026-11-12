@@ -1534,3 +1534,11 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - T-10: "ต้องทำหลัง" เปลี่ยนจาก 004 T-03 (ร่างเดิม) เป็น 004 T-04, T-05 (`roster.Covers`) ตาม tasks ใหม่ของ 004; สถานะเป็น "พร้อมทำ" เพราะ Q-01, Q-02 ของ 004 ปิดแล้ว (กฎ: task ที่รอ Q-xx เดินต่อได้เมื่อปิด Q ใน spec)
 - T-11, T-12: สถานะเป็น "พร้อมทำ" (ยังต้องรอ task ในช่อง "ต้องทำหลัง"); T-12 เพิ่ม 004 T-11 (ข้อมูลเทรนเนอร์ตัวอย่าง) ในช่อง "ต้องทำหลัง"
 - ตาราง "สิ่งที่ยังไม่ทำ" ระบุว่า Q-01, Q-02 ของ 004 ปิดแล้ว ไม่แก้บันทึกรอบแรก
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (004-trainer-roster)
+
+- คำสั่งของทีม: "ทำที่เหลือหน่อย" → เลือก "ตอบคำถาม 004 ปลดล็อก 005" ซึ่งรวมการ implement 004 ทีละ task
+- ไฟล์ที่สร้าง: `backend/migrations/0005_create_trainer_roster.up.sql`, `backend/migrations/0005_create_trainer_roster.down.sql`, `backend/internal/roster/migration_test.go`
+- ผล test: `TestMigration0005CreatesTrainerRoster` PASS กับ PostgreSQL 18 (CHECK kind/weekday/เวลา รวมข้ามเที่ยงคืน, FK trainers, migrate down กลับ version 4); package booking และ occupancy ยังผ่าน
+- Constraint ในโค้ด: CON-DB-01; ASM-03 `CHECK (end_time > start_time)` กันข้ามเที่ยงคืน; ASM-04 `kind`; ASM-01 `cancelled`; ASM-09 `trainers`
+- สิ่งที่เกือบต้องเดา: ไม่มี (FK จาก `classes` ไป `trainers` เสนอเป็น D1 ไม่ได้ทำ)
