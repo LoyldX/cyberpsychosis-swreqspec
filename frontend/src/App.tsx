@@ -4,10 +4,12 @@ import { AuthProvider } from "./features/auth/AuthProvider";
 import { HomePage } from "./features/auth/HomePage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { RequireAuth } from "./features/auth/RequireAuth";
+import { ClassBookingPage } from "./features/booking/ClassBookingPage";
 import { InventoryCatalogPage } from "./features/inventory/InventoryCatalogPage";
 import { OccupancyDashboardPage } from "./features/occupancy/OccupancyDashboardPage";
 
 // รองรับ FR-AUTH-01, FR-INV-01, CON-TECH-02: /inventory แสดง Catalog ภายใต้ route guard เดียวกับหน้าหลัก
+// รองรับ FR-BKG-01, CON-TECH-02: /classes (จองคลาส) ต้องล็อกอินก่อนตาม precondition ของ 005 จึงครอบด้วย RequireAuth
 // รองรับ FR-BI-01, ASM-07: /dashboard (Occupancy Dashboard) เปิดได้โดยไม่ต้องล็อกอิน จึงไม่ครอบด้วย RequireAuth
 export function App() {
   return (
@@ -20,6 +22,14 @@ export function App() {
           element={
             <RequireAuth>
               <InventoryCatalogPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/classes"
+          element={
+            <RequireAuth>
+              <ClassBookingPage />
             </RequireAuth>
           }
         />

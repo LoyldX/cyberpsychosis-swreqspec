@@ -1449,3 +1449,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `npx vitest run src/features/booking src/mocks` — 2 files, 20 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
 - Constraint ในโค้ด: CON-TECH-02 (`fetch` ฝั่งเว็บ); ส่ง `Authorization: Bearer` จาก `readToken()` ของ 001; แปลงรหัสเหตุผล 400/404/409 เป็น `rejected` (ASM-05) และ 503/เครือข่ายล้มเป็น `unavailable` (ASM-07)
 - สิ่งที่เกือบต้องเดา: รูปแบบผลลัพธ์ — ใช้ discriminated union (`kind`) แบบเดียวกับ `features/auth/api.ts` แทนการโยน error แบบ inventory
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (005-class-booking)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/booking/ClassBookingPage.tsx`, `frontend/src/features/booking/ClassBookingPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/classes` ครอบ `RequireAuth`)
+- ผล test: `npx vitest run` — 10 files, 70 tests PASS (ใหม่: `AC_BKG_01` เห็นคลาส กดจอง แสดงการจองที่ดึงจาก `GET /api/bookings/:id`, 409 แสดงเหตุผล, 503 ตอนจองและตอนโหลด, route `/classes` ล็อกอินแล้วเปิดได้/ยังไม่ล็อกอินไปหน้า login); `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02 หน้า React; precondition "สมาชิกล็อกอินแล้ว" — route ครอบ `RequireAuth`; plan D7 ใช้ `useEffect`/`useState` ไม่ใช้ react-query
+- สิ่งที่เกือบต้องเดา: (1) ถ้าจองสำเร็จแต่ดึงการจองซ้ำไม่สำเร็จ แสดงผลจากคำตอบของ POST แทน (ยังเป็นข้อมูลจาก backend); (2) ไม่มีชื่อเทรนเนอร์ (004 ยังไม่มีข้อมูล) จึงแสดง "เทรนเนอร์ #id"; (3) ข้อความบนหน้าเป็นร่างของ AI ทีมควรตรวจ

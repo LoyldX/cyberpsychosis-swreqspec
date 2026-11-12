@@ -80,7 +80,7 @@
 - ไฟล์ที่แตะ: `frontend/src/features/booking/ClassBookingPage.tsx`, `frontend/src/features/booking/ClassBookingPage.test.tsx`, `frontend/src/App.tsx`
 - ต้องทำหลัง: T-08
 - เสร็จเมื่อ: vitest ผ่าน — `AC_BKG_01` (เห็นคลาส กดจอง แสดงการจองที่ได้), กรณี `409` แสดงข้อความตามรหัสเหตุผล, กรณี `503` แสดงข้อความให้ลองใหม่, route `/classes` อยู่ใน `RequireAuth` และ `npx tsc --noEmit` ผ่าน
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-10 สร้างตัวอ่านเวลาเข้างานจากตารางของ 004
 - รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-11, ASM-13, plan D6)
