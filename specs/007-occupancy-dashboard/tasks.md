@@ -16,7 +16,7 @@
 - ไฟล์ที่แตะ: `backend/migrations/0003_create_gate_signals.up.sql`, `backend/migrations/0003_create_gate_signals.down.sql`, `backend/internal/occupancy/migration_test.go`
 - ต้องทำหลัง: ไม่มี
 - เสร็จเมื่อ: test ใน `migration_test.go` รัน migrate up ได้ตาราง `gate_signals` ตาม plan §3 ฐานข้อมูลปฏิเสธ `direction` อื่นนอกจาก `in`/`out` และ `occupancy_after < 0` ส่วน migrate down ลบตารางได้
-- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (เครื่องที่ implement ไม่มี PostgreSQL/Docker; ทีมสั่งให้เขียนโค้ดไปก่อน)
+- สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-02 เขียนกฎคำนวณจำนวนและจุดเริ่มวัน
 - รองรับ: DOM-CAP-01 (ASM-01, ASM-03, ASM-04)
@@ -35,7 +35,7 @@
   - `RecordSignal` ใช้ transaction + `pg_advisory_xact_lock` บันทึก `occupancy_after` ถูกต้อง
   - สัญญาณ `in` พร้อมกันหลาย goroutine ได้จำนวนเท่ากับจำนวนสัญญาณ
   - store ตัวใหม่บนฐานข้อมูลเดิมอ่าน `CurrentCount` ได้ค่าเดิม
-- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL
+- สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-04 สร้าง broadcaster และ service พร้อมนาฬิกาจำลอง
 - รองรับ: NFR-PERF-02, DOM-CAP-01 (ASM-03, ASM-06)
@@ -43,7 +43,7 @@
 - ไฟล์ที่แตะ: `backend/internal/occupancy/broadcaster.go`, `backend/internal/occupancy/service.go`, `backend/internal/occupancy/service_test.go`
 - ต้องทำหลัง: T-03
 - เสร็จเมื่อ: `TestAC_BI_06` ผ่าน: ใช้นาฬิกาจำลอง จำนวน 10 ตอน 23:59 แล้วเลื่อนไป 00:00 Asia/Bangkok ได้ `CurrentCount` = 0 และผู้ฟังได้รับค่า `count: 0`; บันทึกสัญญาณผ่าน service แล้วผู้ฟังทุกรายได้รับจำนวนใหม่
-- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
+- สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-05 สร้าง API อ่านจำนวนและ endpoint ตัวจำลองสัญญาณ
 - รองรับ: FR-BI-01, IF-GATE-01 (ตัวจำลองเท่านั้น), DOM-CAP-01, CON-TECH-01 (ASM-07)
@@ -53,7 +53,7 @@
 - เสร็จเมื่อ: `TestAC_BI_01`, `TestAC_BI_02`, `TestAC_BI_03`, `TestAC_BI_05`, `TestAC_BI_07` ระดับ HTTP ผ่านด้วย `httptest` + PostgreSQL จริง
   - `POST /api/gate/signals` ด้วย `direction` ผิดได้ `400`
   - เมื่อ DB ไม่ตอบได้ `503` (D6)
-- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
+- สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-06 สร้าง SSE endpoint สำหรับอัปเดตจำนวน
 - รองรับ: NFR-PERF-02, CON-TECH-01 (ASM-06)
@@ -61,7 +61,7 @@
 - ไฟล์ที่แตะ: `backend/internal/occupancy/handler.go`, `backend/internal/occupancy/routes.go`, `backend/internal/occupancy/stream_test.go`
 - ต้องทำหลัง: T-05
 - เสร็จเมื่อ: `TestAC_BI_04` ผ่าน: เปิด `GET /api/occupancy/stream` ผ่าน `httptest.Server` ได้ event แรกเป็นจำนวนปัจจุบัน และหลัง `POST /api/gate/signals` ตอบกลับ ได้ event ที่มีจำนวนใหม่ภายใน 1 วินาที; ปิดการเชื่อมต่อแล้วผู้ฟังถูกถอดออกจาก broadcaster
-- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
+- สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-07 ประกอบ occupancy เข้ากับเซิร์ฟเวอร์
 - รองรับ: CON-TECH-01, FR-BI-01, NFR-PERF-02
@@ -69,7 +69,7 @@
 - ไฟล์ที่แตะ: `backend/cmd/api/main.go`
 - ต้องทำหลัง: T-06
 - เสร็จเมื่อ: `go build ./...` และ `go vet ./...` ผ่าน เปิดเซิร์ฟเวอร์แล้ว `GET /api/occupancy` ตอบ `200` และตัวตั้งเวลา 00:00 หยุดเมื่อเซิร์ฟเวอร์ปิด
-- สถานะ: โค้ดเสร็จ รอตรวจ GET /api/occupancy = 200 กับ PostgreSQL (build/vet ผ่าน, route ต่อแล้ว)
+- สถานะ: เสร็จ รอทีมตรวจ (เปิดเซิร์ฟเวอร์กับ PostgreSQL 18 จริง: GET /api/occupancy = 200, POST 201/400, SSE ส่ง event ครบ, ปิดด้วย SIGINT ได้)
 
 ### T-08 สร้าง type, ตัวเรียก API และ handler จำลองฝั่ง frontend
 - รองรับ: FR-BI-01, NFR-PERF-02, CON-TECH-02
@@ -95,7 +95,7 @@
 - เสร็จเมื่อ: เปิด backend + `npm run dev` แล้วตรวจตามขั้นตอนใน `manual_test.md` ผ่าน
   - ยิง `POST /api/gate/signals` เข้า 5 ออก 2 แล้วหน้า `/dashboard` แสดง 3
   - เปิดหน้าค้างไว้ ยิงสัญญาณเพิ่ม 1 ครั้ง ตัวเลขเปลี่ยนเองโดยไม่รีเฟรชหน้า
-- สถานะ: โค้ดเสร็จ รอตรวจด้วยมือกับ PostgreSQL (M-01..M-04 ใน manual_test.md)
+- สถานะ: โค้ดเสร็จ รอคนตรวจด้วยมือบนเบราว์เซอร์ (M-01..M-04 ใน manual_test.md; มี PostgreSQL แล้ว)
 
 ### T-11 เขียนสัญญา API ของ 007 ใน docs/API.md
 - รองรับ: FR-BI-01, NFR-PERF-02, IF-GATE-01 (ตัวจำลอง)
@@ -103,7 +103,7 @@
 - ไฟล์ที่แตะ: `docs/API.md`
 - ต้องทำหลัง: T-07
 - เสร็จเมื่อ: `docs/API.md` มีหัวข้อ 007 ครบ 3 endpoint ตาม plan §4.1 (input, output, รหัสสถานะ, รูปแบบ event SSE) ระบุว่า `POST /api/gate/signals` เป็นตัวจำลองเท่านั้น (Q-01) และไม่ต้องยืนยันตัวตน (ASM-07) ตรงกับโค้ดจริง
-- สถานะ: เสร็จ รอทีมตรวจ (เอกสารระบุชัดว่า test ที่ใช้ PostgreSQL ยังไม่ได้รัน)
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-12 สร้าง adapter รับสัญญาณจากประตูจริง
 - รองรับ: IF-GATE-01

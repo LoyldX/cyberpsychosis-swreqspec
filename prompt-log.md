@@ -1295,3 +1295,12 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 ## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-12` (007-occupancy-dashboard) — ปฏิเสธ
 
 - T-12 (adapter รับสัญญาณจากประตูจริง) มีสถานะ "รอ Q-01" ตาม `.claude/commands/implement.md` ขั้นที่ 0 ข้อ 1 ต้องปฏิเสธแม้ผู้ใช้สั่ง "implement all" — ต้องปิด Q-01 (รูปแบบสัญญาณและจำนวนประตู ถามฝ่ายอาคารสถานที่) ใน spec และเพิ่ม AC ของ IF-GATE-01 ก่อน ไม่ได้แตะไฟล์ใด
+
+## 12 พฤศจิกายน 2569 — รัน test ที่ใช้ PostgreSQL (007-occupancy-dashboard)
+
+- คำสั่งของทีม: เลือกทางที่ 1 "ติดตั้ง Docker หรือ PostgreSQL แล้วรัน test DB"
+- สิ่งที่ทำ: เครื่องไม่มี Docker และ apt มีแค่ `postgresql-18` (ไม่มี 16 ตาม `docker-compose.yml`) จึงติดตั้ง `postgresql-18` เปิดด้วย `pg_ctlcluster 18 main start` แล้วสร้าง role `gym_user` (CREATEDB) และฐานข้อมูล `gym_management` ตามค่าใน `docker-compose.yml`
+- ผล: `go test -race -count=1 ./internal/occupancy/...` — 24 test PASS ทั้งหมด (รวม migration, store, HTTP, SSE `TestAC_BI_04`, `TestAC_BI_06`); `go test ./...` — `internal/auth` ล้มเพราะไม่มี Redis (ของ 001 ไม่เกี่ยวกับ 007) package อื่นผ่าน
+- ตรวจ T-07 กับเซิร์ฟเวอร์จริง: `GET /api/occupancy` → 200 `count:0`; POST in, in, out → 201 count 1, 2, 1; POST `{"direction":"x"}` → 400; SSE ได้ event `occupancy` 0, 1, 2, 1 ตามลำดับ; SIGINT แล้วเซิร์ฟเวอร์ปิดเอง
+- เปลี่ยนสถานะ: T-01, T-03..T-07 → "เสร็จ รอทีมตรวจ"; T-10 ยังรอคนตรวจด้วยมือ M-01..M-04; แก้ข้อความ "ยังไม่ได้รัน test DB" ใน `docs/API.md` และ `manual_test.md`; T-11 → "เสร็จ รอทีมตรวจ"
+- หมายเหตุ: ฐานข้อมูล dev มีแถวใน `gate_signals` 3 แถวจากการตรวจ T-07 (count วันนี้ = 1) และทดสอบบน 18 ไม่ใช่ 16
