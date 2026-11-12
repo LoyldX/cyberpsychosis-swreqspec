@@ -1201,3 +1201,13 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - สิ่งที่ AI บอกว่าอยากเดาแต่ไม่ได้เดา: รูปแบบสัญญาณของประตูจริงและ `gate_id` (Q-01) — สร้างเฉพาะ endpoint ตัวจำลอง; การจัดการเมื่อ PostgreSQL ไม่ตอบ — ใส่เป็น D6 (ตอบ 503 ไม่มี retry) ให้ทีมตรวจ ไม่ได้เพิ่ม AC
 - การออกแบบที่ AI เลือกเองให้ทีมตรวจ (plan §8.2): D1 SSE, D2 `occupancy_after` + advisory lock, D3 ส่ง event ตอน 00:00, D4 endpoint ตัวจำลองไม่มี auth, D5 `/dashboard` นอก `RequireAuth`, D6 503 เมื่อ DB ล่ม, D7 `time/tzdata`
 - ตรวจแล้ว: ไม่มี ID ใน plan ที่ไม่มีใน spec, ทุก AC (AC-BI-01..07) มี test ชื่อ `TestAC_BI_xx`, ตาราง Constraints ครบ IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02, Open Questions ทุกข้อคัดลอกไว้ใน §8.1 โดยไม่ได้ตอบเอง
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/007-occupancy-dashboard/plan.md`
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "continue" (หลัง /plan) → AI commit plan.md แยกไว้ก่อน แล้วรันขั้นที่ 3 `/tasks` ตาม `.claude/commands/tasks.md`
+- ผลลัพธ์: `specs/007-occupancy-dashboard/tasks.md` — 12 task (T-01..T-12), รอ Open Question 1 task (T-12 รอ Q-01)
+- task ที่ AI คิดว่ายากที่สุด: T-06 (SSE) — ต้องจัดการผู้ฟังหลายราย การถอดผู้ฟังเมื่อปิดการเชื่อมต่อ และ test เชิงเวลา 1 วินาทีที่ไม่ flaky; รองลงมา T-03 (advisory lock + concurrency test)
+- AC ที่ทดสอบยาก: AC-BI-04 (1 วินาที) ใช้ `httptest.Server` จริงฝั่ง backend และ `EventSource` จำลองฝั่ง frontend + ตรวจด้วยมือใน T-10; AC-BI-06 (00:00) ใช้นาฬิกาจำลองแทนการรอเที่ยงคืนจริง — ทีมต้องยอมรับว่าเป็นการทดสอบแบบย่อส่วน
+- หมายเหตุ: T-10 แตะ `frontend/vite.config.ts` (เพิ่ม dev proxy `/api`) ซึ่งเป็นไฟล์ร่วมของทุกฟีเจอร์; T-12 ไม่มี "ไฟล์ที่แตะ" และ "เสร็จเมื่อ" ที่ชัดเจนเพราะรอ Q-01 (จะถูก /implement ปฏิเสธจนกว่าจะปิด Q-01)
+- ตรวจแล้ว: ไม่มี ID ใน tasks ที่ไม่มีใน spec; ทุก AC (AC-BI-01..07) มี task ตรวจ; ทุก Constraint (IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02) มี task ทำให้เป็นจริง
