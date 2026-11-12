@@ -32,7 +32,7 @@
 - ไฟล์ที่แตะ: `backend/internal/booking/store.go`, `backend/internal/booking/store_test.go`
 - ต้องทำหลัง: T-01, T-02
 - เสร็จเมื่อ: test store กับ PostgreSQL จริงผ่าน — `ListUpcoming` คืนเฉพาะคลาสที่ยังไม่เริ่ม, `GetForMember` คืนเฉพาะการจองของสมาชิกนั้น, `Book` ทำใน transaction เดียวพร้อม advisory lock ต่อ `trainer_id` ตรวจตามลำดับ D3 (รับตัวตรวจกะเป็นพารามิเตอร์) และเมื่อไม่ผ่านไม่มีแถวใหม่ใน `bookings`
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-04 สร้าง service พร้อม Clock และ ShiftChecker
 - รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-08, ASM-11, plan D6)

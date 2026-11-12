@@ -1406,3 +1406,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `TestAC_BKG_02_Rules`, `TestAC_BKG_03_Rules`, `TestAC_BKG_04_Rules`, `TestReasonCodes` PASS (`-race`)
 - Constraint ในโค้ด: DOM-BKG-01 — `Interval.Overlaps` แบบช่วงปิด (ASM-12) และ `Interval.Within` ขอบพอดีนับว่าอยู่ใน (ASM-13); รหัสเหตุผลครบตาม plan ข้อ 4
 - สิ่งที่เกือบต้องเดา: ไม่มี (ขอบเขตช่วงเวลาถามทีมแล้วระหว่าง /plan เป็น ASM-12, ASM-13)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/store.go`, `backend/internal/booking/store_test.go`
+- ผล test (PostgreSQL 18 จริง, `-race`): `TestStoreListUpcoming`, `TestStoreGetForMember`, `TestStoreBookRejections` (ไม่พบ/เริ่มแล้ว/ซ้ำ/เต็ม), `TestStoreShiftCheck`, `TestStoreOverlapCountsOnlyBookedClasses` PASS; package occupancy และ inventory ยังผ่าน
+- Constraint ในโค้ด: CON-DB-01 transaction เดียวต่อการจอง + `pg_advisory_xact_lock(5005, trainer_id)` (plan D2); ลำดับตรวจตาม plan D3; ทับซ้อนนับเฉพาะคลาสที่มีผู้จอง (ASM-10) ของเทรนเนอร์คนเดียวกัน (ASM-09) ด้วย `Interval.Overlaps` (ASM-12); ทุกทางที่ไม่ผ่าน rollback ไม่บันทึก (ASM-07)
+- สิ่งที่เกือบต้องเดา: (1) "ถึงเวลาเริ่มแล้ว" รวมวินาทีที่เริ่มพอดี — ถือว่าเริ่มแล้วเพราะ ASM-05 เขียนว่า "ถึงเวลาเริ่มคลาสแล้ว"; (2) ตัวตรวจกะรับเป็นพารามิเตอร์ `ShiftCheck` ตาม tasks ("รับตัวตรวจกะเป็นพารามิเตอร์") ถ้าอ่านข้อมูลกะไม่ได้ จะส่ง error นั้นกลับไปให้ service ตัดสิน
