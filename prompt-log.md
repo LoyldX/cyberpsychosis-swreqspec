@@ -1542,3 +1542,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `TestMigration0005CreatesTrainerRoster` PASS กับ PostgreSQL 18 (CHECK kind/weekday/เวลา รวมข้ามเที่ยงคืน, FK trainers, migrate down กลับ version 4); package booking และ occupancy ยังผ่าน
 - Constraint ในโค้ด: CON-DB-01; ASM-03 `CHECK (end_time > start_time)` กันข้ามเที่ยงคืน; ASM-04 `kind`; ASM-01 `cancelled`; ASM-09 `trainers`
 - สิ่งที่เกือบต้องเดา: ไม่มี (FK จาก `classes` ไป `trainers` เสนอเป็น D1 ไม่ได้ทำ)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/model.go`, `backend/internal/roster/model_test.go`
+- ผล test (`-race`): `TestParseTimeOfDay`, `TestParseKind`, `TestSlotValidate`, `TestSlotOverlaps`, `TestSlotWithin`, `TestSlotOf`, `TestReasonCodes` PASS
+- Constraint ในโค้ด: ASM-03 `Slot.Validate` (วัน 1..7, เริ่มก่อนจบ ไม่ข้ามเที่ยงคืน) และ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่ใช่ Slot); ASM-10 `Overlaps` ไม่นับต่อกันพอดี และ `Within` รวมช่วงที่ต่อกัน; ASM-04 `Kind` work/teach
+- สิ่งที่เกือบต้องเดา: ความละเอียดเวลา — เก็บเป็นวินาทีในวันเพื่อให้คลาสที่มีวินาทีถูกเทียบตรง ส่วน API รับ "HH:MM" ตาม plan
