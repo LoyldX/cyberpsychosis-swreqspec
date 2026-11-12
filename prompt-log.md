@@ -1189,3 +1189,15 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - Traceability: อัปเดตตาม AC ใหม่และ ASM
 - ไม่เปลี่ยน FR/NFR/CON/DOM/IF ID และไม่เขียนโค้ดหรือวางแผน
 - นอกจากนี้แก้ `specs/README.md` แถว 007: ผู้รับผิดชอบ พงษ์รพี สืบญาติ / 660710724
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/plan specs/007-occupancy-dashboard/spec.md`
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "continue" (หลัง /clarify) → AI commit ผล /clarify แยกไว้ก่อน แล้วรันขั้นที่ 2 `/plan` ตาม `.claude/commands/plan.md`
+- อ่านประกอบ: `spec.md` (Draft v2), `AGENTS.md`, `specs/000-shared/README.md`, `specs/001-auth-session/plan.md` และ `specs/006-inventory/plan.md` (ใช้เป็นแบบ), โครงโค้ดเดิมใน `backend/` และ `frontend/`
+- ผลลัพธ์: `specs/007-occupancy-dashboard/plan.md` (8 หัวข้อ)
+- Constraint ที่ AI ยังไม่ได้ใช้: IF-GATE-01 ใช้ผ่านตัวจำลองสัญญาณเท่านั้น adapter ของประตูจริงยังไม่สร้างเพราะรอ Q-01; CON-DB-01 ไม่ผูกกับ 007 ใน SRS แต่ใช้ PostgreSQL ตาม ASM-02 (ทีมเลือกเอง)
+- AC ที่ทดสอบยาก: AC-BI-04 (ภายใน 1 วินาที) ต้องทดสอบ SSE ผ่าน `httptest.Server` จริง และฝั่ง frontend ใช้ `EventSource` จำลองเพราะ jsdom ไม่มี; AC-BI-06 (00:00) ต้องใช้นาฬิกาจำลอง
+- สิ่งที่ AI บอกว่าอยากเดาแต่ไม่ได้เดา: รูปแบบสัญญาณของประตูจริงและ `gate_id` (Q-01) — สร้างเฉพาะ endpoint ตัวจำลอง; การจัดการเมื่อ PostgreSQL ไม่ตอบ — ใส่เป็น D6 (ตอบ 503 ไม่มี retry) ให้ทีมตรวจ ไม่ได้เพิ่ม AC
+- การออกแบบที่ AI เลือกเองให้ทีมตรวจ (plan §8.2): D1 SSE, D2 `occupancy_after` + advisory lock, D3 ส่ง event ตอน 00:00, D4 endpoint ตัวจำลองไม่มี auth, D5 `/dashboard` นอก `RequireAuth`, D6 503 เมื่อ DB ล่ม, D7 `time/tzdata`
+- ตรวจแล้ว: ไม่มี ID ใน plan ที่ไม่มีใน spec, ทุก AC (AC-BI-01..07) มี test ชื่อ `TestAC_BI_xx`, ตาราง Constraints ครบ IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02, Open Questions ทุกข้อคัดลอกไว้ใน §8.1 โดยไม่ได้ตอบเอง
