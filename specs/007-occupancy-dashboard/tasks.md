@@ -53,7 +53,7 @@
 - เสร็จเมื่อ: `TestAC_BI_01`, `TestAC_BI_02`, `TestAC_BI_03`, `TestAC_BI_05`, `TestAC_BI_07` ระดับ HTTP ผ่านด้วย `httptest` + PostgreSQL จริง
   - `POST /api/gate/signals` ด้วย `direction` ผิดได้ `400`
   - เมื่อ DB ไม่ตอบได้ `503` (D6)
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
 
 ### T-06 สร้าง SSE endpoint สำหรับอัปเดตจำนวน
 - รองรับ: NFR-PERF-02, CON-TECH-01 (ASM-06)

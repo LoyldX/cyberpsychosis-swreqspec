@@ -1,0 +1,9 @@
+package occupancy
+
+import "github.com/gin-gonic/gin"
+
+// Register ลง endpoint ของ Occupancy Dashboard บน Gin (FR-BI-01, IF-GATE-01 ตัวจำลอง, CON-TECH-01).
+func (h *Handler) Register(r gin.IRouter) {
+	r.GET("/api/occupancy", h.getOccupancy)
+	r.POST("/api/gate/signals", h.postSignal)
+}

@@ -1242,3 +1242,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (`go test -race`): PASS — `TestAC_BI_06_MidnightPublish` (นาฬิกาจำลอง + counter ในหน่วยความจำ), `TestServiceRecordPublishesToAllSubscribers`, `TestBroadcasterKeepsLatestForSlowSubscriber`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_06` (Store จริง + นาฬิกาจำลอง)
 - Constraint ในโค้ด: ASM-03/plan D3 ใน `Service.RunMidnightReset` (รอถึง `NextStartOfDay` แล้ว publish จำนวนของวันใหม่); NFR-PERF-02 ใน `Broadcaster.Publish` (ไม่ block ผู้ฟังที่ช้าได้ค่าล่าสุด); ASM-05 ใน `Service.mu` (ลำดับการ publish ตรงกับลำดับบันทึก)
 - สิ่งที่เกือบต้องเดา: ผู้ฟังที่อ่านไม่ทันควรได้ "ทุกค่า" หรือ "ค่าล่าสุด" — spec ต้องการให้เห็นจำนวนปัจจุบัน จึงเลือกค่าล่าสุด (ไม่ใช่ requirement ใหม่ เป็นรายละเอียด implementation ของ D1)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/handler.go`, `backend/internal/occupancy/routes.go`, `backend/internal/occupancy/handler_test.go`
+- ผล test: `go vet` ผ่าน; PASS (ไม่ใช้ DB) — `TestPostSignalRejectsInvalidDirection` (400), `TestHandlerReturns503WhenDatabaseUnavailable` (503, plan D6); FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused ทุกตัว) — `TestAC_BI_01_HTTP`, `TestAC_BI_02_HTTP`, `TestAC_BI_03_HTTP`, `TestAC_BI_05_HTTP`, `TestAC_BI_07_HTTP`
+- Constraint ในโค้ด: IF-GATE-01 — `POST /api/gate/signals` คอมเมนต์ชัดว่าเป็นตัวจำลองเท่านั้น (Q-01); ASM-07 — ไม่มี middleware ยืนยันตัวตน; CON-TECH-01 — Gin
+- สิ่งที่เกือบต้องเดา: JSON ที่ parse ไม่ได้ควรได้ error code อะไร — plan ระบุแค่ `invalid_direction` สำหรับ direction ผิด จึงใช้ `400 invalid_direction` เหมือนกัน (ไม่เพิ่ม error code ใหม่)
