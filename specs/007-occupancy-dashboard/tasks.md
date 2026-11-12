@@ -35,7 +35,7 @@
   - `RecordSignal` ใช้ transaction + `pg_advisory_xact_lock` บันทึก `occupancy_after` ถูกต้อง
   - สัญญาณ `in` พร้อมกันหลาย goroutine ได้จำนวนเท่ากับจำนวนสัญญาณ
   - store ตัวใหม่บนฐานข้อมูลเดิมอ่าน `CurrentCount` ได้ค่าเดิม
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL
 
 ### T-04 สร้าง broadcaster และ service พร้อมนาฬิกาจำลอง
 - รองรับ: NFR-PERF-02, DOM-CAP-01 (ASM-03, ASM-06)

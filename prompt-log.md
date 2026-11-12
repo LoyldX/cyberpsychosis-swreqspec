@@ -1228,3 +1228,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - หมายเหตุ: ชื่อ test มี suffix (`_ApplySignal`) เพราะ T-03 และ T-05 ต้องมี test ของ AC เดียวกันใน package เดียวกัน Go ไม่ยอมให้ชื่อฟังก์ชันซ้ำ; ชื่อยังมี AC ID ตาม `000-shared` §4
 - เพิ่ม `ParseDirection` และ `NextStartOfDay` (ใช้ใน T-04/T-05) อยู่ใน `model.go` ตามโครงไฟล์ของ plan §4.3
 - สิ่งที่เกือบต้องเดา: ไม่มี (กฎทั้งหมดมาจาก DOM-CAP-01, ASM-03, ASM-04)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/store.go`, `backend/internal/occupancy/store_test.go`
+- ผล test: `go vet` ผ่าน; `TestStoreRejectsInvalidDirection` PASS (ไม่ใช้ DB); `TestAC_BI_02_Store` (รวม subtest สัญญาณพร้อมกัน 20 goroutine), `TestAC_BI_05_Store`, `TestAC_BI_07_Store` FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์ advisory lock กับฐานข้อมูลจริง
+- Constraint ในโค้ด: DOM-CAP-01/ASM-04 ผ่าน `ApplySignal` ใน `RecordSignal`; ASM-05 ผ่าน `pg_advisory_xact_lock` + เรียงตาม `id`; ASM-03 ผ่าน `StartOfDay`; ASM-02 อ่านจำนวนจากตารางเสมอ ไม่เก็บในหน่วยความจำ
+- สิ่งที่เกือบต้องเดา: (1) `RecordSignal` รับเวลา `at` จากผู้เรียกแทน `now()` ของ DB เพื่อให้ T-04 ใช้นาฬิกาจำลองได้ (2) test ต้องล้างตาราง `gate_signals` ก่อน/หลังแต่ละ test เพราะจำนวนเป็นค่ารวมทั้งตาราง — ฐานข้อมูลทดสอบคือฐานเดียวกับ dev ใน `docker-compose.yml` ข้อมูลสัญญาณใน dev จะถูกล้างเมื่อรัน test (ทีมควรรับรู้)
