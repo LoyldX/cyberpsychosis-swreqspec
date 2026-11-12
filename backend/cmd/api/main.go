@@ -5,18 +5,23 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
 	"gymapp/backend/internal/app"
 	"gymapp/backend/internal/auth"
+	"gymapp/backend/internal/booking"
 	"gymapp/backend/internal/config"
 	"gymapp/backend/internal/inventory"
+	"gymapp/backend/internal/occupancy"
+	"gymapp/backend/internal/roster"
 )
 
 // main เรียก run แล้วจบด้วย log.Fatalf เมื่อมี error (CON-TECH-01); แยก run เพื่อให้ defer ปิด pool/client ทำงาน.
@@ -26,8 +31,9 @@ func main() {
 	}
 }
 
-// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth และ inventory เข้ากับ Gin (CON-TECH-01, FR-AUTH-01, FR-INV-01)
-// แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration; ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
+// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory, occupancy, roster และ booking เข้ากับ Gin
+// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01, FR-ROST-01, FR-BKG-01, FR-BKG-02) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
+// ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
 func run() error {
 	cfg, err := config.Load()
 	if err != nil {
@@ -49,11 +55,30 @@ func run() error {
 	// timeout ของ dependency มาจาก config (AC-AUTH-07, AC-AUTH-08, ASM-09)
 	handler := auth.NewHandler(auth.NewService(members, sessions, auth.DefaultSessionTTL)).WithSessionReader(sessions).WithDependencyTimeout(cfg.DependencyTimeout)
 	inventoryHandler := inventory.NewHandler(inventory.NewStore(pool))
-
-	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: app.NewRouter(handler.Register, inventoryHandler.Register)}
+	// FR-BI-01, NFR-PERF-02: occupancy ใช้ PostgreSQL ตาม ASM-02 และนาฬิกาจริงของเครื่อง
+	occupancyService := occupancy.NewService(occupancy.NewStore(pool), occupancy.NewBroadcaster(), nil)
+	occupancyHandler := occupancy.NewHandler(occupancyService)
+	// FR-ROST-01: ตารางงานเทรนเนอร์ใช้ PostgreSQL และนาฬิกาจริง ไม่ต้องล็อกอิน (004 ASM-06)
+	rosterStore := roster.NewStore(pool)
+	rosterHandler := roster.NewHandler(rosterStore, nil)
+	// FR-BKG-01, FR-BKG-02: การจองอยู่หลัง RequireSession ของ 001 และตรวจกะจากเวลาเข้างานจริงของ 004 (005 ASM-11, plan D6)
+	bookingHandler := booking.NewHandler(booking.NewService(booking.NewStore(pool), booking.NewRosterShifts(rosterStore), nil))
+	registerBooking := func(r gin.IRouter) {
+		bookingHandler.Register(r, auth.RequireSession(sessions, cfg.DependencyTimeout))
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+
+	srv := &http.Server{
+		Addr:    cfg.HTTPAddr,
+		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register, rosterHandler.Register, registerBooking),
+		// context ของทุกคำขอมาจาก ctx: เมื่อได้รับสัญญาณหยุด การเชื่อมต่อ SSE ที่เปิดค้างจะจบเอง Shutdown จึงไม่ต้องรอจนหมดเวลา (NFR-PERF-02)
+		BaseContext: func(net.Listener) context.Context { return ctx },
+	}
+
+	// ASM-03, AC-BI-06: กระจายจำนวนของวันใหม่ตอน 00:00 Asia/Bangkok จนกว่าเซิร์ฟเวอร์จะหยุด
+	go occupancyService.RunMidnightReset(ctx)
 
 	errCh := make(chan error, 1)
 	go func() {

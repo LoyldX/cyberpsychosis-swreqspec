@@ -1141,3 +1141,520 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - วิธีทดสอบแบบย่อส่วนที่เสนอให้ทีมตัดสินใจ: ใช้สมาชิก 2 คน, คลาส 2 รายการของเทรนเนอร์เดียวกันที่เวลาทับซ้อน และปล่อยคำขอ 2 รายการพร้อมกันด้วย PostgreSQL จริง; วิธีนี้ตรวจผล AC แต่ไม่ใช้ยืนยัน threshold latency ของ Q-01
 - AC-BKG-01 มีความขัดแย้งระหว่างการเรียกดู Booking กับ Out of scope; งานตรวจ flow ส่วนนั้นรอ Q-04 โดยไม่สร้าง feature ดูรายการจอง
 - AC-BKG-03/04 รอข้อยุติเรื่องการบล็อกนอกกะและแหล่งข้อมูลกะ (Q-08, Q-10)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/clarify specs/007-occupancy-dashboard/spec.md`
+
+### คำสั่งที่ใช้
+
+"i will imaplement spec 007 follow a instruction" → AI แจ้งว่า spec ยังเป็น Draft v1 ไม่มี plan.md/tasks.md จึงเริ่มขั้นที่ 1 `/clarify` ตาม `specs/README.md` (ห้ามข้ามขั้น) และ `.claude/commands/clarify.md` ต่อด้วยคำสั่ง "made it a interactive terminal qa" → AI ถามทีละชุดผ่านกล่องคำถามแบบโต้ตอบใน terminal
+- เครื่องมือ: Claude Code
+- ไฟล์: `specs/007-occupancy-dashboard/spec.md` (Draft v1)
+
+### คำถามที่ AI ถาม (ทั้งหมด)
+1. ประตูส่งสัญญาณมาในรูปแบบใด และมีประตูกี่จุด (IF-GATE-01)
+2. ประตูบันทึกทั้งขาเข้าและขาออกหรือไม่ (Q3 ของ SRS, DOM-CAP-01, AC-BI-03)
+3. เก็บเหตุการณ์ผ่านประตูเป็นประวัติหรือเก็บแค่จำนวน และจำนวนต้องอยู่หลังรีสตาร์ตหรือไม่ (SRS ไม่ผูก 007 กับ CON-DB-01)
+4. จำนวนปัจจุบันต้องล้างเป็น 0 เมื่อไร
+5. สัญญาณผ่านออกเมื่อจำนวนเป็น 0 ต้องทำอย่างไร
+6. สัญญาณซ้ำ ผิดลำดับ หรือประตูขาดการเชื่อมต่อ ต้องทำอย่างไร
+7. ตัวเลขบน Dashboard ต้องเปลี่ยนภายในกี่วินาที (NFR-PERF-02 = TBD)
+8. หน้า Dashboard ต้องล็อกอินหรือไม่ (Precondition "ผู้จัดการระบุตัวตนได้" ขัดกับ Out of scope ที่ตัดล็อกอินผู้จัดการ)
+9. (ถามซ้ำเพราะขัดกัน) ข้อ 8 ทีมเลือก "ใช้ล็อกอินของ 001" แต่ 001 รองรับเฉพาะสมาชิกและตัดล็อกอินเจ้าหน้าที่/ผู้จัดการไว้ใน Out of scope จะให้ทำอย่างไร
+10. (ถามต่อ) ข้อ 4 "ล้างทุกวัน" ให้ล้างตอนไหน
+11. (ถามต่อ) คำตอบทั้งหมดทีมตัดสินเอง หรือยืนยันกับผู้เกี่ยวข้องแล้ว
+12. (ถามต่อ) ใครเป็นผู้รับผิดชอบ 007 (`specs/README.md` ให้กรอกก่อนเริ่มขั้นที่ 1)
+
+### คำตอบของทีม
+- ข้อ 1: "ไม่รู้ ต้องถามฝ่ายอาคาร" → Q-01
+- ข้อ 2: "บันทึกทั้งสองทาง" → ASM-01 (Q3 ของ SRS คงไว้เพื่อยืนยัน)
+- ข้อ 3: "ทุกเหตุการณ์ใน PostgreSQL" → ASM-02 / Q-05
+- ข้อ 4 + 10: "ล้างทุกวัน" เวลา "เที่ยงคืน 00:00" (Asia/Bangkok) → ASM-03 / Q-07
+- ข้อ 5: "คงไว้ที่ 0" → ASM-04 / Q-04
+- ข้อ 6: "รับทุกสัญญาณตามจริง" → ASM-05 / Q-03
+- ข้อ 7: "ภายใน 1 วินาที" → ASM-06 / Q-02
+- ข้อ 8: ตอนแรก "ใช้ล็อกอินของ 001" ซึ่งขัดกับ Out of scope ของ 001 และ `docs/specs.md` §4 AI ชี้ให้เห็นและถามซ้ำ (ข้อ 9) ทีมเปลี่ยนเป็น "เปิดได้ไม่ต้องล็อกอิน" → ASM-07 / Q-06
+- ข้อ 11: "ทีมตัดสินเองทั้งหมด" → ทุกข้อเป็น ASM ไม่ใช่ข้อกำหนดจริง
+- ข้อ 12: "พงษ์รพี สืบญาติ" (660710724) GitHub User ID ยังไม่ได้กรอก
+
+### สิ่งที่แก้ใน `specs/007-occupancy-dashboard/spec.md` (v1 เป็น v2)
+- Status เป็น `Draft v2`, อัปเดตวันที่ 12 พฤศจิกายน 2569, Owner เป็น พงษ์รพี สืบญาติ
+- เพิ่มตาราง "คำที่ใช้ในเอกสารนี้" (สัญญาณผ่านประตู / จำนวนปัจจุบัน / วันปัจจุบัน)
+- Out of scope: เพิ่มการยืนยันตัวตนบนหน้า Dashboard, การกรองสัญญาณซ้ำและแสดงสถานะประตู, การนำเข้า/ส่งออก Excel
+- Preconditions: ลบ "ผู้จัดการระบุตัวตนได้" (ขัดกับ Out of scope; แทนด้วย ASM-07)
+- Constraints: DOM-CAP-01 อ้าง ASM-01/03/04; ระบุว่าใช้ PostgreSQL เป็นทีมเลือกเอง (CON-DB-01 ไม่ผูกกับ 007); ระบุพฤติกรรมสัญญาณผิดปกติตาม ASM-05
+- NFR-PERF-02: คงข้อความ SRS (TBD) และระบุว่า sprint นี้ใช้ 1 วินาทีตาม ASM-06
+- AC: AC-BI-01 ใส่ตัวเลขให้ทดสอบได้ (เข้า 5 ออก 2 → 3); AC-BI-03 อ้าง ASM-01 แทน "ขึ้นกับ Q3"; AC-BI-04 ใส่เวลา 1 วินาที; **เพิ่ม AC-BI-05 (คงไว้ที่ 0), AC-BI-06 (ล้างตอน 00:00), AC-BI-07 (จำนวนอยู่หลังรีสตาร์ต)** แปลตรงจาก ASM-04/03/02
+- Assumptions: เพิ่ม ASM-01..07
+- Open Questions: กำหนดรหัส Q-01..Q-07 ให้คำถาม "—" เดิมและคำถามใหม่ (Q-01 ยังเปิด, Q-02..Q-07 ใช้ ASM ชั่วคราวรอยืนยัน) คง Q3/Q8/Q10 ของ SRS
+- Traceability: อัปเดตตาม AC ใหม่และ ASM
+- ไม่เปลี่ยน FR/NFR/CON/DOM/IF ID และไม่เขียนโค้ดหรือวางแผน
+- นอกจากนี้แก้ `specs/README.md` แถว 007: ผู้รับผิดชอบ พงษ์รพี สืบญาติ / 660710724
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/plan specs/007-occupancy-dashboard/spec.md`
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "continue" (หลัง /clarify) → AI commit ผล /clarify แยกไว้ก่อน แล้วรันขั้นที่ 2 `/plan` ตาม `.claude/commands/plan.md`
+- อ่านประกอบ: `spec.md` (Draft v2), `AGENTS.md`, `specs/000-shared/README.md`, `specs/001-auth-session/plan.md` และ `specs/006-inventory/plan.md` (ใช้เป็นแบบ), โครงโค้ดเดิมใน `backend/` และ `frontend/`
+- ผลลัพธ์: `specs/007-occupancy-dashboard/plan.md` (8 หัวข้อ)
+- Constraint ที่ AI ยังไม่ได้ใช้: IF-GATE-01 ใช้ผ่านตัวจำลองสัญญาณเท่านั้น adapter ของประตูจริงยังไม่สร้างเพราะรอ Q-01; CON-DB-01 ไม่ผูกกับ 007 ใน SRS แต่ใช้ PostgreSQL ตาม ASM-02 (ทีมเลือกเอง)
+- AC ที่ทดสอบยาก: AC-BI-04 (ภายใน 1 วินาที) ต้องทดสอบ SSE ผ่าน `httptest.Server` จริง และฝั่ง frontend ใช้ `EventSource` จำลองเพราะ jsdom ไม่มี; AC-BI-06 (00:00) ต้องใช้นาฬิกาจำลอง
+- สิ่งที่ AI บอกว่าอยากเดาแต่ไม่ได้เดา: รูปแบบสัญญาณของประตูจริงและ `gate_id` (Q-01) — สร้างเฉพาะ endpoint ตัวจำลอง; การจัดการเมื่อ PostgreSQL ไม่ตอบ — ใส่เป็น D6 (ตอบ 503 ไม่มี retry) ให้ทีมตรวจ ไม่ได้เพิ่ม AC
+- การออกแบบที่ AI เลือกเองให้ทีมตรวจ (plan §8.2): D1 SSE, D2 `occupancy_after` + advisory lock, D3 ส่ง event ตอน 00:00, D4 endpoint ตัวจำลองไม่มี auth, D5 `/dashboard` นอก `RequireAuth`, D6 503 เมื่อ DB ล่ม, D7 `time/tzdata`
+- ตรวจแล้ว: ไม่มี ID ใน plan ที่ไม่มีใน spec, ทุก AC (AC-BI-01..07) มี test ชื่อ `TestAC_BI_xx`, ตาราง Constraints ครบ IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02, Open Questions ทุกข้อคัดลอกไว้ใน §8.1 โดยไม่ได้ตอบเอง
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/007-occupancy-dashboard/plan.md`
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "continue" (หลัง /plan) → AI commit plan.md แยกไว้ก่อน แล้วรันขั้นที่ 3 `/tasks` ตาม `.claude/commands/tasks.md`
+- ผลลัพธ์: `specs/007-occupancy-dashboard/tasks.md` — 12 task (T-01..T-12), รอ Open Question 1 task (T-12 รอ Q-01)
+- task ที่ AI คิดว่ายากที่สุด: T-06 (SSE) — ต้องจัดการผู้ฟังหลายราย การถอดผู้ฟังเมื่อปิดการเชื่อมต่อ และ test เชิงเวลา 1 วินาทีที่ไม่ flaky; รองลงมา T-03 (advisory lock + concurrency test)
+- AC ที่ทดสอบยาก: AC-BI-04 (1 วินาที) ใช้ `httptest.Server` จริงฝั่ง backend และ `EventSource` จำลองฝั่ง frontend + ตรวจด้วยมือใน T-10; AC-BI-06 (00:00) ใช้นาฬิกาจำลองแทนการรอเที่ยงคืนจริง — ทีมต้องยอมรับว่าเป็นการทดสอบแบบย่อส่วน
+- หมายเหตุ: T-10 แตะ `frontend/vite.config.ts` (เพิ่ม dev proxy `/api`) ซึ่งเป็นไฟล์ร่วมของทุกฟีเจอร์; T-12 ไม่มี "ไฟล์ที่แตะ" และ "เสร็จเมื่อ" ที่ชัดเจนเพราะรอ Q-01 (จะถูก /implement ปฏิเสธจนกว่าจะปิด Q-01)
+- ตรวจแล้ว: ไม่มี ID ใน tasks ที่ไม่มีใน spec; ทุก AC (AC-BI-01..07) มี task ตรวจ; ทุก Constraint (IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02) มี task ทำให้เป็นจริง
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (007-occupancy-dashboard)
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "implement all of them do each one at a time" → ทำ T-01..T-11 ทีละ task ตามลำดับ (T-12 ปฏิเสธเพราะ "รอ Q-01")
+- สภาพแวดล้อม: เครื่องที่ implement ไม่มี PostgreSQL และ Docker AI ถามทีม ทีมเลือก "เขียนโค้ดไปก่อน test DB รันทีหลัง" — task ที่ test ต้องใช้ PostgreSQL จะมีสถานะ "โค้ดเสร็จ รอรัน test กับ PostgreSQL" ไม่ใช่ "เสร็จ รอทีมตรวจ" และทีมอนุญาตให้ทำ task ถัดไปต่อได้แม้ task ก่อนหน้ายังไม่ได้รัน test จริง
+- ไฟล์ที่สร้าง: `backend/migrations/0003_create_gate_signals.up.sql`, `backend/migrations/0003_create_gate_signals.down.sql`, `backend/internal/occupancy/migration_test.go`
+- ผล test: `go vet ./internal/occupancy/` ผ่าน; `go test` รัน `TestMigration0003CreatesGateSignals` แล้ว FAIL เพราะต่อ `127.0.0.1:5432` ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์กับฐานข้อมูลจริง
+- สิ่งที่เกือบต้องเดา: การทดสอบ migrate down บนฐานข้อมูลร่วมจะทำลายตารางของ package อื่น จึงให้ test สร้างฐานข้อมูลชั่วคราวแยก (ต้องใช้สิทธิ์ CREATE DATABASE ซึ่ง `gym_user` ใน `docker-compose.yml` มีในฐานะ superuser ของ image postgres)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/model.go`, `backend/internal/occupancy/model_test.go`
+- ผล test (`go test -race`): PASS ทั้งหมด — `TestAC_BI_02_ApplySignal`, `TestAC_BI_03_ApplySignal`, `TestAC_BI_05_ApplySignal`, `TestParseDirection`, `TestStartOfDayBangkok`
+- หมายเหตุ: ชื่อ test มี suffix (`_ApplySignal`) เพราะ T-03 และ T-05 ต้องมี test ของ AC เดียวกันใน package เดียวกัน Go ไม่ยอมให้ชื่อฟังก์ชันซ้ำ; ชื่อยังมี AC ID ตาม `000-shared` §4
+- เพิ่ม `ParseDirection` และ `NextStartOfDay` (ใช้ใน T-04/T-05) อยู่ใน `model.go` ตามโครงไฟล์ของ plan §4.3
+- สิ่งที่เกือบต้องเดา: ไม่มี (กฎทั้งหมดมาจาก DOM-CAP-01, ASM-03, ASM-04)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/store.go`, `backend/internal/occupancy/store_test.go`
+- ผล test: `go vet` ผ่าน; `TestStoreRejectsInvalidDirection` PASS (ไม่ใช้ DB); `TestAC_BI_02_Store` (รวม subtest สัญญาณพร้อมกัน 20 goroutine), `TestAC_BI_05_Store`, `TestAC_BI_07_Store` FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์ advisory lock กับฐานข้อมูลจริง
+- Constraint ในโค้ด: DOM-CAP-01/ASM-04 ผ่าน `ApplySignal` ใน `RecordSignal`; ASM-05 ผ่าน `pg_advisory_xact_lock` + เรียงตาม `id`; ASM-03 ผ่าน `StartOfDay`; ASM-02 อ่านจำนวนจากตารางเสมอ ไม่เก็บในหน่วยความจำ
+- สิ่งที่เกือบต้องเดา: (1) `RecordSignal` รับเวลา `at` จากผู้เรียกแทน `now()` ของ DB เพื่อให้ T-04 ใช้นาฬิกาจำลองได้ (2) test ต้องล้างตาราง `gate_signals` ก่อน/หลังแต่ละ test เพราะจำนวนเป็นค่ารวมทั้งตาราง — ฐานข้อมูลทดสอบคือฐานเดียวกับ dev ใน `docker-compose.yml` ข้อมูลสัญญาณใน dev จะถูกล้างเมื่อรัน test (ทีมควรรับรู้)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/broadcaster.go`, `backend/internal/occupancy/service.go`, `backend/internal/occupancy/service_test.go`
+- ผล test (`go test -race`): PASS — `TestAC_BI_06_MidnightPublish` (นาฬิกาจำลอง + counter ในหน่วยความจำ), `TestServiceRecordPublishesToAllSubscribers`, `TestBroadcasterKeepsLatestForSlowSubscriber`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_06` (Store จริง + นาฬิกาจำลอง)
+- Constraint ในโค้ด: ASM-03/plan D3 ใน `Service.RunMidnightReset` (รอถึง `NextStartOfDay` แล้ว publish จำนวนของวันใหม่); NFR-PERF-02 ใน `Broadcaster.Publish` (ไม่ block ผู้ฟังที่ช้าได้ค่าล่าสุด); ASM-05 ใน `Service.mu` (ลำดับการ publish ตรงกับลำดับบันทึก)
+- สิ่งที่เกือบต้องเดา: ผู้ฟังที่อ่านไม่ทันควรได้ "ทุกค่า" หรือ "ค่าล่าสุด" — spec ต้องการให้เห็นจำนวนปัจจุบัน จึงเลือกค่าล่าสุด (ไม่ใช่ requirement ใหม่ เป็นรายละเอียด implementation ของ D1)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/handler.go`, `backend/internal/occupancy/routes.go`, `backend/internal/occupancy/handler_test.go`
+- ผล test: `go vet` ผ่าน; PASS (ไม่ใช้ DB) — `TestPostSignalRejectsInvalidDirection` (400), `TestHandlerReturns503WhenDatabaseUnavailable` (503, plan D6); FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused ทุกตัว) — `TestAC_BI_01_HTTP`, `TestAC_BI_02_HTTP`, `TestAC_BI_03_HTTP`, `TestAC_BI_05_HTTP`, `TestAC_BI_07_HTTP`
+- Constraint ในโค้ด: IF-GATE-01 — `POST /api/gate/signals` คอมเมนต์ชัดว่าเป็นตัวจำลองเท่านั้น (Q-01); ASM-07 — ไม่มี middleware ยืนยันตัวตน; CON-TECH-01 — Gin
+- สิ่งที่เกือบต้องเดา: JSON ที่ parse ไม่ได้ควรได้ error code อะไร — plan ระบุแค่ `invalid_direction` สำหรับ direction ผิด จึงใช้ `400 invalid_direction` เหมือนกัน (ไม่เพิ่ม error code ใหม่)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้/สร้าง: `backend/internal/occupancy/handler.go` (เพิ่ม `streamOccupancy`), `backend/internal/occupancy/routes.go` (เพิ่ม `GET /api/occupancy/stream`), `backend/internal/occupancy/stream_test.go`
+- ผล test (`go test -race -count=3`): PASS — `TestAC_BI_04_InMemory` (เซิร์ฟเวอร์ HTTP จริงผ่าน `httptest.Server`, ได้ event ใหม่ภายใน 1 วินาที, ปิดการเชื่อมต่อแล้วผู้ฟังถูกถอด), `TestStreamReturns503WhenDatabaseUnavailable`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_04` (Store จริง)
+- Constraint ในโค้ด: NFR-PERF-02/ASM-06 — SSE ส่ง event ทันทีหลัง publish ไม่มีการรอรอบเวลา; plan D1 — ใช้ `c.SSEvent`/`c.Stream` ของ Gin ไม่เพิ่ม dependency
+- สิ่งที่เกือบต้องเดา: ควรส่ง keep-alive ping เป็นระยะหรือไม่ (proxy บางตัวตัดการเชื่อมต่อที่เงียบนาน) — spec/plan ไม่ได้กำหนด จึงไม่ทำ ถ้าตรวจด้วยมือใน T-10 พบว่าหลุด ให้ทีมตัดสินก่อน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-07` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้: `backend/cmd/api/main.go`
+- ผล: `go build ./...` และ `go vet ./...` ผ่าน; `go test -race ./internal/app/ ./internal/config/` ผ่าน; smoke test เปิด binary จริงโดยไม่มี PostgreSQL: `GET /api/occupancy` → 503 `unavailable`, `POST /api/gate/signals {"direction":"x"}` → 400 `invalid_direction`, `GET /api/occupancy/stream` → 503 (พิสูจน์ว่า route ต่อแล้ว); ส่ง SIGINT แล้วเซิร์ฟเวอร์ปิดใน 102 ms — ยังไม่ได้เห็น 200 เพราะไม่มีฐานข้อมูล
+- Constraint ในโค้ด: CON-TECH-01 (ลง route ผ่าน `app.NewRouter`), ASM-03 (`go occupancyService.RunMidnightReset(ctx)` หยุดเมื่อ ctx ของสัญญาณหยุดถูกยกเลิก)
+- สิ่งที่เกือบต้องเดา: การเชื่อมต่อ SSE ที่เปิดค้างจะทำให้ `srv.Shutdown` รอจนหมดเวลา 5 วินาที จึงตั้ง `BaseContext` ให้ context ของคำขอมาจาก ctx ของสัญญาณหยุด (อยู่ในไฟล์ของ task นี้ ไม่เปลี่ยนพฤติกรรมของ auth/inventory นอกจากคำขอที่ค้างอยู่ตอนปิดเซิร์ฟเวอร์จะถูกยกเลิกเร็วขึ้น)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/occupancy/types.ts`, `frontend/src/features/occupancy/api.ts`, `frontend/src/features/occupancy/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง `GET /api/occupancy` ใน `handlers` และ `occupancyUnavailableHandler`)
+- ผล test: `npx vitest run src/features/occupancy src/mocks` — 2 files, 14 tests PASS; `npx tsc --noEmit` ผ่าน; ชุด test frontend ทั้งหมดยังผ่าน
+- Constraint ในโค้ด: CON-TECH-02 (React/Vite, `fetch` + `EventSource` ของเบราว์เซอร์); NFR-PERF-02 ผ่าน `subscribeOccupancy`
+- สิ่งที่เกือบต้องเดา: jsdom ไม่มี `EventSource` — แทนที่จะแก้ global ใน `src/test/setup.ts` (ไม่อยู่ในไฟล์ของ task) จึงให้ `subscribeOccupancy` รับตัวสร้าง EventSource เป็นพารามิเตอร์ (ค่าเริ่มต้นคือของเบราว์เซอร์)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/occupancy/OccupancyDashboardPage.tsx`, `frontend/src/features/occupancy/OccupancyDashboardPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/dashboard` นอก `RequireAuth`)
+- ผล test: `npx vitest run` — 8 files, 53 tests PASS (ใหม่: `AC_BI_01`, `AC_BI_04`, ไม่ย้อนกลับค่าเก่า, ปิด SSE เมื่อออกจากหน้า, ข้อความเมื่อ 503); `npx tsc --noEmit` ผ่าน; test เดิมของ `App` ยังผ่าน
+- Constraint ในโค้ด: ASM-07 — route `/dashboard` ไม่ครอบ `RequireAuth` และ test เปิดหน้าโดยไม่มี token; NFR-PERF-02 — ตัวเลขเปลี่ยนจาก event SSE ใน element เดิม
+- ต่างจาก plan: plan §2 ระบุ `@tanstack/react-query` แต่แอปยังไม่มี `QueryClientProvider` (ต้องแก้ `main.tsx` ซึ่งไม่อยู่ในไฟล์ของ task) และหน้าอื่นทั้งหมดใช้ `useEffect`/`useState` จึงใช้แบบเดียวกัน ไม่เพิ่ม/เปลี่ยนเทคโนโลยี — ทีมควรแก้ plan §2 ให้ตรง
+- สิ่งที่เกือบต้องเดา: ถ้าผลของ GET มาถึงหลัง event SSE ที่ใหม่กว่า ควรแสดงค่าไหน — เลือกค่าที่ `as_of` ใหม่กว่า (ตรงกับความหมาย "จำนวนปัจจุบัน" ใน spec) และมี test ยืนยัน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/vite.config.ts` (เพิ่ม dev proxy `/api` → `http://localhost:8080`), `docs/test_report/007-occupancy-dashboard/manual_test.md`
+- ผล: `npx tsc --noEmit` ผ่าน; เปิด backend binary (ไม่มี PostgreSQL) + Vite dev server แล้วยิงผ่าน proxy: `GET /api/occupancy` → 503 จาก backend, `POST /api/gate/signals {"direction":"x"}` → 400, `GET /dashboard` → 200 — พิสูจน์ว่า proxy ต่อถึง backend; **ยังไม่ได้ตรวจด้วยมือ M-01..M-04 (AC-BI-01, AC-BI-04) เพราะไม่มีฐานข้อมูล**
+- สิ่งที่เกือบต้องเดา: ร่างแรกให้เปลี่ยนปลายทาง proxy ผ่าน env ได้ แต่ไม่มีใครขอ จึงตัดออก คงไว้แค่ค่าเดียวตาม `defaultHTTPAddr`
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้: `docs/API.md` (แถวสารบัญ 007, วันที่อัปเดต, หัวข้อ 007 ทั้งหมด)
+- ผล: เขียนสัญญา 3 endpoint (`GET /api/occupancy`, `GET /api/occupancy/stream`, `POST /api/gate/signals`) พร้อม Snapshot, รูปแบบ event SSE, ตาราง error 400/503 ตรงกับ `handler.go`; ตรวจรูปแบบ SSE กับ source ของ `gin-contrib/sse` แล้ว (`event:`/`data:` ไม่มีช่องว่าง)
+- ระบุชัดว่า `POST /api/gate/signals` เป็นตัวจำลอง (Q-01), ไม่ต้องยืนยันตัวตน (ASM-07) และ test ที่ใช้ PostgreSQL ยังไม่ได้รัน — เพราะหัวเอกสารบอกว่าเป็น "สัญญาที่มี test ยืนยันแล้ว"
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-12` (007-occupancy-dashboard) — ปฏิเสธ
+
+- T-12 (adapter รับสัญญาณจากประตูจริง) มีสถานะ "รอ Q-01" ตาม `.claude/commands/implement.md` ขั้นที่ 0 ข้อ 1 ต้องปฏิเสธแม้ผู้ใช้สั่ง "implement all" — ต้องปิด Q-01 (รูปแบบสัญญาณและจำนวนประตู ถามฝ่ายอาคารสถานที่) ใน spec และเพิ่ม AC ของ IF-GATE-01 ก่อน ไม่ได้แตะไฟล์ใด
+
+## 12 พฤศจิกายน 2569 — รัน test ที่ใช้ PostgreSQL (007-occupancy-dashboard)
+
+- คำสั่งของทีม: เลือกทางที่ 1 "ติดตั้ง Docker หรือ PostgreSQL แล้วรัน test DB"
+- สิ่งที่ทำ: เครื่องไม่มี Docker และ apt มีแค่ `postgresql-18` (ไม่มี 16 ตาม `docker-compose.yml`) จึงติดตั้ง `postgresql-18` เปิดด้วย `pg_ctlcluster 18 main start` แล้วสร้าง role `gym_user` (CREATEDB) และฐานข้อมูล `gym_management` ตามค่าใน `docker-compose.yml`
+- ผล: `go test -race -count=1 ./internal/occupancy/...` — 24 test PASS ทั้งหมด (รวม migration, store, HTTP, SSE `TestAC_BI_04`, `TestAC_BI_06`); `go test ./...` — `internal/auth` ล้มเพราะไม่มี Redis (ของ 001 ไม่เกี่ยวกับ 007) package อื่นผ่าน
+- ตรวจ T-07 กับเซิร์ฟเวอร์จริง: `GET /api/occupancy` → 200 `count:0`; POST in, in, out → 201 count 1, 2, 1; POST `{"direction":"x"}` → 400; SSE ได้ event `occupancy` 0, 1, 2, 1 ตามลำดับ; SIGINT แล้วเซิร์ฟเวอร์ปิดเอง
+- เปลี่ยนสถานะ: T-01, T-03..T-07 → "เสร็จ รอทีมตรวจ"; T-10 ยังรอคนตรวจด้วยมือ M-01..M-04; แก้ข้อความ "ยังไม่ได้รัน test DB" ใน `docs/API.md` และ `manual_test.md`; T-11 → "เสร็จ รอทีมตรวจ"
+- หมายเหตุ: ฐานข้อมูล dev มีแถวใน `gate_signals` 3 แถวจากการตรวจ T-07 (count วันนี้ = 1) และทดสอบบน 18 ไม่ใช่ 16
+
+## 12 พฤศจิกายน 2569 — ผลตรวจด้วยมือ T-10 (007-occupancy-dashboard)
+
+- คำตอบของทีม: "ตรวจแล้ว" — AI ถามกลับว่าตรวจอะไร ทีมตอบ "ตรวจ M-01..M-04 ผ่านหมด"
+- สิ่งที่แก้: `manual_test.md` ผลจริง M-01..M-04 = ผ่าน; T-10 → "เสร็จ รอทีมตรวจ"; `docs/API.md` สถานะการทดสอบ 007 ระบุว่าตรวจด้วยมือผ่านแล้ว
+- AI ไม่ได้ตรวจหน้าเว็บเอง บันทึกตามคำตอบของทีมเท่านั้น
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/clarify specs/005-class-booking/spec.md` (รอบ 2)
+
+### คำสั่งที่ใช้
+ผู้ใช้สั่ง "ทำ booking ต่อ" — AI ตรวจแล้วพบว่า 005 มี `plan.md` และ `tasks.md` แล้ว แต่ T-01 ถึง T-11 ทุกตัวเป็น "รอ Q-xx" จึง implement ไม่ได้ตามกติกา `/implement` จึงถามปิด Q-01 ถึง Q-10 แบบโต้ตอบในเทอร์มินัล (Claude Code, AskUserQuestion)
+
+### คำถามที่ AI ถาม (ทั้งหมด)
+1. ใครเป็นผู้รับผิดชอบ 005
+2. Q-08 บล็อกเฉพาะเวลาทับซ้อน หรือบล็อกทั้งทับซ้อนและนอกกะ
+3. Q-02 คลาสกลุ่มหรือ 1 ต่อ 1 และมีที่นั่งจำกัดหรือไม่
+4. Q-05 คลาสเต็ม/ไม่พบ/จองซ้ำ ต้องทำอย่างไร
+5. Q-09 "คิวสอนอื่น" หมายถึงอะไร
+6. Q-10 กะมาจากไหน ดูวันหยุดหรือไม่
+7. Q-03 ใครสร้างคลาส กำหนดช่วงเปิดรับและจำนวนที่นั่ง
+8. Q-04 ต้องยกเลิกการจองและดูรายการจองของตัวเองได้หรือไม่
+9. (ข้อขัดแย้ง) คำตอบ Q-02/Q-03 ขัดกับ AC-BKG-02/05 — คลาสนับเป็นคิวสอนตั้งแต่เมื่อใด
+10. Q-06 การจองอ้างถึงสมาชิกจากข้อมูลชุดไหน
+11. Q-07 ฐานข้อมูลไม่ตอบระหว่างจองต้องทำอย่างไร
+12. Q-01 Latency ของ NFR-PERF-01
+13. คำตอบทั้งหมดมาจากไหน (ทีมตัดสินเอง หรือถามผู้มีส่วนได้เสียแล้ว)
+14. (ช่องโหว่ใหม่) จองคลาสที่ถึงเวลาเริ่มแล้วได้หรือไม่
+
+### คำตอบของทีม
+1. "วัชรพงษ์ สุขอรุณ"
+2. "บล็อกทั้งสองกรณี"
+3. "คลาสกลุ่ม มีที่นั่งจำกัด"
+4. "ปฏิเสธทุกกรณี บอกเหตุผล"
+5. "คลาสอื่นของเทรนเนอร์คนเดียวกัน"
+6. "ใช้ตาราง 004 ไม่ดูวันหยุด"
+7. "เตรียมข้อมูลคลาสไว้ล่วงหน้า"
+8. "ต้องมี" — แต่ SRS ไม่มี FR และอยู่ใน Out of scope AI จึงไม่เพิ่ม FR เอง คง Q-04 เปิดไว้
+9. "เมื่อมีคนจองแล้วอย่างน้อย 1 คน"
+10. "ใช้ members ของ 001"
+11. "ไม่บันทึก แจ้งให้ลองใหม่"
+12. "ภายใน 1 วินาที"
+13. "ทีมตัดสินเองทั้งหมด"
+14. "ไม่ได้ ปฏิเสธพร้อมเหตุผล"
+
+### สิ่งที่แก้ใน `specs/005-class-booking/spec.md`
+- หัวไฟล์: Owner = วัชรพงษ์ สุขอรุณ (660710627), Status = Draft v2 (ผ่าน /clarify รอบ 2), อัปเดต 12 พฤศจิกายน 2569
+- เพิ่ม ASM-02 ถึง ASM-11 (ทีมตัดสินเองทั้งหมด รอยืนยัน) ตอบ Q-01, 02, 03, 05, 06, 07, 08, 09, 10 และ Q-11, Q-12 ใหม่
+- เพิ่ม Q-11 (คลาสนับเป็นคิวสอนเมื่อใด — ข้อขัดแย้งที่พบ) และ Q-12 (จองคลาสที่เริ่มแล้ว) พร้อมคำตอบ; Q-01..Q-10 ระบุคำตอบของทีมและ ASM ที่เกี่ยวข้อง; Q-04 ยังเปิด (ต้องเสนอ FR ใหม่)
+- ปรับข้อความด้วย ID เดิม: Out of scope (อ้าง Q-04, ASM-04), Preconditions (ASM-04, ASM-11), DOM-BKG-01 (อ้าง ASM-08..11), พฤติกรรมเมื่อ DB ล่ม (ASM-07), NFR-PERF-01 (1 วินาที ASM-02), AC-BKG-01 (ยังไม่ถึงเวลาเริ่ม มีที่นั่งว่าง), AC-BKG-02 (คลาส X มีผู้จองแล้ว ASM-10), AC-BKG-05 (คลาสยังไม่มีผู้จอง + ได้ผลภายใน 1 วินาที), Traceability ของ NFR-PERF-01
+- ไม่เพิ่ม FR/NFR/CON/DOM/AC ใหม่
+- `specs/README.md`: กรอกผู้รับผิดชอบ 005
+
+### ผลกระทบต่อขั้นถัดไป
+- `plan.md` และ `tasks.md` ของ 005 ยังอิงคำถามที่เปิดอยู่ ต้องรัน `/plan` และ `/tasks` ใหม่ให้ตรงกับ spec ก่อน `/implement`
+- ASM-11 อาศัย "เวลาเข้างาน" ของ 004 ซึ่งทุก task ของ 004 ยัง "รอ Q-xx" และ Q-01 ของ 004 (รูปแบบกะ) ยังเปิด
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/plan specs/005-class-booking/spec.md` (ร่างใหม่)
+
+### คำสั่งที่ใช้
+ผู้ใช้สั่ง "ทำ plan task ตามลำดับให้หน่อย" — ร่าง `plan.md` ใหม่แทนฉบับ 11 พฤศจิกายน 2569 (ฉบับเดิมอิง Q-01..Q-10 ที่ปิดแล้ว ยังอยู่ในประวัติ git)
+
+### คำถามที่ AI ถามระหว่าง /plan (spec ไม่ได้บอก และกระทบโค้ด/test โดยตรง)
+1. คลาสที่ต่อกันพอดี (10:00–11:00 กับ 11:00–12:00) ของเทรนเนอร์คนเดียวกันนับว่าทับซ้อนไหม — ทีมตอบ: "ทับซ้อน บล็อก"
+2. คลาสที่เริ่มตรงต้นกะหรือจบตรงสิ้นสุดกะพอดีนับว่าอยู่ในกะไหม — ทีมตอบ: "อยู่ในกะ จองได้"
+- บันทึกใน spec เป็น ASM-12, ASM-13 และ Q-13, Q-14 (ตอบแล้ว ชั่วคราว รอยืนยัน) ทีมตัดสินเองเหมือนข้ออื่น
+
+### ผลลัพธ์
+- `plan.md` 8 หัวข้อ: package `backend/internal/booking/`, migration 0004 (`classes`, `bookings`), 3 endpoint หลัง `auth.RequireSession` (`GET /api/classes`, `POST /api/bookings`, `GET /api/bookings/:id`), หน้า `/classes`
+- ตารางตรวจ Constraints ครบ: CON-DB-01, CON-TECH-01, CON-TECH-02, DOM-BKG-01 ใช้แล้ว; IF ไม่มีใน spec
+- test ครบทุก AC: `TestAC_BKG_01_HTTP`, `_02_Rules/_HTTP`, `_03_Rules/_HTTP/_Roster`, `_04_Rules/_HTTP/_Roster`, `TestAC_BKG_05` และ vitest `AC_BKG_01`
+- §8.1 คัดลอก Q-01..Q-14 (Q-04 ยังเปิด) และคำถามของ 004 ที่ขวาง 005 (Q-01, Q-02, Q-05 ของ 004) โดยไม่ตอบแทน
+- §8.2 ข้อเสนอที่ทีมต้องยืนยัน D1..D9 (เช่น `trainer_id` ไม่มี FK, advisory lock ต่อเทรนเนอร์, `ShiftChecker` และไม่มีข้อมูลกะ = บล็อก, ไม่ใช้ react-query ต่างจาก `000-shared`)
+- Constraint ที่ยังไม่ได้ใช้: ไม่มี (DOM-BKG-01 ส่วนกะใช้กับข้อมูลจริงได้เมื่อ 004 พร้อม)
+- สิ่งที่อยากเดาแต่ไม่ได้เดา: รูปแบบตารางเวลาเข้างานของ 004 (ซ้ำรายสัปดาห์หรือวันที่เจาะจง) และการรวมกะที่ต่อกัน — ปล่อยให้ตัวอ่านของ 004 ตัดสินเมื่อ 004 ตอบ Q-01, Q-02
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/005-class-booking/plan.md` (ร่างใหม่)
+
+### คำสั่งที่ใช้
+ต่อจาก `/plan` ในคำสั่งเดียวกัน "ทำ plan task ตามลำดับให้หน่อย" — ร่าง `tasks.md` ใหม่แทนฉบับ 11 พฤศจิกายน 2569 (ทุก task เดิมรอคำถามที่ปิดแล้ว)
+
+### ผลลัพธ์
+- 13 task: พร้อมทำ 10 (T-01..T-09, T-13), รอ 3 (T-10, T-11, T-12 — รอ Q-01, Q-02 ของ spec 004 เพราะต้องอ่านเวลาเข้างานจริงจาก 004 ตาม ASM-11)
+- ตารางความครบ: ทุก AC (AC-BKG-01..05) มี task ตรวจ; ทุก Constraint (CON-DB-01, CON-TECH-01, CON-TECH-02, DOM-BKG-01) มี task ทำให้เป็นจริง; IF ไม่มีใน spec
+- ไม่มี task สำหรับ Q-04 (ยกเลิก/ดูรายการจอง) เพราะอยู่ใน Out of scope
+- task หน้าเว็บ (T-08, T-09) ใช้ API จำลองตาม plan ข้อ 4 ไม่ต้องรอ API; T-12 ต่อของจริงไว้ท้าย
+- task ที่ยากที่สุด: T-03 (transaction จองที่ต้องตรวจตามลำดับ D3 และ advisory lock ต่อเทรนเนอร์ให้ถูก) และ T-07 (test พร้อมกันที่ต้องผลคงที่ทุกรอบ)
+- AC ที่ทดสอบยาก: AC-BKG-05 (ผลขึ้นกับจังหวะ จึงทำซ้ำ 20 รอบ + `-race` และวัด 1 วินาทีบนเครื่องนักศึกษา); AC-BKG-03/04 กับข้อมูลกะจริงทำได้หลัง 004 เท่านั้น ระหว่างนี้ใช้ `ShiftChecker` จำลอง (ทีมต้องยอมรับว่า test ระดับ HTTP ยังไม่พิสูจน์การอ่านข้อมูลของ 004)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (005-class-booking)
+
+- คำสั่งของทีม: "implement" — AI ถามว่า task ไหน (คำสั่งห้ามเลือกเอง) ทีมตอบ "ทุก task ที่พร้อมทำ ทีละตัว"
+- ไฟล์ที่สร้าง: `backend/migrations/0004_create_class_booking.up.sql`, `backend/migrations/0004_create_class_booking.down.sql`, `backend/internal/booking/migration_test.go`
+- ผล test: `go test -race ./internal/booking/` — `TestMigration0004CreatesClassBooking` PASS กับ PostgreSQL 18 (CHECK 23514, UNIQUE 23505, FK 23503, migrate down กลับ version 3)
+- Constraint ในโค้ด: CON-DB-01 ตาราง `classes`/`bookings`; ASM-06 `bookings.member_id REFERENCES members(id)`; ASM-05 UNIQUE `(class_id, member_id)`; plan D1 `trainer_id` ไม่มี FK
+- สิ่งที่เกือบต้องเดา: FK ของ `bookings` ใช้ค่าเริ่มต้น (ห้ามลบสมาชิก/คลาสที่มีการจอง) ไม่ใส่ `ON DELETE CASCADE` เพราะ plan ไม่ได้ระบุ
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/model.go`, `backend/internal/booking/model_test.go`
+- ผล test: `TestAC_BKG_02_Rules`, `TestAC_BKG_03_Rules`, `TestAC_BKG_04_Rules`, `TestReasonCodes` PASS (`-race`)
+- Constraint ในโค้ด: DOM-BKG-01 — `Interval.Overlaps` แบบช่วงปิด (ASM-12) และ `Interval.Within` ขอบพอดีนับว่าอยู่ใน (ASM-13); รหัสเหตุผลครบตาม plan ข้อ 4
+- สิ่งที่เกือบต้องเดา: ไม่มี (ขอบเขตช่วงเวลาถามทีมแล้วระหว่าง /plan เป็น ASM-12, ASM-13)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/store.go`, `backend/internal/booking/store_test.go`
+- ผล test (PostgreSQL 18 จริง, `-race`): `TestStoreListUpcoming`, `TestStoreGetForMember`, `TestStoreBookRejections` (ไม่พบ/เริ่มแล้ว/ซ้ำ/เต็ม), `TestStoreShiftCheck`, `TestStoreOverlapCountsOnlyBookedClasses` PASS; package occupancy และ inventory ยังผ่าน
+- Constraint ในโค้ด: CON-DB-01 transaction เดียวต่อการจอง + `pg_advisory_xact_lock(5005, trainer_id)` (plan D2); ลำดับตรวจตาม plan D3; ทับซ้อนนับเฉพาะคลาสที่มีผู้จอง (ASM-10) ของเทรนเนอร์คนเดียวกัน (ASM-09) ด้วย `Interval.Overlaps` (ASM-12); ทุกทางที่ไม่ผ่าน rollback ไม่บันทึก (ASM-07)
+- สิ่งที่เกือบต้องเดา: (1) "ถึงเวลาเริ่มแล้ว" รวมวินาทีที่เริ่มพอดี — ถือว่าเริ่มแล้วเพราะ ASM-05 เขียนว่า "ถึงเวลาเริ่มคลาสแล้ว"; (2) ตัวตรวจกะรับเป็นพารามิเตอร์ `ShiftCheck` ตาม tasks ("รับตัวตรวจกะเป็นพารามิเตอร์") ถ้าอ่านข้อมูลกะไม่ได้ จะส่ง error นั้นกลับไปให้ service ตัดสิน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/service.go`, `backend/internal/booking/service_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestServiceRejectsOffShift`, `TestServiceWithoutShiftDataBlocks`, `TestServiceShiftReadFailure`, `TestServiceUsesClock` PASS
+- Constraint ในโค้ด: DOM-BKG-01/ASM-08 — `checkShift` แปลง "ไม่อยู่ในกะ" เป็น `ErrTrainerOffShift`; plan D6 — `NewService(..., nil, ...)` ใช้ `noShiftData` (ไม่มีข้อมูลกะ = นอกกะ = บล็อก); `Clock` แยกเวลาปัจจุบันให้ test กำหนดได้
+- สิ่งที่เกือบต้องเดา: ถ้าอ่านข้อมูลกะไม่ได้ (เช่น DB ของ 004 ล่ม) จะตอบอะไร — เลือกส่ง error ที่ไม่ใช่เหตุผลการจอง ให้ handler ตอบ 503 ไม่บันทึก ตาม ASM-07 (ฐานข้อมูลไม่ตอบ = ไม่บันทึก แจ้งให้ลองใหม่) ไม่ได้ตีเป็น "นอกกะ"
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/handler.go`, `backend/internal/booking/routes.go`, `backend/internal/booking/handler_test.go`
+- ผล test (`-race`): `TestAC_BKG_01_HTTP` (PostgreSQL จริง: POST 201 → GET 200 ตรงกัน, 1 แถว), `TestListClassesHTTP`, `TestCreateBookingErrorsHTTP` (400/404/409), `TestGetBookingOfOtherMemberHTTP` (404, 400), `TestBookingUnavailableHTTP` (503 ทั้ง 3 endpoint), `TestBookingRequiresSessionHTTP` (401) PASS
+- Constraint ในโค้ด: CON-TECH-01 Gin handler; `Register(r, requireSession)` ครอบทุก route ด้วย `auth.RequireSession` ของ 001; ผู้จองมาจาก session ไม่ใช่ body (ASM-06); error เป็น `{"error","message"}` ไทย (ASM-05); ปัญหาระบบตอบ 503 ไม่บันทึก (ASM-07)
+- สิ่งที่เกือบต้องเดา: (1) รูปแบบ body ของ error — ใช้ `{"error","message"}` แบบเดียวกับ 503 ของ 001; (2) `GET /api/bookings/abc` (id ไม่ใช่ตัวเลข) ตอบ 400 `invalid_request` ซึ่ง plan ไม่ได้ระบุ แต่ตรงกับ `400 invalid_request` ของ POST — ทีมควรตรวจ; (3) ข้อความภาษาไทยของแต่ละรหัสเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/block_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_BKG_02_HTTP` (ทับกับคลาสที่มีผู้จอง → 409 `trainer_busy`, ต่อกันพอดี → 409, ทับกับคลาสที่ยังไม่มีผู้จอง → 201), `TestAC_BKG_03_HTTP` (เริ่ม 08:30 → 409 `trainer_off_shift`, เริ่ม 09:00 → 201), `TestAC_BKG_04_HTTP` (11:30–12:30 → 409, 11:00–12:00 → 201) PASS ทุกกรณีที่ถูกบล็อกไม่มีแถวใหม่
+- Constraint ในโค้ด: DOM-BKG-01 ตรวจทั้งทับซ้อนและนอกกะ (ASM-08) ผ่าน API จริง กะใช้ `ShiftChecker` จำลอง (ตัวจริงของ 004 อยู่ใน T-10)
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-07` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/concurrency_test.go`
+- ผล test: `go test -race -count=3 -run TestAC_BKG_05 ./internal/booking/` PASS ทั้ง 3 ครั้ง (ครั้งละ 20 รอบ, ใช้เวลา ~0.45 วินาทีต่อครั้ง) ทุกรอบได้ 201 หนึ่งรายการ 409 `trainer_busy` หนึ่งรายการ 1 แถว และแต่ละคำขอไม่เกิน 1 วินาที
+- ตรวจว่า test จับปัญหาได้จริง: ลองถอด `pg_advisory_xact_lock` ออกชั่วคราว → test ล้มตั้งแต่รอบ 1 ("ต้องสำเร็จเพียงรายการเดียว") แล้วคืนไฟล์ `store.go` เดิม (ไม่มี diff)
+- Constraint ในโค้ด: NFR-PERF-01/AC-BKG-05 ด้วย PostgreSQL จริง (ไม่ใช้ mock ตาม `000-shared` §3); ASM-02 ตรวจเวลาแต่ละคำขอ ≤ 1 วินาที
+- สิ่งที่เกือบต้องเดา: วัด 1 วินาทีตั้งแต่ส่งคำขอเข้า handler จนได้ผล (ไม่รวมเครือข่าย) ตาม ASM-02 "นับจากเซิร์ฟเวอร์ได้รับคำขอจองจนตอบกลับ"
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (005-class-booking)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/booking/types.ts`, `frontend/src/features/booking/api.ts`, `frontend/src/features/booking/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง `GET /api/classes`, `POST /api/bookings`, `GET /api/bookings/:id` ใน `handlers` และ handler 503)
+- ผล test: `npx vitest run src/features/booking src/mocks` — 2 files, 20 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02 (`fetch` ฝั่งเว็บ); ส่ง `Authorization: Bearer` จาก `readToken()` ของ 001; แปลงรหัสเหตุผล 400/404/409 เป็น `rejected` (ASM-05) และ 503/เครือข่ายล้มเป็น `unavailable` (ASM-07)
+- สิ่งที่เกือบต้องเดา: รูปแบบผลลัพธ์ — ใช้ discriminated union (`kind`) แบบเดียวกับ `features/auth/api.ts` แทนการโยน error แบบ inventory
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (005-class-booking)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/booking/ClassBookingPage.tsx`, `frontend/src/features/booking/ClassBookingPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/classes` ครอบ `RequireAuth`)
+- ผล test: `npx vitest run` — 10 files, 70 tests PASS (ใหม่: `AC_BKG_01` เห็นคลาส กดจอง แสดงการจองที่ดึงจาก `GET /api/bookings/:id`, 409 แสดงเหตุผล, 503 ตอนจองและตอนโหลด, route `/classes` ล็อกอินแล้วเปิดได้/ยังไม่ล็อกอินไปหน้า login); `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02 หน้า React; precondition "สมาชิกล็อกอินแล้ว" — route ครอบ `RequireAuth`; plan D7 ใช้ `useEffect`/`useState` ไม่ใช้ react-query
+- สิ่งที่เกือบต้องเดา: (1) ถ้าจองสำเร็จแต่ดึงการจองซ้ำไม่สำเร็จ แสดงผลจากคำตอบของ POST แทน (ยังเป็นข้อมูลจาก backend); (2) ไม่มีชื่อเทรนเนอร์ (004 ยังไม่มีข้อมูล) จึงแสดง "เทรนเนอร์ #id"; (3) ข้อความบนหน้าเป็นร่างของ AI ทีมควรตรวจ
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10`, `T-11`, `T-12` (005-class-booking) — ปฏิเสธ
+
+- ทั้งสาม task มีสถานะ "รอ Q-01, Q-02 (ของ spec 004)" ตาม `.claude/commands/implement.md` ขั้นที่ 0 ข้อ 1 ต้องปฏิเสธแม้ทีมสั่ง "ทุก task ที่พร้อมทำ" — ต้องให้ 004 ตอบรูปแบบเวลาเข้างาน (Q-01) และความสัมพันธ์เวลาเข้างาน/เวลาสอน (Q-02) และมี migration ตารางงานของ 004 ก่อน ไม่ได้แตะไฟล์ใด
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-13` (005-class-booking)
+
+- ไฟล์ที่แก้: `docs/API.md` (แถวสารบัญ 005, หัวข้อ 005 ทั้งหมด)
+- ผล: เขียนสัญญา 3 endpoint (`GET /api/classes`, `POST /api/bookings`, `GET /api/bookings/{id}`) รูปแบบ Class/Booking ตาราง 400/404/409/503 พร้อมรหัสเหตุผลและลำดับ D3 ตรงกับ `handler.go`/`store.go`; ระบุชัดว่ายังไม่ได้ประกอบเข้า `main.go` (T-11 รอ 004) และกะใน test เป็นตัวจำลอง
+- สิ่งที่เกือบต้องเดา: รูปแบบเวลาใน JSON — เขียนเพียงว่าเป็น RFC 3339 มี offset ไม่ผูกกับเขตเวลาใดเพราะขึ้นกับเครื่องที่รัน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/clarify specs/004-trainer-roster/spec.md` (รอบ 2)
+
+### คำสั่งที่ใช้
+ผู้ใช้สั่ง "ทำที่เหลือหน่อย" — AI ชี้ว่า task ที่เหลือของ 005 (T-10..T-12) ติด Q-01, Q-02 ของ 004 และ 007 T-12 ติด Q-01 ของ 007 จึงถามว่าจะให้ทำอะไร ทีมเลือก "ตอบคำถาม 004 ปลดล็อก 005" และ "ปิดช่องตามรอยของ 007" — รอบนี้ถาม Q-01..Q-06 ของ 004 แบบโต้ตอบ (Claude Code, AskUserQuestion)
+
+### คำถามที่ AI ถาม (ทั้งหมด)
+1. ใครเป็นผู้รับผิดชอบ 004
+2. Q-01 ตารางงานเป็นกะซ้ำทุกสัปดาห์หรือระบุวันที่
+3. Q-02 เวลาเข้างานกับเวลาสอนแยกกันหรือไม่ และเวลาสอนต้องอยู่ในเวลาเข้างานหรือไม่
+4. Q-03 "ปรับปรุงตาราง" หมายถึงแก้รายการที่เลือกหรือแทนที่ทั้งตาราง
+5. Q-04 เจ้าหน้าที่/ผู้จัดการเข้าหน้าจัดตารางอย่างไร
+6. Q-05 ถ้าแก้ตารางแล้วคลาสที่มีคนจองอยู่นอกเวลาเข้างาน ต้องทำอย่างไร
+7. Q-06 PostgreSQL ไม่ตอบ ต้องทำอย่างไร
+8. ข้อมูลเทรนเนอร์มาจากไหน (ช่องโหว่ใน Preconditions)
+9. ASM-01 "ลบ" กับ "ยกเลิก" ต่างกันอย่างไร
+10. กะข้ามเที่ยงคืนได้หรือไม่
+11. กะของเทรนเนอร์คนเดียวกันที่ต่อกันพอดีบันทึกได้หรือไม่
+12. คำตอบทั้งหมดมาจากไหน
+13. กติกาต่อกันพอดีใช้กับเวลาสอนด้วยหรือไม่
+
+### คำตอบของทีม
+1. "วัชรพงษ์ สุขอรุณ"
+2. "กะซ้ำทุกสัปดาห์"
+3. "แยกกัน สอนต้องอยู่ในเวลาเข้างาน"
+4. "แก้เฉพาะรายการที่เลือก"
+5. "sprint นี้ไม่ต้องล็อกอิน"
+6. "ปฏิเสธและไม่บันทึก"
+7. "ไม่บันทึก แจ้งลองใหม่ คงค่าที่กรอก"
+8. "เตรียมไว้ล่วงหน้าในฐานข้อมูล"
+9. "ยกเลิก = เก็บไว้แต่ไม่ใช้"
+10. "ไม่ได้ เริ่ม-จบในวันเดียว"
+11. "ได้ คลาสคร่อมสองกะนับว่าอยู่ในกะ"
+12. "ทีมตัดสินเองทั้งหมด"
+13. "ใช่ ใช้กติกาเดียวกัน"
+
+### สิ่งที่แก้ใน `specs/004-trainer-roster/spec.md`
+- หัวไฟล์: Owner = วัชรพงษ์ สุขอรุณ (660710627), Status = Draft v2 (ผ่าน /clarify รอบ 2), Depends on = 005 เฉพาะ ASM-07, อัปเดต 12 พฤศจิกายน 2569
+- Out of scope: ระบุว่า sprint นี้ไม่ต้องล็อกอิน (ASM-06) และเพิ่ม "เพิ่ม/แก้/ลบข้อมูลเทรนเนอร์" (ASM-09)
+- Preconditions: ลบ "เจ้าหน้าที่/ผู้จัดการระบุตัวตนได้" เพราะขัดกับ ASM-06; ที่มาของข้อมูลเทรนเนอร์ = ASM-09
+- ASM-01 เพิ่มความหมายของลบ/ยกเลิก (Q-10); ASM-02 อ้าง ASM-03, 04, 07, 10; เพิ่ม ASM-03..ASM-10 (ทีมตัดสินเองทั้งหมด รอยืนยัน)
+- Q-01..Q-06 ระบุคำตอบของทีมและ ASM ที่เกี่ยวข้อง; เพิ่ม Q-07..Q-10 (ตอบแล้ว)
+- ไม่เพิ่ม FR/NFR/CON/DOM/AC ใหม่; `specs/README.md` กรอกผู้รับผิดชอบ 004
+- หมายเหตุ: ASM-07 ทำให้ 004 ต้องอ่าน `classes`/`bookings` ของ 005 ขณะที่ 005 อ่านเวลาเข้างานของ 004 — ต้องจัดลำดับ migration และ task ใน /plan
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/plan specs/004-trainer-roster/spec.md` (ร่างใหม่)
+
+### คำถามที่ AI ถามระหว่าง /plan
+1. ASM-07 ต้องตรวจคลาสที่ผ่านไปแล้วด้วยหรือไม่ (ถ้านับ คลาสในอดีตจะทำให้แก้กะไม่ได้ตลอดไป) — ทีมตอบ: "เฉพาะคลาสที่ยังไม่เริ่ม" → เพิ่ม Q-11 (ตอบแล้ว) และต่อท้าย ASM-07 ใน spec
+
+### ผลลัพธ์
+- `plan.md` 8 หัวข้อแทนฉบับ 10 พฤศจิกายน 2569: package `backend/internal/roster/`, migration 0005 (`trainers`, `roster_entries` แบบซ้ำรายสัปดาห์ `weekday` + `TIME`, `kind` work/teach, `cancelled`), 6 endpoint ไม่ต้องล็อกอิน (ASM-06), ฟังก์ชัน `roster.Covers` ให้ 005, หน้า `/roster`
+- กฎตรวจใน transaction: ทับซ้อน (ต่อกันพอดีได้), เวลาสอนอยู่ในเวลาเข้างาน, ไม่ทำให้คลาสที่มีผู้จองและยังไม่เริ่มหลุดกะ; advisory lock key เดียวกับการจองของ 005 (D2)
+- ตารางตรวจ Constraints ครบ (CON-DB-01, CON-TECH-01, CON-TECH-02 ใช้แล้ว; DOM/IF ไม่มี); test ครบทุก AC (`TestAC_ROST_01_HTTP`..`_04_HTTP`, vitest `AC_ROST_01`)
+- §8.1 คัดลอก Q-01..Q-11 (ตอบแล้วทั้งหมด ไม่มีข้อที่ยังเปิด); §8.2 ข้อเสนอ D1..D9 รอทีมยืนยัน
+- สิ่งที่อยากเดาแต่ไม่ได้เดา: การเพิ่ม FK `classes.trainer_id → trainers` (กระทบ 005) — เสนอเป็น D1 ไม่ได้ทำ
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/tasks specs/004-trainer-roster/plan.md` (ร่างใหม่) และแก้ `specs/005-class-booking/tasks.md` รอบที่ 2
+
+### ผลลัพธ์ของ 004
+- 12 task ทุก task พร้อมทำ (spec 004 ไม่มี Open Question ที่ยังเปิด): migration 0005, กฎเวลา, store เพิ่ม/อ่าน, store แก้/ยกเลิก/ลบ + ASM-07, `roster.Covers`, handler (AC-ROST-01/02), test AC-ROST-03/04, ตัวเรียก API ฝั่งเว็บ, หน้า `/roster`, ต่อเข้า `main.go`, ข้อมูลตัวอย่าง + ตรวจด้วยมือ, `docs/API.md`
+- ตารางความครบ: AC-ROST-01..04 มี task ตรวจครบ; CON-DB-01, CON-TECH-01, CON-TECH-02 มี task ครบ; DOM/IF ไม่มีใน spec
+- task ที่ยากที่สุด: T-04 (ตรวจเวลาสอนและคลาสที่ถูกจองหลังการเปลี่ยนแปลงใน transaction เดียว); AC ทดสอบยาก: ไม่มี (ทุก AC ทดสอบได้กับ PostgreSQL จริงในเครื่อง)
+
+### แก้ `specs/005-class-booking/tasks.md` รอบที่ 2
+- T-10: "ต้องทำหลัง" เปลี่ยนจาก 004 T-03 (ร่างเดิม) เป็น 004 T-04, T-05 (`roster.Covers`) ตาม tasks ใหม่ของ 004; สถานะเป็น "พร้อมทำ" เพราะ Q-01, Q-02 ของ 004 ปิดแล้ว (กฎ: task ที่รอ Q-xx เดินต่อได้เมื่อปิด Q ใน spec)
+- T-11, T-12: สถานะเป็น "พร้อมทำ" (ยังต้องรอ task ในช่อง "ต้องทำหลัง"); T-12 เพิ่ม 004 T-11 (ข้อมูลเทรนเนอร์ตัวอย่าง) ในช่อง "ต้องทำหลัง"
+- ตาราง "สิ่งที่ยังไม่ทำ" ระบุว่า Q-01, Q-02 ของ 004 ปิดแล้ว ไม่แก้บันทึกรอบแรก
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (004-trainer-roster)
+
+- คำสั่งของทีม: "ทำที่เหลือหน่อย" → เลือก "ตอบคำถาม 004 ปลดล็อก 005" ซึ่งรวมการ implement 004 ทีละ task
+- ไฟล์ที่สร้าง: `backend/migrations/0005_create_trainer_roster.up.sql`, `backend/migrations/0005_create_trainer_roster.down.sql`, `backend/internal/roster/migration_test.go`
+- ผล test: `TestMigration0005CreatesTrainerRoster` PASS กับ PostgreSQL 18 (CHECK kind/weekday/เวลา รวมข้ามเที่ยงคืน, FK trainers, migrate down กลับ version 4); package booking และ occupancy ยังผ่าน
+- Constraint ในโค้ด: CON-DB-01; ASM-03 `CHECK (end_time > start_time)` กันข้ามเที่ยงคืน; ASM-04 `kind`; ASM-01 `cancelled`; ASM-09 `trainers`
+- สิ่งที่เกือบต้องเดา: ไม่มี (FK จาก `classes` ไป `trainers` เสนอเป็น D1 ไม่ได้ทำ)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/model.go`, `backend/internal/roster/model_test.go`
+- ผล test (`-race`): `TestParseTimeOfDay`, `TestParseKind`, `TestSlotValidate`, `TestSlotOverlaps`, `TestSlotWithin`, `TestSlotOf`, `TestReasonCodes` PASS
+- Constraint ในโค้ด: ASM-03 `Slot.Validate` (วัน 1..7, เริ่มก่อนจบ ไม่ข้ามเที่ยงคืน) และ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่ใช่ Slot); ASM-10 `Overlaps` ไม่นับต่อกันพอดี และ `Within` รวมช่วงที่ต่อกัน; ASM-04 `Kind` work/teach
+- สิ่งที่เกือบต้องเดา: ความละเอียดเวลา — เก็บเป็นวินาทีในวันเพื่อให้คลาสที่มีวินาทีถูกเทียบตรง ส่วน API รับ "HH:MM" ตาม plan
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/store.go`, `backend/internal/roster/store_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestStoreListTrainers`, `TestStoreCreateAndList`, `TestStoreCreateRejectsOverlap`, `TestStoreCreateTeachOutsideWork`, `TestStoreCreateInvalidAndMissingTrainer` PASS
+- Constraint ในโค้ด: CON-DB-01 `Create` ใน transaction + `pg_advisory_xact_lock(5005, trainer_id)` key เดียวกับการจองของ 005 (plan D2); `checkSchedule` ตรวจทับซ้อน (ASM-02/ASM-10) และเวลาสอนอยู่ในเวลาเข้างาน (ASM-04); รายการที่ยกเลิกไม่นับ (ASM-01); JSON ตามสัญญา plan ข้อ 4
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/store_change.go`, `backend/internal/roster/store_change_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestStoreUpdate`, `TestStoreCancel`, `TestStoreDelete`, `TestStoreBookedClassGuard`, `TestStoreBookedClassGuardIgnoresUnbookedAndUncovered` PASS (test ของ T-03 ยังผ่าน)
+- Constraint ในโค้ด: CON-DB-01 `apply` ทำใน transaction + ล็อกเทรนเนอร์ อ่านรายการซ้ำหลังล็อก; ASM-04 ตรวจเวลาสอนทั้งวันเดิมและวันใหม่เมื่อย้ายวัน; ASM-07/Q-11 `checkBookedClasses` อ่าน `classes`/`bookings` ของ 005 เฉพาะคลาสที่มีผู้จองและ `starts_at > now`; ASM-01 ยกเลิก = `cancelled = true`, ลบ = ลบแถว
+- สิ่งที่เกือบต้องเดา: ASM-07 เขียนว่า "ทำให้คลาส...ไม่อยู่ในเวลาเข้างาน**อีกต่อไป**" — ตีความว่าบล็อกเฉพาะคลาสที่อยู่ในเวลาเข้างานก่อนแก้แล้วหลุดหลังแก้ คลาสที่อยู่นอกกะอยู่แล้ว (เช่นเตรียมไว้ก่อนมีตารางงาน) ไม่ขวาง — ทีมควรยืนยัน; ยกเลิกรายการที่ยกเลิกแล้วได้ผลเดิม (ไม่ error)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/covers.go`, `backend/internal/roster/covers_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestCovers` PASS 13 กรณี (ในกะ, ขอบพอดี, คร่อมสองกะ, เริ่มก่อน/จบหลังกะ, กะยกเลิก, เทรนเนอร์อื่น, ไม่มีกะ, วันอื่น, สัปดาห์หน้า, ข้ามวัน, เวลา UTC)
+- Constraint ในโค้ด: `Store.Covers` ใช้ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่อยู่ในกะ ASM-03) + `Slot.Within` (ASM-10, 005 ASM-13) กับเวลาเข้างานที่ไม่ถูกยกเลิก (ASM-01) — พร้อมให้ 005 T-10 ห่อเป็น `ShiftChecker`
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/handler.go`, `backend/internal/roster/routes.go`, `backend/internal/roster/handler_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_01_HTTP`, `TestAC_ROST_02_HTTP`, `TestListTrainersHTTP`, `TestCreateEntryErrorsHTTP` (400/404/409), `TestChangeEntryHTTP` (404, ยกเลิก 200, ลบ 204), `TestRosterUnavailableHTTP` (503 ทั้ง 6 endpoint) PASS — ทุกคำขอไม่ส่ง Authorization
+- Constraint ในโค้ด: CON-TECH-01 Gin handler 6 endpoint; ASM-06 `Register` ไม่ครอบ middleware ยืนยันตัวตน; ASM-08 ปัญหาระบบตอบ 503 ไม่บันทึก; `Clock` ส่งเวลาปัจจุบันให้กฎ ASM-07/Q-11
+- สิ่งที่เกือบต้องเดา: (1) รหัสใน path ที่ไม่ใช่ตัวเลขตอบ 400 `invalid_request` เหมือน 005; (2) ข้อความภาษาไทยเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-07` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/update_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_03_HTTP` (PATCH เวลาเข้างานและเวลาสอน แล้ว GET เห็นค่าใหม่), `TestAC_ROST_04_HTTP` (แก้/ยกเลิก/ลบของ A ตารางของ B เหมือนเดิมทุกฟิลด์) PASS
+- Constraint ในโค้ด: FR-ROST-01 ผ่าน API จริง; ASM-05 แก้ทีละรายการ; ASM-01 ยกเลิกยังเห็นในตาราง
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/roster/types.ts`, `frontend/src/features/roster/api.ts`, `frontend/src/features/roster/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง 6 endpoint ของ 004 ที่เก็บรายการในหน่วยความจำ + `resetFakeRoster` + handler 503)
+- ผล test: `npx vitest run src/features/roster src/mocks` — 2 files, 15 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02; ASM-06 ไม่ส่ง Authorization; 400/404/409 → `rejected` พร้อมรหัสเหตุผล, 503/เครือข่ายล้ม → `unavailable` (ASM-08)
+- สิ่งที่เกือบต้องเดา: mock ตรวจกฎแบบย่อ (เวลาสอนต้องอยู่ในเวลาเข้างานช่วงเดียว ไม่รวมช่วงที่ต่อกัน) — พอสำหรับ test หน้าจอ กฎจริงอยู่ที่ backend
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/roster/RosterPage.tsx`, `frontend/src/features/roster/RosterPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/roster` ไม่ครอบ `RequireAuth`)
+- ผล test: `npx vitest run` — 12 files, 82 tests PASS (ใหม่: `AC_ROST_01`, `AC_ROST_03`, 409 แสดงเหตุผล, 503 คงค่าในฟอร์ม, ยกเลิก/ลบ, route `/roster` เปิดได้โดยไม่ล็อกอิน); `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02; ASM-06 route ไม่ครอบ `RequireAuth`; ASM-08 ฟอร์มไม่ล้างค่าเมื่อบันทึกไม่สำเร็จ; ASM-01 รายการที่ยกเลิกแสดง "(ยกเลิกแล้ว)"; plan D7 ใช้ `useEffect`/`useState`
+- สิ่งที่เกือบต้องเดา: หน้าตา/การจัดวาง (UI-ROST-01 เป็น Candidate) — ใช้รายการเรียงตามที่ backend ส่งมา ไม่ทำตารางแยกตามวัน; ข้อความบนหน้าเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (004-trainer-roster)
+
+- ไฟล์ที่แก้: `backend/cmd/api/main.go` (import `roster`, สร้าง `roster.NewHandler(roster.NewStore(pool), nil)` และลงทะเบียน route)
+- ผล: `go build ./...` และ `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริงกับ PostgreSQL 18 (`HTTP_ADDR=:8091`) แล้ว `GET /api/trainers` ได้ `200 []` โดยไม่ส่ง token, `GET /api/trainers/999/roster` ได้ `404 trainer_not_found`; SIGINT แล้วเซิร์ฟเวอร์ปิดเอง
+- Constraint ในโค้ด: CON-TECH-01; ASM-06 route ไม่ครอบ `RequireSession`
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (005-class-booking)
+
+- ตรวจก่อนเริ่ม: สถานะ "พร้อมทำ" (Q-01, Q-02 ของ 004 ปิดแล้ว), "ต้องทำหลัง" T-04 ของ 005 และ T-04, T-05 ของ 004 เสร็จแล้ว
+- ไฟล์ที่สร้าง: `backend/internal/booking/roster_shift.go`, `backend/internal/booking/roster_shift_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_BKG_03_Roster` (เวลาเข้างานจริงของ 004 ศุกร์ 09:00–12:00: คลาส 08:30 → 409 `trainer_off_shift` ไม่บันทึก, 09:00–10:00 → 201), `TestAC_BKG_04_Roster` (11:30–12:30 → 409, 11:00–12:00 → 201) PASS
+- Constraint ในโค้ด: DOM-BKG-01/ASM-11 `RosterShifts` ห่อ `roster.Store.Covers` เป็น `ShiftChecker` (plan D6 — แทน `noShiftData` เมื่อประกอบใน T-11)
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (005-class-booking)
+
+- ตรวจก่อนเริ่ม: T-05 และ T-10 ของ 005 เสร็จแล้ว
+- ไฟล์ที่แก้: `backend/cmd/api/main.go` (import `booking` และ `gin`; สร้าง `booking.NewService(booking.NewStore(pool), booking.NewRosterShifts(rosterStore), nil)` และลงทะเบียน route หลัง `auth.RequireSession(sessions, cfg.DependencyTimeout)`)
+- สภาพแวดล้อม: ติดตั้ง `redis-server` ผ่าน apt (เครื่องไม่มี Docker) เพื่อให้ล็อกอินของ 001 ใช้ได้ในการตรวจ
+- ผล: `go build ./...`, `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริง (PostgreSQL 18 + Redis) แล้วตรวจ: `GET /api/classes` ไม่มี token → 401, มี token จากการล็อกอินจริง → 200; จองคลาสศุกร์ 10:00–11:00 ที่อยู่ในเวลาเข้างานจริงของ 004 → 201; คลาส 11:30–12:30 → 409 `trainer_off_shift`; ยกเลิกกะที่ครอบคลาสที่ถูกจอง → 409 `booked_class_outside_work` (004 ASM-07); SIGINT แล้วปิดเอง; ลบข้อมูลที่ใช้ตรวจทั้งหมด (สร้าง `pgcrypto` ในฐานข้อมูล `postgres` เพื่อสร้าง bcrypt hash ของสมาชิกทดสอบ ไม่ได้แตะ `gym_management`)
+- Constraint ในโค้ด: CON-TECH-01; precondition "สมาชิกล็อกอินแล้ว" — route อยู่หลัง `RequireSession`; DOM-BKG-01 ใช้กะจริงผ่าน `RosterShifts`
+- สิ่งที่เกือบต้องเดา: timeout ของ `RequireSession` ใช้ `cfg.DependencyTimeout` เดียวกับ endpoint ของ 001
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/seeds/004_trainers.sql` (เทรนเนอร์ตัวอย่าง id 1001, 1002 ด้วย `OVERRIDING SYSTEM VALUE` + `ON CONFLICT DO NOTHING`), `docs/test_report/004-trainer-roster/manual_test.md` (ไฟล์นี้อยู่ใน `.gitignore` เหมือนของ 007)
+- ผล: รัน seed สองครั้งกับ PostgreSQL 18 ไม่ error; ขั้นตอน M-01..M-06 (ASM-06, AC-ROST-01..03, ASM-04, ASM-08) **ยังไม่ได้ตรวจด้วยมือ** จึงตั้งสถานะ "โค้ดเสร็จ รอคนตรวจด้วยมือ" ไม่ใช่ "เสร็จ"
+- สิ่งที่เกือบต้องเดา: id ของเทรนเนอร์ตัวอย่าง — เลือก 1001/1002 ให้ไม่ชนกับ id ที่ระบบสร้าง และให้ seed ของ 005 อ้างถึงได้ (plan D9)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-12` (005-class-booking)
+
+- ตรวจก่อนเริ่ม: T-09, T-11 ของ 005 เสร็จแล้ว; 004 T-11 สถานะ "โค้ดเสร็จ รอคนตรวจด้วยมือ" (ยังไม่ใช่ "เสร็จ") แต่สิ่งที่ T-12 ต้องใช้คือไฟล์ seed เทรนเนอร์ ซึ่งมีและรันได้แล้ว จึงทำต่อและบันทึกไว้ให้ทีมตรวจ
+- ไฟล์ที่สร้าง: `backend/seeds/005_classes.sql` (3 คลาสของเทรนเนอร์ 1001 วันจันทร์ถัดไป: 10:00–11:00, 10:30–11:30 ทับกัน, 11:30–12:30 นอกกะ 09:00–12:00; รันซ้ำได้), `docs/test_report/005-class-booking/manual_test.md` (อยู่ใน `.gitignore`)
+- ผล: รัน seed สองครั้งไม่ error ได้ 3 คลาส (จันทร์ 16 พ.ย. 2569); ขั้นตอน M-01..M-05 **ยังไม่ได้ตรวจด้วยมือ** จึงตั้งสถานะ "โค้ดเสร็จ รอคนตรวจด้วยมือ"
+- สิ่งที่เกือบต้องเดา: (1) วันของคลาสตัวอย่าง — ใช้ "จันทร์ถัดไป" คำนวณตอนรัน เพื่อไม่ให้ข้อมูลกลายเป็นคลาสที่เริ่มแล้ว; (2) สมาชิกสำหรับตรวจ — 001 ไม่มีหน้าสมัคร และ task ไม่ได้ให้สร้าง seed สมาชิก จึงเขียนวิธีสร้างด้วย pgcrypto ไว้ใน manual_test.md แทน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-12` (004-trainer-roster)
+
+- ไฟล์ที่แก้: `docs/API.md` — แถวสารบัญ 004/005, หัวข้อ 004 ทั้งหมด (6 endpoint, รูปแบบ Trainer/Entry, ตาราง error 400/404/409/503, ลำดับตรวจ, lock, `Covers`) และแก้หัวข้อ 005 ที่เขียนว่า "ยังเรียกจากเซิร์ฟเวอร์จริงไม่ได้" ให้ตรงกับที่ 005 T-11 ต่อเข้า `main.go` แล้ว (เป็นไฟล์ในช่อง "ไฟล์ที่แตะ" ของ task นี้)
+- ผล: สัญญาตรงกับ `handler.go`/`store*.go`; ระบุว่าไม่ต้องล็อกอิน (ASM-06) และยังไม่ได้ตรวจด้วยมือ
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/clarify specs/007-occupancy-dashboard/spec.md` (รอบ 2: ปิดช่องตามรอย) และแก้ `tasks.md` ของ 007 รอบที่ 2
+
+### คำสั่งที่ใช้
+ทีมถามว่า "task แต่ละ task สามารถตามรอยกลับไปที่ fr ac ได้ไหม" — AI พบว่า 007 T-02 อ้างแค่ DOM-CAP-01 เพราะ AC-BI-02, 03, 05 (และ 06) ใน spec อ้างแค่ DOM-CAP-01 และ T-12 (IF-GATE-01) ไม่มี AC เพราะรอ Q-01 จากนั้นทีมสั่ง "ทำที่เหลือหน่อย" และเลือก "ปิดช่องตามรอยของ 007"
+
+### คำถามที่ AI ถาม
+1. จะให้ AC-BI-02, 03, 05, 06 อ้าง FR-BI-01 ด้วยหรือไม่ (FR-BI-01 = ดึงข้อมูลการผ่านประตูมาประมวลผลและแสดงจำนวนปัจจุบัน)
+
+### คำตอบของทีม
+1. "ใช่ เพิ่ม FR-BI-01 ใน 4 ข้อ"
+
+### สิ่งที่แก้
+- `specs/007-occupancy-dashboard/spec.md`: วงเล็บอ้างอิงของ AC-BI-02, 03, 05, 06 เพิ่ม FR-BI-01 (ID เดิม ไม่เปลี่ยน Given/When/Then); ตาราง Traceability แถว FR-BI-01 = AC-BI-01, 02, 03, 05, 06, 07; บรรทัด Status ระบุรอบ 2
+- `specs/007-occupancy-dashboard/tasks.md` แก้รอบที่ 2: T-02 ช่อง "รองรับ" เพิ่ม FR-BI-01 เพราะ AC ที่ T-02 ตรวจตอนนี้อ้าง FR-BI-01 (กฎ /tasks: ทุก task ต้องชี้กลับไปหา FR หรือ AC) ไม่แก้บันทึกรอบแรก
+- ไม่เพิ่ม AC ของ IF-GATE-01: ยังต้องรอ Q-01 (โปรโตคอลประตู ถามฝ่ายอาคารสถานที่) — T-12 ของ 007 ยังเป็น "รอ Q-01"
+- ไม่มี ID ใหม่
