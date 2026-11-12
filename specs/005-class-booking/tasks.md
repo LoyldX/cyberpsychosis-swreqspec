@@ -1,133 +1,143 @@
 # Tasks: จองคลาสออกกำลังกาย
 
-- Feature: จองคลาสออกกำลังกาย
+- Feature: จองคลาสออกกำลังกาย (005-class-booking)
 - Spec ID: FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01, CON-DB-01, CON-TECH-01, CON-TECH-02
-- อ้างอิง: [spec.md](./spec.md), [plan.md](./plan.md)
-- วันที่: 11 พฤศจิกายน 2569
+- อ้างอิง: [spec.md](./spec.md) (Draft v2 ผ่าน /clarify รอบ 2), [plan.md](./plan.md) (ร่าง 12 พฤศจิกายน 2569)
+- วันที่: 12 พฤศจิกายน 2569 (แทนที่ tasks ฉบับ 11 พฤศจิกายน 2569 ที่ทุก task รอคำถามซึ่งปิดแล้ว)
 
-มีทั้งหมด 11 tasks สำหรับ schema, API, availability, tests และเว็บจอง
-มี 11 tasks ที่รอ Open Questions; ยังไม่มี task ที่พร้อมเริ่มจนกว่าจะได้คำตอบที่กระทบสัญญาข้อมูลและกฎการจอง
+มีทั้งหมด 13 task: พร้อมทำ 10 task (T-01 ถึง T-09, T-13) ครอบคลุม schema, กฎ, store, API, test ทุก AC และหน้าเว็บด้วย API จำลอง
+รอ Open Questions 3 task (T-10 ถึง T-12) ทั้งหมดรอ Q-01, Q-02 ของ spec 004 (รูปแบบเวลาเข้างาน) เพราะ 005 อ่านกะจาก 004 (ASM-11) ส่วน Q-04 ของ 005 ไม่มี task เพราะอยู่ใน Out of scope
 
 ## รายการ task
 
-### T-01 สร้าง migration และโมเดล Booking
-- รองรับ: FR-BKG-01, CON-DB-01
-- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-02, T-04 และ T-09
-- ไฟล์ที่แตะ: `backend/migrations/0003_create_bookings.up.sql`, `backend/migrations/0003_create_bookings.down.sql`, `backend/internal/booking/model.go`
+### T-01 สร้าง migration ตาราง classes และ bookings
+- รองรับ: CON-DB-01, FR-BKG-01, FR-BKG-02 (ASM-03, ASM-04, ASM-05, ASM-06)
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-03
+- ไฟล์ที่แตะ: `backend/migrations/0004_create_class_booking.up.sql`, `backend/migrations/0004_create_class_booking.down.sql`, `backend/internal/booking/migration_test.go`
 - ต้องทำหลัง: ไม่มี
-- เสร็จเมื่อ: migration สร้างและย้อน schema ของ Booking ได้โดยไม่สร้างข้อมูล Class หรือข้อมูลตารางเทรนเนอร์ซ้ำ
-- สถานะ: รอ Q-02, Q-03, Q-06
+- เสร็จเมื่อ: `TestMigration0004CreatesClassBooking` ผ่านกับ PostgreSQL จริง (CHECK `ends_at > starts_at` และ `capacity > 0` ทำงาน, UNIQUE `(class_id, member_id)` ทำงาน, `member_id` ต้องมีอยู่ใน `members`, migrate down กลับ version 3 แล้วตารางหายไป)
+- สถานะ: พร้อมทำ
 
-### T-02 สร้าง Booking store
-- รองรับ: FR-BKG-01, CON-DB-01
-- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-04 และ T-05
+### T-02 เขียนกฎช่วงเวลาทับซ้อนและอยู่ในกะ
+- รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-12, ASM-13)
+- ตรวจด้วย: AC-BKG-02, AC-BKG-03, AC-BKG-04 (ระดับกฎ: `TestAC_BKG_02_Rules`, `TestAC_BKG_03_Rules`, `TestAC_BKG_04_Rules`)
+- ไฟล์ที่แตะ: `backend/internal/booking/model.go`, `backend/internal/booking/model_test.go`
+- ต้องทำหลัง: ไม่มี
+- เสร็จเมื่อ: test กฎทั้ง 3 ผ่าน — ทับซ้อนแบบช่วงปิด (ต่อกันพอดีนับว่าทับ), อยู่ในกะเมื่อเริ่มไม่ก่อนต้นกะและจบไม่เกินสิ้นสุดกะ (ขอบพอดีนับว่าอยู่ในกะ) และมีค่าคงที่รหัสเหตุผลครบตาม plan ข้อ 4
+- สถานะ: พร้อมทำ
+
+### T-03 สร้าง store ของคลาสและการจอง
+- รองรับ: FR-BKG-01, FR-BKG-02, CON-DB-01, NFR-PERF-01 (ASM-05, ASM-09, ASM-10, plan D2, D3)
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-04 ถึง T-07 (test ระดับ store: คลาสเต็ม, จองซ้ำ, คลาสเริ่มแล้ว, ไม่พบคลาส, ทับซ้อนนับเฉพาะคลาสที่มีผู้จอง)
 - ไฟล์ที่แตะ: `backend/internal/booking/store.go`, `backend/internal/booking/store_test.go`
-- ต้องทำหลัง: T-01
-- เสร็จเมื่อ: store อ่านข้อมูลคลาสที่มีอยู่และบันทึก/ค้นหา Booking ผ่าน PostgreSQL ตาม schema ที่ทีมยืนยัน
-- สถานะ: รอ Q-02, Q-03, Q-05, Q-06, Q-07
+- ต้องทำหลัง: T-01, T-02
+- เสร็จเมื่อ: test store กับ PostgreSQL จริงผ่าน — `ListUpcoming` คืนเฉพาะคลาสที่ยังไม่เริ่ม, `GetForMember` คืนเฉพาะการจองของสมาชิกนั้น, `Book` ทำใน transaction เดียวพร้อม advisory lock ต่อ `trainer_id` ตรวจตามลำดับ D3 (รับตัวตรวจกะเป็นพารามิเตอร์) และเมื่อไม่ผ่านไม่มีแถวใหม่ใน `bookings`
+- สถานะ: พร้อมทำ
 
-### T-03 สร้างตัวตรวจความพร้อมของเทรนเนอร์
-- รองรับ: FR-BKG-02, DOM-BKG-01
-- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-07 และ T-08
-- ไฟล์ที่แตะ: `backend/internal/booking/availability.go`, `backend/internal/booking/availability_test.go`
-- ต้องทำหลัง: T-01
-- เสร็จเมื่อ: ตัวตรวจประเมินการทับซ้อนและเงื่อนไขกะจากข้อมูลตารางงานที่มีอยู่ โดยไม่สร้างกฎนอกเหนือจากที่ทีมยืนยัน
-- สถานะ: รอ Q-08, Q-09, Q-10
+### T-04 สร้าง service พร้อม Clock และ ShiftChecker
+- รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-08, ASM-11, plan D6)
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-05, T-06 (test ระดับ service: นอกกะถูกปฏิเสธ, ไม่มีข้อมูลกะถูกปฏิเสธ, เวลาปัจจุบันมาจาก Clock)
+- ไฟล์ที่แตะ: `backend/internal/booking/service.go`, `backend/internal/booking/service_test.go`
+- ต้องทำหลัง: T-03
+- เสร็จเมื่อ: test service ผ่าน — interface `ShiftChecker` และ `Clock` ใส่ตัวจำลองได้, `ShiftChecker` ตอบ "ไม่อยู่ในกะ" หรือไม่มีข้อมูลกะได้ `ErrTrainerOffShift` และไม่มีแถวใหม่
+- สถานะ: พร้อมทำ
 
-### T-04 ทำการจองแบบ atomic สำหรับคำขอพร้อมกัน
-- รองรับ: NFR-PERF-01, CON-DB-01
-- ตรวจด้วย: AC-BKG-05
-- ไฟล์ที่แตะ: `backend/internal/booking/service.go`, `backend/internal/booking/store.go`, `backend/internal/booking/service_test.go`
-- ต้องทำหลัง: T-02
-- เสร็จเมื่อ: การตรวจและบันทึกการจองใช้ PostgreSQL transaction และป้องกันไม่ให้คำขอทับซ้อนของเทรนเนอร์เดียวกันสำเร็จพร้อมกัน
-- สถานะ: รอ Q-02, Q-06
+### T-05 สร้าง Gin handler และ route ของการจอง
+- รองรับ: FR-BKG-01, CON-TECH-01 (ASM-05, ASM-06, ASM-07, plan D4, D5)
+- ตรวจด้วย: AC-BKG-01 (`TestAC_BKG_01_HTTP`)
+- ไฟล์ที่แตะ: `backend/internal/booking/handler.go`, `backend/internal/booking/routes.go`, `backend/internal/booking/handler_test.go`
+- ต้องทำหลัง: T-04
+- เสร็จเมื่อ: `TestAC_BKG_01_HTTP` ผ่าน (`POST /api/bookings` → `201` แล้ว `GET /api/bookings/:id` → `200` ตรงกัน) และ test เพิ่มผ่าน: `GET /api/classes` คืนเฉพาะคลาสที่ยังไม่เริ่ม, `400` / `404` / `409` ตามรหัสใน plan ข้อ 4, `GET /api/bookings/:id` ของคนอื่นได้ `404`, ไม่มี session ได้ `401`, store ล่มได้ `503 unavailable`
+- สถานะ: พร้อมทำ
 
-### T-05 สร้าง Gin API สำหรับการจอง
-- รองรับ: FR-BKG-01, FR-BKG-02, CON-TECH-01, CON-DB-01
-- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-06, T-07, T-08, T-09 และ T-11
-- ไฟล์ที่แตะ: `backend/internal/booking/handler.go`, `backend/internal/booking/routes.go`, `backend/internal/app/router.go`, `backend/cmd/api/main.go`
-- ต้องทำหลัง: T-03, T-04
-- เสร็จเมื่อ: `POST /api/bookings` รับคำขอจากสมาชิกที่ล็อกอิน ตรวจความพร้อมและส่งผลการจองตามสัญญาที่ทีมยืนยัน
-- สถานะ: รอ Q-03, Q-05, Q-06, Q-07, Q-08, Q-09, Q-10
-
-### T-06 ทดสอบการจองสำเร็จตาม AC-BKG-01
-- รองรับ: FR-BKG-01, CON-DB-01
-- ตรวจด้วย: AC-BKG-01
-- ไฟล์ที่แตะ: `backend/internal/booking/handler_test.go`
+### T-06 ทดสอบการบล็อกผ่าน API ตาม AC-BKG-02/03/04
+- รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-08, ASM-10, ASM-12, ASM-13)
+- ตรวจด้วย: AC-BKG-02, AC-BKG-03, AC-BKG-04 (`TestAC_BKG_02_HTTP`, `TestAC_BKG_03_HTTP`, `TestAC_BKG_04_HTTP`)
+- ไฟล์ที่แตะ: `backend/internal/booking/block_test.go`
 - ต้องทำหลัง: T-05
-- เสร็จเมื่อ: `TestAC_BKG_01` ตรวจการบันทึกการจองสำเร็จ; ส่วนการเรียกดูการจองจะทดสอบต่อเมื่อทีมยืนยันขอบเขตตาม Q-04
-- สถานะ: รอ Q-02, Q-03, Q-04, Q-05, Q-06, Q-07
+- เสร็จเมื่อ: test ทั้ง 3 ผ่านกับ PostgreSQL จริง — ทับซ้อนกับคลาสที่มีผู้จองได้ `409 trainer_busy` (รวมต่อกันพอดี) แต่ทับกับคลาสที่ยังไม่มีผู้จองจองได้, นอกกะ (เริ่มก่อน 09:00 / จบหลัง 12:00 กับ `ShiftChecker` จำลองกะ 09:00–12:00) ได้ `409 trainer_off_shift` และทุกกรณีที่ถูกบล็อกไม่มีแถวใหม่
+- สถานะ: พร้อมทำ
 
-### T-07 ทดสอบการบล็อกเวลาทับซ้อนตาม AC-BKG-02
-- รองรับ: FR-BKG-02, DOM-BKG-01
-- ตรวจด้วย: AC-BKG-02
-- ไฟล์ที่แตะ: `backend/internal/booking/availability_test.go`, `backend/internal/booking/handler_test.go`
-- ต้องทำหลัง: T-03, T-05
-- เสร็จเมื่อ: `TestAC_BKG_02` ยืนยันว่าคลาส Y ที่ทับเวลากับคลาส X ของเทรนเนอร์เดียวกันถูกปฏิเสธและไม่มี Booking ถูกบันทึก
-- สถานะ: รอ Q-08, Q-09
-
-### T-08 ทดสอบเงื่อนไขกะตาม AC-BKG-03/04
-- รองรับ: FR-BKG-02, DOM-BKG-01
-- ตรวจด้วย: AC-BKG-03, AC-BKG-04
-- ไฟล์ที่แตะ: `backend/internal/booking/availability_test.go`, `backend/internal/booking/handler_test.go`
-- ต้องทำหลัง: T-03, T-05
-- เสร็จเมื่อ: `TestAC_BKG_03` และ `TestAC_BKG_04` ยืนยันว่าคลาสก่อนเริ่มกะหรือจบหลังกะถูกปฏิเสธและไม่ถูกบันทึก
-- สถานะ: รอ Q-08, Q-10
-
-### T-09 ทดสอบคำขอพร้อมกันตาม AC-BKG-05
-- รองรับ: NFR-PERF-01, CON-DB-01
-- ตรวจด้วย: AC-BKG-05
+### T-07 ทดสอบการจองพร้อมกันตาม AC-BKG-05
+- รองรับ: NFR-PERF-01, CON-DB-01 (ASM-02, plan D2)
+- ตรวจด้วย: AC-BKG-05 (`TestAC_BKG_05`)
 - ไฟล์ที่แตะ: `backend/internal/booking/concurrency_test.go`
-- ต้องทำหลัง: T-04, T-05
-- เสร็จเมื่อ: `TestAC_BKG_05` ใช้ PostgreSQL จริงส่งคำขอพร้อมกันและยืนยันว่ามีการจองสำเร็จหนึ่งรายการ อีกคำขอถูกบล็อก
-- สถานะ: รอ Q-02, Q-06
+- ต้องทำหลัง: T-05
+- เสร็จเมื่อ: `go test -race -run TestAC_BKG_05 ./internal/booking/` ผ่านกับ PostgreSQL จริง 20 รอบติด — ทุกรอบได้ `201` หนึ่งรายการ `409 trainer_busy` หนึ่งรายการ มี 1 แถวใน `bookings` และทั้งสองคำขอได้ผลภายใน 1 วินาที
+- สถานะ: พร้อมทำ
 
-### T-10 สร้างหน้าเว็บจองด้วย API จำลอง
+### T-08 สร้างตัวเรียก API การจองฝั่งเว็บและ API จำลอง
 - รองรับ: FR-BKG-01, CON-TECH-02
-- ตรวจด้วย: AC-BKG-01
-- ไฟล์ที่แตะ: `frontend/src/features/booking/BookingPage.tsx`, `frontend/src/features/booking/BookingPage.test.tsx`, `frontend/src/features/booking/types.ts`, `frontend/src/App.tsx`, `frontend/src/mocks/handlers.ts`
-- ต้องทำหลัง: ไม่มี
-- เสร็จเมื่อ: หน้าเว็บส่งคำขอจองผ่าน API จำลองและมี test ของ flow ตาม AC-BKG-01 โดยไม่เพิ่มหน้าดูหรือยกเลิกการจอง
-- สถานะ: รอ Q-02, Q-03, Q-04, Q-05, Q-06, Q-07
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-09
+- ไฟล์ที่แตะ: `frontend/src/features/booking/types.ts`, `frontend/src/features/booking/api.ts`, `frontend/src/features/booking/api.test.ts`, `frontend/src/mocks/handlers.ts`
+- ต้องทำหลัง: ไม่มี (ใช้สัญญา API ใน plan ข้อ 4)
+- เสร็จเมื่อ: vitest ของ `api.test.ts` ผ่าน — `fetchClasses`, `createBooking`, `fetchBooking` ส่ง `Authorization: Bearer <token>` จาก `readToken()` และแปลงผล `201` / `409` (รหัสเหตุผล) / `503` ได้ถูกต้อง และ msw มี handler จำลองทั้ง 3 endpoint
+- สถานะ: พร้อมทำ
 
-### T-11 เชื่อมหน้าเว็บกับ Booking API จริง
-- รองรับ: FR-BKG-01, CON-TECH-01, CON-TECH-02
-- ตรวจด้วย: AC-BKG-01
-- ไฟล์ที่แตะ: `frontend/src/features/booking/api.ts`, `frontend/src/features/booking/BookingPage.tsx`, `frontend/src/features/booking/BookingPage.test.tsx`
-- ต้องทำหลัง: T-05, T-06, T-10
-- เสร็จเมื่อ: หน้าเว็บส่งคำขอไปยัง `POST /api/bookings` จริงและผลที่แสดงสอดคล้องกับ response ที่ทีมยืนยัน
-- สถานะ: รอ Q-04, Q-05, Q-06, Q-07
+### T-09 สร้างหน้าเว็บจองคลาส /classes
+- รองรับ: FR-BKG-01, CON-TECH-02 (ASM-05, plan D7)
+- ตรวจด้วย: AC-BKG-01 (vitest `AC_BKG_01`)
+- ไฟล์ที่แตะ: `frontend/src/features/booking/ClassBookingPage.tsx`, `frontend/src/features/booking/ClassBookingPage.test.tsx`, `frontend/src/App.tsx`
+- ต้องทำหลัง: T-08
+- เสร็จเมื่อ: vitest ผ่าน — `AC_BKG_01` (เห็นคลาส กดจอง แสดงการจองที่ได้), กรณี `409` แสดงข้อความตามรหัสเหตุผล, กรณี `503` แสดงข้อความให้ลองใหม่, route `/classes` อยู่ใน `RequireAuth` และ `npx tsc --noEmit` ผ่าน
+- สถานะ: พร้อมทำ
+
+### T-10 สร้างตัวอ่านเวลาเข้างานจากตารางของ 004
+- รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-11, ASM-13, plan D6)
+- ตรวจด้วย: AC-BKG-03, AC-BKG-04 (`TestAC_BKG_03_Roster`, `TestAC_BKG_04_Roster`)
+- ไฟล์ที่แตะ: `backend/internal/booking/roster_shift.go`, `backend/internal/booking/roster_shift_test.go`
+- ต้องทำหลัง: T-04 และ T-03 ของ spec 004 (migration ตารางงาน)
+- เสร็จเมื่อ: ตัวอ่านที่ทำตาม interface `ShiftChecker` อ่านเวลาเข้างานจริงจาก PostgreSQL แล้ว test ทั้ง 2 ผ่าน (กะ 09:00–12:00: คลาสเริ่มก่อน 09:00 และคลาส 11:30–12:30 ไม่อยู่ในกะ, คลาส 09:00–10:00 และ 11:00–12:00 อยู่ในกะ)
+- สถานะ: รอ Q-01, Q-02 (ของ spec 004)
+
+### T-11 ประกอบการจองเข้ากับ API server
+- รองรับ: CON-TECH-01, FR-BKG-01, FR-BKG-02
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นงานพื้นฐานของ T-12
+- ไฟล์ที่แตะ: `backend/cmd/api/main.go`
+- ต้องทำหลัง: T-05, T-10
+- เสร็จเมื่อ: `go build ./...` และ `go vet ./...` ผ่าน และเมื่อเปิดเซิร์ฟเวอร์กับ PostgreSQL/Redis จริง `GET /api/classes` ที่มี token ถูกต้องได้ `200` และไม่มี token ได้ `401`
+- สถานะ: รอ Q-01, Q-02 (ของ spec 004) ผ่าน T-10
+
+### T-12 ต่อหน้าเว็บกับ API จริงและตรวจด้วยมือ
+- รองรับ: FR-BKG-01, FR-BKG-02, CON-TECH-02 (ASM-04, plan D9)
+- ตรวจด้วย: AC-BKG-01, AC-BKG-02 (ตรวจด้วยมือบนเบราว์เซอร์)
+- ไฟล์ที่แตะ: `backend/seeds/005_classes.sql`, `docs/test_report/005-class-booking/manual_test.md`
+- ต้องทำหลัง: T-09, T-11
+- เสร็จเมื่อ: มีข้อมูลคลาสตัวอย่างที่ใช้ `trainer_id` ตรงกับข้อมูลของ 004 และขั้นตอนตรวจด้วยมือใน `manual_test.md` (ล็อกอิน → `/classes` → จองสำเร็จ; จองคลาสที่ทับกับคลาสที่มีผู้จองแล้วเห็นข้อความเทรนเนอร์ไม่ว่าง) ถูกตรวจและบันทึกผล
+- สถานะ: รอ Q-01, Q-02 (ของ spec 004) ผ่าน T-11
+
+### T-13 เขียนสัญญา API ของ 005 ใน docs/API.md
+- รองรับ: FR-BKG-01, FR-BKG-02 (README ขั้นที่ 5)
+- ตรวจด้วย: ไม่มี AC ตรง ๆ เป็นเอกสารของ T-05 ถึง T-07
+- ไฟล์ที่แตะ: `docs/API.md`
+- ต้องทำหลัง: T-05, T-06, T-07
+- เสร็จเมื่อ: `docs/API.md` มีหัวข้อ 005 ครบ 3 endpoint (input, output, รหัสสถานะ, รหัสเหตุผล 409) ตรงกับโค้ด และระบุชัดว่ายังไม่ได้ประกอบเข้า `main.go` จนกว่า T-11 จะเสร็จ
+- สถานะ: พร้อมทำ
 
 ## ตารางตรวจความครบ
 
-### Acceptance Criteria
+### 1. AC → task ที่ตรวจ
 | AC ID | task ที่ตรวจ AC นี้ |
 |---|---|
-| AC-BKG-01 | T-06, T-10, T-11 |
-| AC-BKG-02 | T-07 |
-| AC-BKG-03 | T-08 |
-| AC-BKG-04 | T-08 |
-| AC-BKG-05 | T-04, T-09 |
+| AC-BKG-01 | T-05 (`TestAC_BKG_01_HTTP`), T-09 (`AC_BKG_01`), T-12 (ตรวจด้วยมือ) |
+| AC-BKG-02 | T-02 (`TestAC_BKG_02_Rules`), T-06 (`TestAC_BKG_02_HTTP`), T-12 (ตรวจด้วยมือ) |
+| AC-BKG-03 | T-02 (`TestAC_BKG_03_Rules`), T-06 (`TestAC_BKG_03_HTTP`), T-10 (`TestAC_BKG_03_Roster`) |
+| AC-BKG-04 | T-02 (`TestAC_BKG_04_Rules`), T-06 (`TestAC_BKG_04_HTTP`), T-10 (`TestAC_BKG_04_Roster`) |
+| AC-BKG-05 | T-07 (`TestAC_BKG_05`) |
 
-### Constraints
+### 2. Constraint → task ที่ทำให้เป็นจริง
 | Constraint ID | task ที่ทำให้เป็นจริง |
 |---|---|
-| CON-DB-01 | T-01, T-02, T-04, T-05, T-06, T-09 |
+| CON-DB-01 | T-01, T-03, T-07 |
 | CON-TECH-01 | T-05, T-11 |
-| CON-TECH-02 | T-10, T-11 |
-| DOM-BKG-01 | T-03, T-07, T-08 |
-| IF (ไม่มีใน spec) | ไม่มี IF ใน spec นี้ |
+| CON-TECH-02 | T-08, T-09, T-12 |
+| DOM-BKG-01 | T-02, T-03, T-04, T-06, T-10 |
+| IF | ไม่มีใน spec นี้ |
 
 ## สิ่งที่ยังไม่ทำ
-| Open Question | task ที่รอ | สิ่งที่ยังไม่ทำ |
+| รหัส | Open Question | task ที่รอ |
 |---|---|---|
-| Q-01: ค่า Latency ของ NFR-PERF-01 (SRS §8.1 ข้อ 5) คือเท่าใด — ห้ามใส่ตัวเลขเอง (Product Owner เสนอ) | ยังไม่มี task ที่กำหนดเกณฑ์ทดสอบได้ เพราะ AC-BKG-05 ไม่มี threshold ด้านเวลา | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-02: คลาสเป็นกลุ่มหรือเทรนเนอร์ 1 ต่อ 1 และมีจำนวนที่นั่งหรือไม่ (ห้ามสมมติ 1:1) (ผู้ดูแลยิม เสนอ) | T-01, T-02, T-04, T-06, T-09, T-10 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-03: ใครสร้างคลาสและกำหนดช่วงเวลาเปิดรับจอง (ไม่มี FR รองรับ) (ผู้ดูแลยิม เสนอ) | T-01, T-02, T-05, T-06, T-10 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-04: สมาชิกยกเลิกการจองและดูรายการจองของตนเองได้หรือไม่ (SRS ไม่มี FR) (Product Owner เสนอ) | T-06, T-10, T-11 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-05: คลาสเต็ม คลาสไม่พบ หรือสมาชิกจองคลาสเดิมซ้ำ ระบบต้องทำอย่างไร (exception flow ที่ SRS ไม่มี FR) (Product Owner เสนอ) | T-02, T-04, T-05, T-06, T-10, T-11 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-06: ใครเป็นเจ้าของข้อมูลสมาชิกที่ Booking อ้างถึง (Tech Lead เสนอ) | T-01, T-02, T-04, T-05, T-06, T-09, T-10, T-11 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-07: เมื่อฐานข้อมูลไม่ตอบสนองระหว่างจอง ระบบต้องทำอย่างไร (Tech Lead เสนอ) | T-02, T-05, T-06, T-10, T-11 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-08: ยืนยันหรือไม่ว่าให้บล็อกเฉพาะเวลาทับซ้อน โดยไม่บล็อกกรณีอยู่นอกกะตาม DOM-BKG-01 และ AC-BKG-03/04 (Product Owner / ผู้ดูแลยิม เสนอ) | T-03, T-05, T-07, T-08 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-09: “คิวสอนอื่น” ที่ใช้ตรวจเวลาทับซ้อนหมายถึงคลาสอื่นของเทรนเนอร์คนเดียวกันเท่านั้น หรือรวมกิจกรรมสอนประเภทอื่นด้วย (ผู้ดูแลยิม เสนอ) | T-03, T-05, T-07 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
-| Q-10: หากยังบล็อกกรณีอยู่นอกกะ จะใช้ข้อมูลกะจากแหล่งใด และต้องพิจารณาวันหยุดหรือกะพิเศษหรือไม่ (ผู้ดูแลยิม / Team Lead เสนอ) | T-03, T-05, T-08 | ส่วนที่เกี่ยวข้องกับข้อนี้จะยังไม่สร้างจนกว่าจะได้คำตอบ |
+| Q-04 (spec 005) | สมาชิกยกเลิกการจองและดูรายการจองของตนเองได้หรือไม่ — ยังเปิด ทีมต้องการ แต่ต้องเสนอ FR ใหม่เข้า SRS ก่อน | ไม่มี task (อยู่ใน Out of scope ห้ามสร้าง task) |
+| Q-01 (spec 004) | รูปแบบตารางงานเป็นกะซ้ำรายสัปดาห์หรือวันที่เจาะจง | T-10, T-11, T-12 |
+| Q-02 (spec 004) | "เวลาเข้างาน" กับ "เวลาสอน" แยกกันหรือไม่ | T-10, T-11, T-12 |
+| Q-01..Q-03, Q-05..Q-14 (spec 005) | ทีมตอบแล้วเป็น ASM-02..ASM-13 ชั่วคราว รอยืนยันกับผู้เกี่ยวข้อง | ไม่มี task รอ แต่ถ้าคำตอบจริงต่างไป task ที่อ้าง ASM นั้นต้องแก้ |
