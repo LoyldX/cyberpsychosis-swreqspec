@@ -16,7 +16,7 @@
 - ไฟล์ที่แตะ: `backend/migrations/0004_create_class_booking.up.sql`, `backend/migrations/0004_create_class_booking.down.sql`, `backend/internal/booking/migration_test.go`
 - ต้องทำหลัง: ไม่มี
 - เสร็จเมื่อ: `TestMigration0004CreatesClassBooking` ผ่านกับ PostgreSQL จริง (CHECK `ends_at > starts_at` และ `capacity > 0` ทำงาน, UNIQUE `(class_id, member_id)` ทำงาน, `member_id` ต้องมีอยู่ใน `members`, migrate down กลับ version 3 แล้วตารางหายไป)
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-02 เขียนกฎช่วงเวลาทับซ้อนและอยู่ในกะ
 - รองรับ: FR-BKG-02, DOM-BKG-01 (ASM-12, ASM-13)

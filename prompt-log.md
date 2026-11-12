@@ -1391,3 +1391,11 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - task หน้าเว็บ (T-08, T-09) ใช้ API จำลองตาม plan ข้อ 4 ไม่ต้องรอ API; T-12 ต่อของจริงไว้ท้าย
 - task ที่ยากที่สุด: T-03 (transaction จองที่ต้องตรวจตามลำดับ D3 และ advisory lock ต่อเทรนเนอร์ให้ถูก) และ T-07 (test พร้อมกันที่ต้องผลคงที่ทุกรอบ)
 - AC ที่ทดสอบยาก: AC-BKG-05 (ผลขึ้นกับจังหวะ จึงทำซ้ำ 20 รอบ + `-race` และวัด 1 วินาทีบนเครื่องนักศึกษา); AC-BKG-03/04 กับข้อมูลกะจริงทำได้หลัง 004 เท่านั้น ระหว่างนี้ใช้ `ShiftChecker` จำลอง (ทีมต้องยอมรับว่า test ระดับ HTTP ยังไม่พิสูจน์การอ่านข้อมูลของ 004)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (005-class-booking)
+
+- คำสั่งของทีม: "implement" — AI ถามว่า task ไหน (คำสั่งห้ามเลือกเอง) ทีมตอบ "ทุก task ที่พร้อมทำ ทีละตัว"
+- ไฟล์ที่สร้าง: `backend/migrations/0004_create_class_booking.up.sql`, `backend/migrations/0004_create_class_booking.down.sql`, `backend/internal/booking/migration_test.go`
+- ผล test: `go test -race ./internal/booking/` — `TestMigration0004CreatesClassBooking` PASS กับ PostgreSQL 18 (CHECK 23514, UNIQUE 23505, FK 23503, migrate down กลับ version 3)
+- Constraint ในโค้ด: CON-DB-01 ตาราง `classes`/`bookings`; ASM-06 `bookings.member_id REFERENCES members(id)`; ASM-05 UNIQUE `(class_id, member_id)`; plan D1 `trainer_id` ไม่มี FK
+- สิ่งที่เกือบต้องเดา: FK ของ `bookings` ใช้ค่าเริ่มต้น (ห้ามลบสมาชิก/คลาสที่มีการจอง) ไม่ใส่ `ON DELETE CASCADE` เพราะ plan ไม่ได้ระบุ
