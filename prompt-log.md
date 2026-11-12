@@ -1211,3 +1211,12 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - AC ที่ทดสอบยาก: AC-BI-04 (1 วินาที) ใช้ `httptest.Server` จริงฝั่ง backend และ `EventSource` จำลองฝั่ง frontend + ตรวจด้วยมือใน T-10; AC-BI-06 (00:00) ใช้นาฬิกาจำลองแทนการรอเที่ยงคืนจริง — ทีมต้องยอมรับว่าเป็นการทดสอบแบบย่อส่วน
 - หมายเหตุ: T-10 แตะ `frontend/vite.config.ts` (เพิ่ม dev proxy `/api`) ซึ่งเป็นไฟล์ร่วมของทุกฟีเจอร์; T-12 ไม่มี "ไฟล์ที่แตะ" และ "เสร็จเมื่อ" ที่ชัดเจนเพราะรอ Q-01 (จะถูก /implement ปฏิเสธจนกว่าจะปิด Q-01)
 - ตรวจแล้ว: ไม่มี ID ใน tasks ที่ไม่มีใน spec; ทุก AC (AC-BI-01..07) มี task ตรวจ; ทุก Constraint (IF-GATE-01, DOM-CAP-01, CON-TECH-01, CON-TECH-02) มี task ทำให้เป็นจริง
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-01` (007-occupancy-dashboard)
+
+- เครื่องมือ: Claude Code
+- คำสั่งที่ใช้: "implement all of them do each one at a time" → ทำ T-01..T-11 ทีละ task ตามลำดับ (T-12 ปฏิเสธเพราะ "รอ Q-01")
+- สภาพแวดล้อม: เครื่องที่ implement ไม่มี PostgreSQL และ Docker AI ถามทีม ทีมเลือก "เขียนโค้ดไปก่อน test DB รันทีหลัง" — task ที่ test ต้องใช้ PostgreSQL จะมีสถานะ "โค้ดเสร็จ รอรัน test กับ PostgreSQL" ไม่ใช่ "เสร็จ รอทีมตรวจ" และทีมอนุญาตให้ทำ task ถัดไปต่อได้แม้ task ก่อนหน้ายังไม่ได้รัน test จริง
+- ไฟล์ที่สร้าง: `backend/migrations/0003_create_gate_signals.up.sql`, `backend/migrations/0003_create_gate_signals.down.sql`, `backend/internal/occupancy/migration_test.go`
+- ผล test: `go vet ./internal/occupancy/` ผ่าน; `go test` รัน `TestMigration0003CreatesGateSignals` แล้ว FAIL เพราะต่อ `127.0.0.1:5432` ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์กับฐานข้อมูลจริง
+- สิ่งที่เกือบต้องเดา: การทดสอบ migrate down บนฐานข้อมูลร่วมจะทำลายตารางของ package อื่น จึงให้ test สร้างฐานข้อมูลชั่วคราวแยก (ต้องใช้สิทธิ์ CREATE DATABASE ซึ่ง `gym_user` ใน `docker-compose.yml` มีในฐานะ superuser ของ image postgres)

@@ -16,7 +16,7 @@
 - ไฟล์ที่แตะ: `backend/migrations/0003_create_gate_signals.up.sql`, `backend/migrations/0003_create_gate_signals.down.sql`, `backend/internal/occupancy/migration_test.go`
 - ต้องทำหลัง: ไม่มี
 - เสร็จเมื่อ: test ใน `migration_test.go` รัน migrate up ได้ตาราง `gate_signals` ตาม plan §3 ฐานข้อมูลปฏิเสธ `direction` อื่นนอกจาก `in`/`out` และ `occupancy_after < 0` ส่วน migrate down ลบตารางได้
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (เครื่องที่ implement ไม่มี PostgreSQL/Docker; ทีมสั่งให้เขียนโค้ดไปก่อน)
 
 ### T-02 เขียนกฎคำนวณจำนวนและจุดเริ่มวัน
 - รองรับ: DOM-CAP-01 (ASM-01, ASM-03, ASM-04)
