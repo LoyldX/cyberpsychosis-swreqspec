@@ -1584,3 +1584,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestAC_ROST_03_HTTP` (PATCH เวลาเข้างานและเวลาสอน แล้ว GET เห็นค่าใหม่), `TestAC_ROST_04_HTTP` (แก้/ยกเลิก/ลบของ A ตารางของ B เหมือนเดิมทุกฟิลด์) PASS
 - Constraint ในโค้ด: FR-ROST-01 ผ่าน API จริง; ASM-05 แก้ทีละรายการ; ASM-01 ยกเลิกยังเห็นในตาราง
 - สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/roster/types.ts`, `frontend/src/features/roster/api.ts`, `frontend/src/features/roster/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง 6 endpoint ของ 004 ที่เก็บรายการในหน่วยความจำ + `resetFakeRoster` + handler 503)
+- ผล test: `npx vitest run src/features/roster src/mocks` — 2 files, 15 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02; ASM-06 ไม่ส่ง Authorization; 400/404/409 → `rejected` พร้อมรหัสเหตุผล, 503/เครือข่ายล้ม → `unavailable` (ASM-08)
+- สิ่งที่เกือบต้องเดา: mock ตรวจกฎแบบย่อ (เวลาสอนต้องอยู่ในเวลาเข้างานช่วงเดียว ไม่รวมช่วงที่ต่อกัน) — พอสำหรับ test หน้าจอ กฎจริงอยู่ที่ backend

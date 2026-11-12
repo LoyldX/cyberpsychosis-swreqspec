@@ -72,7 +72,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `frontend/src/features/roster/types.ts`, `frontend/src/features/roster/api.ts`, `frontend/src/features/roster/api.test.ts`, `frontend/src/mocks/handlers.ts`
 - ต้องทำหลัง: ไม่มี (ใช้สัญญา API ใน plan ข้อ 4)
 - เสร็จเมื่อ: vitest ของ `api.test.ts` ผ่าน — เรียกทั้ง 6 endpoint และแปลงผล `2xx` / `409` (รหัสเหตุผล) / `503` ได้ถูกต้อง และ msw มี handler จำลองครบ
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-09 สร้างหน้าเว็บจัดตารางงาน /roster
 - รองรับ: FR-ROST-01, CON-TECH-02 (ASM-06, ASM-08, plan D7)
