@@ -1622,3 +1622,9 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล: `go build ./...`, `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริง (PostgreSQL 18 + Redis) แล้วตรวจ: `GET /api/classes` ไม่มี token → 401, มี token จากการล็อกอินจริง → 200; จองคลาสศุกร์ 10:00–11:00 ที่อยู่ในเวลาเข้างานจริงของ 004 → 201; คลาส 11:30–12:30 → 409 `trainer_off_shift`; ยกเลิกกะที่ครอบคลาสที่ถูกจอง → 409 `booked_class_outside_work` (004 ASM-07); SIGINT แล้วปิดเอง; ลบข้อมูลที่ใช้ตรวจทั้งหมด (สร้าง `pgcrypto` ในฐานข้อมูล `postgres` เพื่อสร้าง bcrypt hash ของสมาชิกทดสอบ ไม่ได้แตะ `gym_management`)
 - Constraint ในโค้ด: CON-TECH-01; precondition "สมาชิกล็อกอินแล้ว" — route อยู่หลัง `RequireSession`; DOM-BKG-01 ใช้กะจริงผ่าน `RosterShifts`
 - สิ่งที่เกือบต้องเดา: timeout ของ `RequireSession` ใช้ `cfg.DependencyTimeout` เดียวกับ endpoint ของ 001
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/seeds/004_trainers.sql` (เทรนเนอร์ตัวอย่าง id 1001, 1002 ด้วย `OVERRIDING SYSTEM VALUE` + `ON CONFLICT DO NOTHING`), `docs/test_report/004-trainer-roster/manual_test.md` (ไฟล์นี้อยู่ใน `.gitignore` เหมือนของ 007)
+- ผล: รัน seed สองครั้งกับ PostgreSQL 18 ไม่ error; ขั้นตอน M-01..M-06 (ASM-06, AC-ROST-01..03, ASM-04, ASM-08) **ยังไม่ได้ตรวจด้วยมือ** จึงตั้งสถานะ "โค้ดเสร็จ รอคนตรวจด้วยมือ" ไม่ใช่ "เสร็จ"
+- สิ่งที่เกือบต้องเดา: id ของเทรนเนอร์ตัวอย่าง — เลือก 1001/1002 ให้ไม่ชนกับ id ที่ระบบสร้าง และให้ seed ของ 005 อ้างถึงได้ (plan D9)
