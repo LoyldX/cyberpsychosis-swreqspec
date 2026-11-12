@@ -32,7 +32,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `backend/internal/roster/store.go`, `backend/internal/roster/store_test.go`
 - ต้องทำหลัง: T-01, T-02
 - เสร็จเมื่อ: test store กับ PostgreSQL จริงผ่าน — `ListTrainers`, `ListEntries` (รวมที่ยกเลิก), `Create` ใน transaction พร้อม advisory lock `(5005, trainer_id)` และไม่ผ่านกฎแล้วไม่บันทึก
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-04 สร้าง store แก้ ยกเลิก และลบรายการตารางงาน
 - รองรับ: FR-ROST-01, CON-DB-01 (ASM-01, ASM-04, ASM-05, ASM-07, Q-11)

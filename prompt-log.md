@@ -1549,3 +1549,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (`-race`): `TestParseTimeOfDay`, `TestParseKind`, `TestSlotValidate`, `TestSlotOverlaps`, `TestSlotWithin`, `TestSlotOf`, `TestReasonCodes` PASS
 - Constraint ในโค้ด: ASM-03 `Slot.Validate` (วัน 1..7, เริ่มก่อนจบ ไม่ข้ามเที่ยงคืน) และ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่ใช่ Slot); ASM-10 `Overlaps` ไม่นับต่อกันพอดี และ `Within` รวมช่วงที่ต่อกัน; ASM-04 `Kind` work/teach
 - สิ่งที่เกือบต้องเดา: ความละเอียดเวลา — เก็บเป็นวินาทีในวันเพื่อให้คลาสที่มีวินาทีถูกเทียบตรง ส่วน API รับ "HH:MM" ตาม plan
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-03` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/store.go`, `backend/internal/roster/store_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestStoreListTrainers`, `TestStoreCreateAndList`, `TestStoreCreateRejectsOverlap`, `TestStoreCreateTeachOutsideWork`, `TestStoreCreateInvalidAndMissingTrainer` PASS
+- Constraint ในโค้ด: CON-DB-01 `Create` ใน transaction + `pg_advisory_xact_lock(5005, trainer_id)` key เดียวกับการจองของ 005 (plan D2); `checkSchedule` ตรวจทับซ้อน (ASM-02/ASM-10) และเวลาสอนอยู่ในเวลาเข้างาน (ASM-04); รายการที่ยกเลิกไม่นับ (ASM-01); JSON ตามสัญญา plan ข้อ 4
+- สิ่งที่เกือบต้องเดา: ไม่มี
