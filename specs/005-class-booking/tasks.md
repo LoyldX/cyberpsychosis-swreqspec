@@ -64,7 +64,7 @@
 - ไฟล์ที่แตะ: `backend/internal/booking/concurrency_test.go`
 - ต้องทำหลัง: T-05
 - เสร็จเมื่อ: `go test -race -run TestAC_BKG_05 ./internal/booking/` ผ่านกับ PostgreSQL จริง 20 รอบติด — ทุกรอบได้ `201` หนึ่งรายการ `409 trainer_busy` หนึ่งรายการ มี 1 แถวใน `bookings` และทั้งสองคำขอได้ผลภายใน 1 วินาที
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-08 สร้างตัวเรียก API การจองฝั่งเว็บและ API จำลอง
 - รองรับ: FR-BKG-01, CON-TECH-02
