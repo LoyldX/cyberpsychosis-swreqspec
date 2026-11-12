@@ -24,7 +24,7 @@
 - ไฟล์ที่แตะ: `backend/internal/occupancy/model.go`, `backend/internal/occupancy/model_test.go`
 - ต้องทำหลัง: ไม่มี
 - เสร็จเมื่อ: `TestAC_BI_02`, `TestAC_BI_03`, `TestAC_BI_05` ระดับ unit ผ่าน (`ApplySignal(10,in)=11`, `ApplySignal(10,out)=9`, `ApplySignal(0,out)=0`) และ test ของ `StartOfDay` ยืนยันว่าเวลา 23:59 และ 00:00 Asia/Bangkok อยู่คนละวัน
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-03 สร้าง store บันทึกสัญญาณและอ่านจำนวนปัจจุบัน
 - รองรับ: FR-BI-01, DOM-CAP-01, IF-GATE-01 (ASM-02, ASM-04, ASM-05)

@@ -1220,3 +1220,11 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ไฟล์ที่สร้าง: `backend/migrations/0003_create_gate_signals.up.sql`, `backend/migrations/0003_create_gate_signals.down.sql`, `backend/internal/occupancy/migration_test.go`
 - ผล test: `go vet ./internal/occupancy/` ผ่าน; `go test` รัน `TestMigration0003CreatesGateSignals` แล้ว FAIL เพราะต่อ `127.0.0.1:5432` ไม่ได้ (connection refused) — ยังไม่ได้พิสูจน์กับฐานข้อมูลจริง
 - สิ่งที่เกือบต้องเดา: การทดสอบ migrate down บนฐานข้อมูลร่วมจะทำลายตารางของ package อื่น จึงให้ test สร้างฐานข้อมูลชั่วคราวแยก (ต้องใช้สิทธิ์ CREATE DATABASE ซึ่ง `gym_user` ใน `docker-compose.yml` มีในฐานะ superuser ของ image postgres)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง: `backend/internal/occupancy/model.go`, `backend/internal/occupancy/model_test.go`
+- ผล test (`go test -race`): PASS ทั้งหมด — `TestAC_BI_02_ApplySignal`, `TestAC_BI_03_ApplySignal`, `TestAC_BI_05_ApplySignal`, `TestParseDirection`, `TestStartOfDayBangkok`
+- หมายเหตุ: ชื่อ test มี suffix (`_ApplySignal`) เพราะ T-03 และ T-05 ต้องมี test ของ AC เดียวกันใน package เดียวกัน Go ไม่ยอมให้ชื่อฟังก์ชันซ้ำ; ชื่อยังมี AC ID ตาม `000-shared` §4
+- เพิ่ม `ParseDirection` และ `NextStartOfDay` (ใช้ใน T-04/T-05) อยู่ใน `model.go` ตามโครงไฟล์ของ plan §4.3
+- สิ่งที่เกือบต้องเดา: ไม่มี (กฎทั้งหมดมาจาก DOM-CAP-01, ASM-03, ASM-04)
