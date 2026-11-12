@@ -19,6 +19,7 @@ import (
 	"gymapp/backend/internal/config"
 	"gymapp/backend/internal/inventory"
 	"gymapp/backend/internal/occupancy"
+	"gymapp/backend/internal/roster"
 )
 
 // main เรียก run แล้วจบด้วย log.Fatalf เมื่อมี error (CON-TECH-01); แยก run เพื่อให้ defer ปิด pool/client ทำงาน.
@@ -28,8 +29,8 @@ func main() {
 	}
 }
 
-// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory และ occupancy เข้ากับ Gin
-// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
+// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory, occupancy และ roster เข้ากับ Gin
+// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01, FR-ROST-01) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
 // ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
 func run() error {
 	cfg, err := config.Load()
@@ -55,13 +56,15 @@ func run() error {
 	// FR-BI-01, NFR-PERF-02: occupancy ใช้ PostgreSQL ตาม ASM-02 และนาฬิกาจริงของเครื่อง
 	occupancyService := occupancy.NewService(occupancy.NewStore(pool), occupancy.NewBroadcaster(), nil)
 	occupancyHandler := occupancy.NewHandler(occupancyService)
+	// FR-ROST-01: ตารางงานเทรนเนอร์ใช้ PostgreSQL และนาฬิกาจริง ไม่ต้องล็อกอิน (004 ASM-06)
+	rosterHandler := roster.NewHandler(roster.NewStore(pool), nil)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	srv := &http.Server{
 		Addr:    cfg.HTTPAddr,
-		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register),
+		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register, rosterHandler.Register),
 		// context ของทุกคำขอมาจาก ctx: เมื่อได้รับสัญญาณหยุด การเชื่อมต่อ SSE ที่เปิดค้างจะจบเอง Shutdown จึงไม่ต้องรอจนหมดเวลา (NFR-PERF-02)
 		BaseContext: func(net.Listener) context.Context { return ctx },
 	}

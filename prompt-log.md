@@ -1598,3 +1598,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `npx vitest run` — 12 files, 82 tests PASS (ใหม่: `AC_ROST_01`, `AC_ROST_03`, 409 แสดงเหตุผล, 503 คงค่าในฟอร์ม, ยกเลิก/ลบ, route `/roster` เปิดได้โดยไม่ล็อกอิน); `npx tsc --noEmit` ผ่าน
 - Constraint ในโค้ด: CON-TECH-02; ASM-06 route ไม่ครอบ `RequireAuth`; ASM-08 ฟอร์มไม่ล้างค่าเมื่อบันทึกไม่สำเร็จ; ASM-01 รายการที่ยกเลิกแสดง "(ยกเลิกแล้ว)"; plan D7 ใช้ `useEffect`/`useState`
 - สิ่งที่เกือบต้องเดา: หน้าตา/การจัดวาง (UI-ROST-01 เป็น Candidate) — ใช้รายการเรียงตามที่ backend ส่งมา ไม่ทำตารางแยกตามวัน; ข้อความบนหน้าเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (004-trainer-roster)
+
+- ไฟล์ที่แก้: `backend/cmd/api/main.go` (import `roster`, สร้าง `roster.NewHandler(roster.NewStore(pool), nil)` และลงทะเบียน route)
+- ผล: `go build ./...` และ `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริงกับ PostgreSQL 18 (`HTTP_ADDR=:8091`) แล้ว `GET /api/trainers` ได้ `200 []` โดยไม่ส่ง token, `GET /api/trainers/999/roster` ได้ `404 trainer_not_found`; SIGINT แล้วเซิร์ฟเวอร์ปิดเอง
+- Constraint ในโค้ด: CON-TECH-01; ASM-06 route ไม่ครอบ `RequireSession`
+- สิ่งที่เกือบต้องเดา: ไม่มี
