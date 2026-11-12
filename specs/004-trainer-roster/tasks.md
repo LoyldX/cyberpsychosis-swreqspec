@@ -80,7 +80,7 @@ T-05 (`roster.Covers`) เป็นสิ่งที่ปลดล็อก 00
 - ไฟล์ที่แตะ: `frontend/src/features/roster/RosterPage.tsx`, `frontend/src/features/roster/RosterPage.test.tsx`, `frontend/src/App.tsx`
 - ต้องทำหลัง: T-08
 - เสร็จเมื่อ: vitest ผ่าน — `AC_ROST_01` (เลือกเทรนเนอร์ เพิ่มเวลาเข้างาน เห็นในตาราง), `AC_ROST_03` (แก้แล้วเห็นค่าใหม่), `409` แสดงเหตุผล, `503` แจ้งลองใหม่และคงค่าในฟอร์ม, route `/roster` ไม่ครอบ `RequireAuth`, `npx tsc --noEmit` ผ่าน
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-10 ประกอบตารางงานเข้ากับ API server
 - รองรับ: CON-TECH-01, FR-ROST-01 (ASM-06)

@@ -1591,3 +1591,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `npx vitest run src/features/roster src/mocks` — 2 files, 15 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
 - Constraint ในโค้ด: CON-TECH-02; ASM-06 ไม่ส่ง Authorization; 400/404/409 → `rejected` พร้อมรหัสเหตุผล, 503/เครือข่ายล้ม → `unavailable` (ASM-08)
 - สิ่งที่เกือบต้องเดา: mock ตรวจกฎแบบย่อ (เวลาสอนต้องอยู่ในเวลาเข้างานช่วงเดียว ไม่รวมช่วงที่ต่อกัน) — พอสำหรับ test หน้าจอ กฎจริงอยู่ที่ backend
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/roster/RosterPage.tsx`, `frontend/src/features/roster/RosterPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/roster` ไม่ครอบ `RequireAuth`)
+- ผล test: `npx vitest run` — 12 files, 82 tests PASS (ใหม่: `AC_ROST_01`, `AC_ROST_03`, 409 แสดงเหตุผล, 503 คงค่าในฟอร์ม, ยกเลิก/ลบ, route `/roster` เปิดได้โดยไม่ล็อกอิน); `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02; ASM-06 route ไม่ครอบ `RequireAuth`; ASM-08 ฟอร์มไม่ล้างค่าเมื่อบันทึกไม่สำเร็จ; ASM-01 รายการที่ยกเลิกแสดง "(ยกเลิกแล้ว)"; plan D7 ใช้ `useEffect`/`useState`
+- สิ่งที่เกือบต้องเดา: หน้าตา/การจัดวาง (UI-ROST-01 เป็น Candidate) — ใช้รายการเรียงตามที่ backend ส่งมา ไม่ทำตารางแยกตามวัน; ข้อความบนหน้าเป็นร่างของ AI
