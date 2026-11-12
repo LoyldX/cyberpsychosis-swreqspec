@@ -304,7 +304,7 @@ curl -i -X POST 'http://localhost:8080/api/inventory/12/movements' \
 ## 007 occupancy-dashboard
 Spec: [`specs/007-occupancy-dashboard/spec.md`](../specs/007-occupancy-dashboard/spec.md) (Draft v2) — FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01 | Backend: Go/Gin (CON-TECH-01) + PostgreSQL (ASM-02 ทีมเลือกเอง; SRS ไม่ผูก 007 กับ CON-DB-01) | Web: React/Vite หน้า `/dashboard` (CON-TECH-02) | โค้ด: `backend/internal/occupancy/`
 
-> **สถานะการทดสอบ (12 พฤศจิกายน 2569):** test ทั้งหมดของ `backend/internal/occupancy` (24 test รวม `TestAC_BI_01_HTTP`, `_02_`, `_03_`, `_05_`, `_07_`, `TestAC_BI_04`, `TestAC_BI_06`, store และ migration) **ผ่านกับ PostgreSQL จริง** (`go test -race`) — ทดสอบบน PostgreSQL 18 เพราะเครื่องที่รันไม่มี Docker (`docker-compose.yml` ใช้ 16) ส่วนการตรวจด้วยมือบนเบราว์เซอร์ (M-01..M-04) ยังไม่ได้ทำ ดู `docs/test_report/007-occupancy-dashboard/manual_test.md`
+> **สถานะการทดสอบ (12 พฤศจิกายน 2569):** test ทั้งหมดของ `backend/internal/occupancy` (24 test รวม `TestAC_BI_01_HTTP`, `_02_`, `_03_`, `_05_`, `_07_`, `TestAC_BI_04`, `TestAC_BI_06`, store และ migration) **ผ่านกับ PostgreSQL จริง** (`go test -race`) — ทดสอบบน PostgreSQL 18 เพราะเครื่องที่รันไม่มี Docker (`docker-compose.yml` ใช้ 16) และทีมตรวจด้วยมือบนเบราว์เซอร์ (M-01..M-04) ผ่านแล้ว ดู `docs/test_report/007-occupancy-dashboard/manual_test.md`
 
 ### ธรรมเนียม Occupancy API
 - **ไม่ต้องยืนยันตัวตนทุก endpoint** (ASM-07) — ใครเข้าถึงเซิร์ฟเวอร์ได้ก็อ่านจำนวนและยิงสัญญาณจำลองได้ (plan D4, D5)
