@@ -61,7 +61,7 @@
 - ไฟล์ที่แตะ: `backend/internal/occupancy/handler.go`, `backend/internal/occupancy/routes.go`, `backend/internal/occupancy/stream_test.go`
 - ต้องทำหลัง: T-05
 - เสร็จเมื่อ: `TestAC_BI_04` ผ่าน: เปิด `GET /api/occupancy/stream` ผ่าน `httptest.Server` ได้ event แรกเป็นจำนวนปัจจุบัน และหลัง `POST /api/gate/signals` ตอบกลับ ได้ event ที่มีจำนวนใหม่ภายใน 1 วินาที; ปิดการเชื่อมต่อแล้วผู้ฟังถูกถอดออกจาก broadcaster
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอรัน test กับ PostgreSQL (test ส่วนที่ไม่ใช้ DB ผ่านแล้ว)
 
 ### T-07 ประกอบ occupancy เข้ากับเซิร์ฟเวอร์
 - รองรับ: CON-TECH-01, FR-BI-01, NFR-PERF-02

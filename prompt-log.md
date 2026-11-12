@@ -1249,3 +1249,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `go vet` ผ่าน; PASS (ไม่ใช้ DB) — `TestPostSignalRejectsInvalidDirection` (400), `TestHandlerReturns503WhenDatabaseUnavailable` (503, plan D6); FAIL เพราะต่อ PostgreSQL ไม่ได้ (connection refused ทุกตัว) — `TestAC_BI_01_HTTP`, `TestAC_BI_02_HTTP`, `TestAC_BI_03_HTTP`, `TestAC_BI_05_HTTP`, `TestAC_BI_07_HTTP`
 - Constraint ในโค้ด: IF-GATE-01 — `POST /api/gate/signals` คอมเมนต์ชัดว่าเป็นตัวจำลองเท่านั้น (Q-01); ASM-07 — ไม่มี middleware ยืนยันตัวตน; CON-TECH-01 — Gin
 - สิ่งที่เกือบต้องเดา: JSON ที่ parse ไม่ได้ควรได้ error code อะไร — plan ระบุแค่ `invalid_direction` สำหรับ direction ผิด จึงใช้ `400 invalid_direction` เหมือนกัน (ไม่เพิ่ม error code ใหม่)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้/สร้าง: `backend/internal/occupancy/handler.go` (เพิ่ม `streamOccupancy`), `backend/internal/occupancy/routes.go` (เพิ่ม `GET /api/occupancy/stream`), `backend/internal/occupancy/stream_test.go`
+- ผล test (`go test -race -count=3`): PASS — `TestAC_BI_04_InMemory` (เซิร์ฟเวอร์ HTTP จริงผ่าน `httptest.Server`, ได้ event ใหม่ภายใน 1 วินาที, ปิดการเชื่อมต่อแล้วผู้ฟังถูกถอด), `TestStreamReturns503WhenDatabaseUnavailable`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_04` (Store จริง)
+- Constraint ในโค้ด: NFR-PERF-02/ASM-06 — SSE ส่ง event ทันทีหลัง publish ไม่มีการรอรอบเวลา; plan D1 — ใช้ `c.SSEvent`/`c.Stream` ของ Gin ไม่เพิ่ม dependency
+- สิ่งที่เกือบต้องเดา: ควรส่ง keep-alive ping เป็นระยะหรือไม่ (proxy บางตัวตัดการเชื่อมต่อที่เงียบนาน) — spec/plan ไม่ได้กำหนด จึงไม่ทำ ถ้าตรวจด้วยมือใน T-10 พบว่าหลุด ให้ทีมตัดสินก่อน

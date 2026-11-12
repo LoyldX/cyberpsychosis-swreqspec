@@ -2,6 +2,7 @@ package occupancy
 
 import (
 	"errors"
+	"io"
 	"log"
 	"net/http"
 
@@ -59,4 +60,42 @@ func (h *Handler) postSignal(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, snap)
+}
+
+// sseEventName คือชื่อ event ของ SSE ที่หน้า Dashboard ฟัง (plan §4.1).
+const sseEventName = "occupancy"
+
+// streamOccupancy: GET /api/occupancy/stream → text/event-stream
+// ส่ง event "occupancy" {count, as_of} ทันทีที่เชื่อมต่อ ทุกครั้งที่บันทึกสัญญาณสำเร็จ และตอน 00:00 Asia/Bangkok
+// เมื่อผู้ใช้ปิดหน้าหรือการเชื่อมต่อหลุด ผู้ฟังจะถูกถอดออกจาก Broadcaster (NFR-PERF-02, ASM-06, AC-BI-04, plan D1).
+func (h *Handler) streamOccupancy(c *gin.Context) {
+	ctx := c.Request.Context()
+	// ลงทะเบียนก่อนอ่านจำนวน เพื่อไม่พลาดสัญญาณที่เข้ามาระหว่างนั้น
+	updates, unsubscribe := h.svc.Subscribe()
+	defer unsubscribe()
+
+	snap, err := h.svc.Current(ctx)
+	if err != nil {
+		log.Printf("occupancy: stream current: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "unavailable"})
+		return
+	}
+
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("X-Accel-Buffering", "no")
+	c.Status(http.StatusOK)
+	c.SSEvent(sseEventName, snap)
+	c.Writer.Flush()
+
+	c.Stream(func(io.Writer) bool {
+		select {
+		case <-ctx.Done():
+			return false
+		case next := <-updates:
+			c.SSEvent(sseEventName, next)
+			return true
+		}
+	})
 }
