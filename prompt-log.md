@@ -1413,3 +1413,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL 18 จริง, `-race`): `TestStoreListUpcoming`, `TestStoreGetForMember`, `TestStoreBookRejections` (ไม่พบ/เริ่มแล้ว/ซ้ำ/เต็ม), `TestStoreShiftCheck`, `TestStoreOverlapCountsOnlyBookedClasses` PASS; package occupancy และ inventory ยังผ่าน
 - Constraint ในโค้ด: CON-DB-01 transaction เดียวต่อการจอง + `pg_advisory_xact_lock(5005, trainer_id)` (plan D2); ลำดับตรวจตาม plan D3; ทับซ้อนนับเฉพาะคลาสที่มีผู้จอง (ASM-10) ของเทรนเนอร์คนเดียวกัน (ASM-09) ด้วย `Interval.Overlaps` (ASM-12); ทุกทางที่ไม่ผ่าน rollback ไม่บันทึก (ASM-07)
 - สิ่งที่เกือบต้องเดา: (1) "ถึงเวลาเริ่มแล้ว" รวมวินาทีที่เริ่มพอดี — ถือว่าเริ่มแล้วเพราะ ASM-05 เขียนว่า "ถึงเวลาเริ่มคลาสแล้ว"; (2) ตัวตรวจกะรับเป็นพารามิเตอร์ `ShiftCheck` ตาม tasks ("รับตัวตรวจกะเป็นพารามิเตอร์") ถ้าอ่านข้อมูลกะไม่ได้ จะส่ง error นั้นกลับไปให้ service ตัดสิน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-04` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/service.go`, `backend/internal/booking/service_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestServiceRejectsOffShift`, `TestServiceWithoutShiftDataBlocks`, `TestServiceShiftReadFailure`, `TestServiceUsesClock` PASS
+- Constraint ในโค้ด: DOM-BKG-01/ASM-08 — `checkShift` แปลง "ไม่อยู่ในกะ" เป็น `ErrTrainerOffShift`; plan D6 — `NewService(..., nil, ...)` ใช้ `noShiftData` (ไม่มีข้อมูลกะ = นอกกะ = บล็อก); `Clock` แยกเวลาปัจจุบันให้ test กำหนดได้
+- สิ่งที่เกือบต้องเดา: ถ้าอ่านข้อมูลกะไม่ได้ (เช่น DB ของ 004 ล่ม) จะตอบอะไร — เลือกส่ง error ที่ไม่ใช่เหตุผลการจอง ให้ handler ตอบ 503 ไม่บันทึก ตาม ASM-07 (ฐานข้อมูลไม่ตอบ = ไม่บันทึก แจ้งให้ลองใหม่) ไม่ได้ตีเป็น "นอกกะ"

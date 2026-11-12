@@ -40,7 +40,7 @@
 - ไฟล์ที่แตะ: `backend/internal/booking/service.go`, `backend/internal/booking/service_test.go`
 - ต้องทำหลัง: T-03
 - เสร็จเมื่อ: test service ผ่าน — interface `ShiftChecker` และ `Clock` ใส่ตัวจำลองได้, `ShiftChecker` ตอบ "ไม่อยู่ในกะ" หรือไม่มีข้อมูลกะได้ `ErrTrainerOffShift` และไม่มีแถวใหม่
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-05 สร้าง Gin handler และ route ของการจอง
 - รองรับ: FR-BKG-01, CON-TECH-01 (ASM-05, ASM-06, ASM-07, plan D4, D5)
