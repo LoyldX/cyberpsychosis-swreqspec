@@ -5,13 +5,16 @@ import { HomePage } from "./features/auth/HomePage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { RequireAuth } from "./features/auth/RequireAuth";
 import { InventoryCatalogPage } from "./features/inventory/InventoryCatalogPage";
+import { OccupancyDashboardPage } from "./features/occupancy/OccupancyDashboardPage";
 
 // รองรับ FR-AUTH-01, FR-INV-01, CON-TECH-02: /inventory แสดง Catalog ภายใต้ route guard เดียวกับหน้าหลัก
+// รองรับ FR-BI-01, ASM-07: /dashboard (Occupancy Dashboard) เปิดได้โดยไม่ต้องล็อกอิน จึงไม่ครอบด้วย RequireAuth
 export function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<OccupancyDashboardPage />} />
         <Route
           path="/inventory"
           element={

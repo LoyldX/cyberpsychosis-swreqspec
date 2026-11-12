@@ -85,7 +85,7 @@
 - ไฟล์ที่แตะ: `frontend/src/features/occupancy/OccupancyDashboardPage.tsx`, `frontend/src/features/occupancy/OccupancyDashboardPage.test.tsx`, `frontend/src/App.tsx`
 - ต้องทำหลัง: T-08
 - เสร็จเมื่อ: test `AC_BI_01` และ `AC_BI_04` ผ่าน: หน้า `/dashboard` แสดง 3 เมื่อ msw ตอบ `count: 3` และเปลี่ยนเป็น 4 เมื่อ `EventSource` จำลองส่ง `count: 4` โดยไม่ remount; route `/dashboard` เปิดได้โดยไม่ต้องล็อกอิน; test เดิมของ `App` ยังผ่าน
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-10 ต่อหน้า Dashboard กับ API จริงและตรวจด้วยมือ
 - รองรับ: FR-BI-01, NFR-PERF-02, IF-GATE-01 (ตัวจำลอง), CON-TECH-01, CON-TECH-02

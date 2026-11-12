@@ -1270,3 +1270,11 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `npx vitest run src/features/occupancy src/mocks` — 2 files, 14 tests PASS; `npx tsc --noEmit` ผ่าน; ชุด test frontend ทั้งหมดยังผ่าน
 - Constraint ในโค้ด: CON-TECH-02 (React/Vite, `fetch` + `EventSource` ของเบราว์เซอร์); NFR-PERF-02 ผ่าน `subscribeOccupancy`
 - สิ่งที่เกือบต้องเดา: jsdom ไม่มี `EventSource` — แทนที่จะแก้ global ใน `src/test/setup.ts` (ไม่อยู่ในไฟล์ของ task) จึงให้ `subscribeOccupancy` รับตัวสร้าง EventSource เป็นพารามิเตอร์ (ค่าเริ่มต้นคือของเบราว์เซอร์)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-09` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/occupancy/OccupancyDashboardPage.tsx`, `frontend/src/features/occupancy/OccupancyDashboardPage.test.tsx`, `frontend/src/App.tsx` (เพิ่ม route `/dashboard` นอก `RequireAuth`)
+- ผล test: `npx vitest run` — 8 files, 53 tests PASS (ใหม่: `AC_BI_01`, `AC_BI_04`, ไม่ย้อนกลับค่าเก่า, ปิด SSE เมื่อออกจากหน้า, ข้อความเมื่อ 503); `npx tsc --noEmit` ผ่าน; test เดิมของ `App` ยังผ่าน
+- Constraint ในโค้ด: ASM-07 — route `/dashboard` ไม่ครอบ `RequireAuth` และ test เปิดหน้าโดยไม่มี token; NFR-PERF-02 — ตัวเลขเปลี่ยนจาก event SSE ใน element เดิม
+- ต่างจาก plan: plan §2 ระบุ `@tanstack/react-query` แต่แอปยังไม่มี `QueryClientProvider` (ต้องแก้ `main.tsx` ซึ่งไม่อยู่ในไฟล์ของ task) และหน้าอื่นทั้งหมดใช้ `useEffect`/`useState` จึงใช้แบบเดียวกัน ไม่เพิ่ม/เปลี่ยนเทคโนโลยี — ทีมควรแก้ plan §2 ให้ตรง
+- สิ่งที่เกือบต้องเดา: ถ้าผลของ GET มาถึงหลัง event SSE ที่ใหม่กว่า ควรแสดงค่าไหน — เลือกค่าที่ `as_of` ใหม่กว่า (ตรงกับความหมาย "จำนวนปัจจุบัน" ใน spec) และมี test ยืนยัน
