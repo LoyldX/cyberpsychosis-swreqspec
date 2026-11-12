@@ -41,7 +41,17 @@ const sessionHandler = http.get(SESSION_PATH, ({ request }) => {
   return new HttpResponse(null, { status: 401 });
 });
 
-export const handlers = [loginHandler, sessionHandler];
+// GET /api/occupancy: 200 {count, as_of} ตามสัญญาใน specs/007-occupancy-dashboard/plan.md §4.1 (FR-BI-01)
+// ค่าด้านล่างเป็นข้อมูลจำลองสำหรับ test เท่านั้น
+export const FAKE_OCCUPANCY_COUNT = 3;
+export const FAKE_OCCUPANCY_AS_OF = "2026-11-12T12:00:00+07:00";
+const OCCUPANCY_PATH = "/api/occupancy";
+
+const occupancyHandler = http.get(OCCUPANCY_PATH, () =>
+  HttpResponse.json({ count: FAKE_OCCUPANCY_COUNT, as_of: FAKE_OCCUPANCY_AS_OF }),
+);
+
+export const handlers = [loginHandler, sessionHandler, occupancyHandler];
 
 // ใช้กับ server.use(...) เพื่อบังคับให้ตอบ 503 {error:"service_unavailable"} (ASM-05, AC-AUTH-07, 08)
 const serviceUnavailable = () =>
@@ -49,3 +59,8 @@ const serviceUnavailable = () =>
 
 export const loginUnavailableHandler = http.post(LOGIN_PATH, serviceUnavailable);
 export const sessionUnavailableHandler = http.get(SESSION_PATH, serviceUnavailable);
+
+// ใช้กับ server.use(...) เพื่อจำลองฐานข้อมูลใช้ไม่ได้ (plan 007 D6: 503 {error:"unavailable"})
+export const occupancyUnavailableHandler = http.get(OCCUPANCY_PATH, () =>
+  HttpResponse.json({ error: "unavailable" }, { status: 503 }),
+);

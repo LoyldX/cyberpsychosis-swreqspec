@@ -1263,3 +1263,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล: `go build ./...` และ `go vet ./...` ผ่าน; `go test -race ./internal/app/ ./internal/config/` ผ่าน; smoke test เปิด binary จริงโดยไม่มี PostgreSQL: `GET /api/occupancy` → 503 `unavailable`, `POST /api/gate/signals {"direction":"x"}` → 400 `invalid_direction`, `GET /api/occupancy/stream` → 503 (พิสูจน์ว่า route ต่อแล้ว); ส่ง SIGINT แล้วเซิร์ฟเวอร์ปิดใน 102 ms — ยังไม่ได้เห็น 200 เพราะไม่มีฐานข้อมูล
 - Constraint ในโค้ด: CON-TECH-01 (ลง route ผ่าน `app.NewRouter`), ASM-03 (`go occupancyService.RunMidnightReset(ctx)` หยุดเมื่อ ctx ของสัญญาณหยุดถูกยกเลิก)
 - สิ่งที่เกือบต้องเดา: การเชื่อมต่อ SSE ที่เปิดค้างจะทำให้ `srv.Shutdown` รอจนหมดเวลา 5 วินาที จึงตั้ง `BaseContext` ให้ context ของคำขอมาจาก ctx ของสัญญาณหยุด (อยู่ในไฟล์ของ task นี้ ไม่เปลี่ยนพฤติกรรมของ auth/inventory นอกจากคำขอที่ค้างอยู่ตอนปิดเซิร์ฟเวอร์จะถูกยกเลิกเร็วขึ้น)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/occupancy/types.ts`, `frontend/src/features/occupancy/api.ts`, `frontend/src/features/occupancy/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง `GET /api/occupancy` ใน `handlers` และ `occupancyUnavailableHandler`)
+- ผล test: `npx vitest run src/features/occupancy src/mocks` — 2 files, 14 tests PASS; `npx tsc --noEmit` ผ่าน; ชุด test frontend ทั้งหมดยังผ่าน
+- Constraint ในโค้ด: CON-TECH-02 (React/Vite, `fetch` + `EventSource` ของเบราว์เซอร์); NFR-PERF-02 ผ่าน `subscribeOccupancy`
+- สิ่งที่เกือบต้องเดา: jsdom ไม่มี `EventSource` — แทนที่จะแก้ global ใน `src/test/setup.ts` (ไม่อยู่ในไฟล์ของ task) จึงให้ `subscribeOccupancy` รับตัวสร้าง EventSource เป็นพารามิเตอร์ (ค่าเริ่มต้นคือของเบราว์เซอร์)

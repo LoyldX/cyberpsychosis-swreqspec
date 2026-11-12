@@ -77,7 +77,7 @@
 - ไฟล์ที่แตะ: `frontend/src/features/occupancy/types.ts`, `frontend/src/features/occupancy/api.ts`, `frontend/src/features/occupancy/api.test.ts`, `frontend/src/mocks/handlers.ts`
 - ต้องทำหลัง: ไม่มี (ใช้ API จำลองตามสัญญาใน plan §4.1)
 - เสร็จเมื่อ: test ใน `api.test.ts` ผ่าน: `fetchOccupancy()` อ่าน `{count, as_of}` จาก msw ได้ และ `subscribeOccupancy()` เรียก callback เมื่อ `EventSource` จำลองส่ง event `occupancy` และคืนฟังก์ชันที่ปิดการเชื่อมต่อ
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-09 สร้างหน้า Dashboard และ route /dashboard
 - รองรับ: FR-BI-01, NFR-PERF-02, CON-TECH-02 (ASM-07)
