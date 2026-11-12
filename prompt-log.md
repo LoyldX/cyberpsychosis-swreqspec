@@ -1256,3 +1256,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (`go test -race -count=3`): PASS — `TestAC_BI_04_InMemory` (เซิร์ฟเวอร์ HTTP จริงผ่าน `httptest.Server`, ได้ event ใหม่ภายใน 1 วินาที, ปิดการเชื่อมต่อแล้วผู้ฟังถูกถอด), `TestStreamReturns503WhenDatabaseUnavailable`; FAIL เพราะต่อ PostgreSQL ไม่ได้ — `TestAC_BI_04` (Store จริง)
 - Constraint ในโค้ด: NFR-PERF-02/ASM-06 — SSE ส่ง event ทันทีหลัง publish ไม่มีการรอรอบเวลา; plan D1 — ใช้ `c.SSEvent`/`c.Stream` ของ Gin ไม่เพิ่ม dependency
 - สิ่งที่เกือบต้องเดา: ควรส่ง keep-alive ping เป็นระยะหรือไม่ (proxy บางตัวตัดการเชื่อมต่อที่เงียบนาน) — spec/plan ไม่ได้กำหนด จึงไม่ทำ ถ้าตรวจด้วยมือใน T-10 พบว่าหลุด ให้ทีมตัดสินก่อน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-07` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้: `backend/cmd/api/main.go`
+- ผล: `go build ./...` และ `go vet ./...` ผ่าน; `go test -race ./internal/app/ ./internal/config/` ผ่าน; smoke test เปิด binary จริงโดยไม่มี PostgreSQL: `GET /api/occupancy` → 503 `unavailable`, `POST /api/gate/signals {"direction":"x"}` → 400 `invalid_direction`, `GET /api/occupancy/stream` → 503 (พิสูจน์ว่า route ต่อแล้ว); ส่ง SIGINT แล้วเซิร์ฟเวอร์ปิดใน 102 ms — ยังไม่ได้เห็น 200 เพราะไม่มีฐานข้อมูล
+- Constraint ในโค้ด: CON-TECH-01 (ลง route ผ่าน `app.NewRouter`), ASM-03 (`go occupancyService.RunMidnightReset(ctx)` หยุดเมื่อ ctx ของสัญญาณหยุดถูกยกเลิก)
+- สิ่งที่เกือบต้องเดา: การเชื่อมต่อ SSE ที่เปิดค้างจะทำให้ `srv.Shutdown` รอจนหมดเวลา 5 วินาที จึงตั้ง `BaseContext` ให้ context ของคำขอมาจาก ctx ของสัญญาณหยุด (อยู่ในไฟล์ของ task นี้ ไม่เปลี่ยนพฤติกรรมของ auth/inventory นอกจากคำขอที่ค้างอยู่ตอนปิดเซิร์ฟเวอร์จะถูกยกเลิกเร็วขึ้น)

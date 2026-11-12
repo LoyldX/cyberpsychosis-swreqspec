@@ -69,7 +69,7 @@
 - ไฟล์ที่แตะ: `backend/cmd/api/main.go`
 - ต้องทำหลัง: T-06
 - เสร็จเมื่อ: `go build ./...` และ `go vet ./...` ผ่าน เปิดเซิร์ฟเวอร์แล้ว `GET /api/occupancy` ตอบ `200` และตัวตั้งเวลา 00:00 หยุดเมื่อเซิร์ฟเวอร์ปิด
-- สถานะ: พร้อมทำ
+- สถานะ: โค้ดเสร็จ รอตรวจ GET /api/occupancy = 200 กับ PostgreSQL (build/vet ผ่าน, route ต่อแล้ว)
 
 ### T-08 สร้าง type, ตัวเรียก API และ handler จำลองฝั่ง frontend
 - รองรับ: FR-BI-01, NFR-PERF-02, CON-TECH-02

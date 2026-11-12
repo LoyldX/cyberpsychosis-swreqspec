@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os/signal"
 	"syscall"
@@ -17,6 +18,7 @@ import (
 	"gymapp/backend/internal/auth"
 	"gymapp/backend/internal/config"
 	"gymapp/backend/internal/inventory"
+	"gymapp/backend/internal/occupancy"
 )
 
 // main เรียก run แล้วจบด้วย log.Fatalf เมื่อมี error (CON-TECH-01); แยก run เพื่อให้ defer ปิด pool/client ทำงาน.
@@ -26,8 +28,9 @@ func main() {
 	}
 }
 
-// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth และ inventory เข้ากับ Gin (CON-TECH-01, FR-AUTH-01, FR-INV-01)
-// แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration; ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
+// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory และ occupancy เข้ากับ Gin
+// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
+// ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
 func run() error {
 	cfg, err := config.Load()
 	if err != nil {
@@ -49,11 +52,22 @@ func run() error {
 	// timeout ของ dependency มาจาก config (AC-AUTH-07, AC-AUTH-08, ASM-09)
 	handler := auth.NewHandler(auth.NewService(members, sessions, auth.DefaultSessionTTL)).WithSessionReader(sessions).WithDependencyTimeout(cfg.DependencyTimeout)
 	inventoryHandler := inventory.NewHandler(inventory.NewStore(pool))
-
-	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: app.NewRouter(handler.Register, inventoryHandler.Register)}
+	// FR-BI-01, NFR-PERF-02: occupancy ใช้ PostgreSQL ตาม ASM-02 และนาฬิกาจริงของเครื่อง
+	occupancyService := occupancy.NewService(occupancy.NewStore(pool), occupancy.NewBroadcaster(), nil)
+	occupancyHandler := occupancy.NewHandler(occupancyService)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+
+	srv := &http.Server{
+		Addr:    cfg.HTTPAddr,
+		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register),
+		// context ของทุกคำขอมาจาก ctx: เมื่อได้รับสัญญาณหยุด การเชื่อมต่อ SSE ที่เปิดค้างจะจบเอง Shutdown จึงไม่ต้องรอจนหมดเวลา (NFR-PERF-02)
+		BaseContext: func(net.Listener) context.Context { return ctx },
+	}
+
+	// ASM-03, AC-BI-06: กระจายจำนวนของวันใหม่ตอน 00:00 Asia/Bangkok จนกว่าเซิร์ฟเวอร์จะหยุด
+	go occupancyService.RunMidnightReset(ctx)
 
 	errCh := make(chan error, 1)
 	go func() {
