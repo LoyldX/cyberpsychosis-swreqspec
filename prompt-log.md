@@ -1563,3 +1563,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestStoreUpdate`, `TestStoreCancel`, `TestStoreDelete`, `TestStoreBookedClassGuard`, `TestStoreBookedClassGuardIgnoresUnbookedAndUncovered` PASS (test ของ T-03 ยังผ่าน)
 - Constraint ในโค้ด: CON-DB-01 `apply` ทำใน transaction + ล็อกเทรนเนอร์ อ่านรายการซ้ำหลังล็อก; ASM-04 ตรวจเวลาสอนทั้งวันเดิมและวันใหม่เมื่อย้ายวัน; ASM-07/Q-11 `checkBookedClasses` อ่าน `classes`/`bookings` ของ 005 เฉพาะคลาสที่มีผู้จองและ `starts_at > now`; ASM-01 ยกเลิก = `cancelled = true`, ลบ = ลบแถว
 - สิ่งที่เกือบต้องเดา: ASM-07 เขียนว่า "ทำให้คลาส...ไม่อยู่ในเวลาเข้างาน**อีกต่อไป**" — ตีความว่าบล็อกเฉพาะคลาสที่อยู่ในเวลาเข้างานก่อนแก้แล้วหลุดหลังแก้ คลาสที่อยู่นอกกะอยู่แล้ว (เช่นเตรียมไว้ก่อนมีตารางงาน) ไม่ขวาง — ทีมควรยืนยัน; ยกเลิกรายการที่ยกเลิกแล้วได้ผลเดิม (ไม่ error)
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-05` (004-trainer-roster)
+
+- ไฟล์ที่สร้าง: `backend/internal/roster/covers.go`, `backend/internal/roster/covers_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestCovers` PASS 13 กรณี (ในกะ, ขอบพอดี, คร่อมสองกะ, เริ่มก่อน/จบหลังกะ, กะยกเลิก, เทรนเนอร์อื่น, ไม่มีกะ, วันอื่น, สัปดาห์หน้า, ข้ามวัน, เวลา UTC)
+- Constraint ในโค้ด: `Store.Covers` ใช้ `SlotOf` (Asia/Bangkok, ข้ามวัน = ไม่อยู่ในกะ ASM-03) + `Slot.Within` (ASM-10, 005 ASM-13) กับเวลาเข้างานที่ไม่ถูกยกเลิก (ASM-01) — พร้อมให้ 005 T-10 ห่อเป็น `ShiftChecker`
+- สิ่งที่เกือบต้องเดา: ไม่มี
