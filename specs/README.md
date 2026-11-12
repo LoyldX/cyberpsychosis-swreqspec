@@ -13,7 +13,7 @@
 | `004-trainer-roster/`      | Trainer Roster      | FR-ROST-01                                         | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
 | `005-class-booking/`       | จองคลาส             | FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01      | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
 | `006-inventory/`           | Inventory           | FR-INV-01..03, NFR-DATA-01, DOM-INV-01, DOM-INV-02 | *(ธนเสฏฐ์ ยิ้มประเสริฐ)*     | *660710711*   | *Falng*     |
-| `007-occupancy-dashboard/` | Occupancy Dashboard | FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01      | *(รอมอบหมาย)*     | *(รอกรอก)*   | *(รอกรอก)*     |
+| `007-occupancy-dashboard/` | Occupancy Dashboard | FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01      | *พงษ์รพี สืบญาติ* | *660710724*  | *(รอกรอก)*     |
 
 
 เลขโฟลเดอร์คงตามเดิม (002, 003, 008 ไม่อยู่ใน sprint นี้ — spec เดิมเก็บไว้ใน `temp/specs/`)
