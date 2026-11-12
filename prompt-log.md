@@ -1442,3 +1442,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ตรวจว่า test จับปัญหาได้จริง: ลองถอด `pg_advisory_xact_lock` ออกชั่วคราว → test ล้มตั้งแต่รอบ 1 ("ต้องสำเร็จเพียงรายการเดียว") แล้วคืนไฟล์ `store.go` เดิม (ไม่มี diff)
 - Constraint ในโค้ด: NFR-PERF-01/AC-BKG-05 ด้วย PostgreSQL จริง (ไม่ใช้ mock ตาม `000-shared` §3); ASM-02 ตรวจเวลาแต่ละคำขอ ≤ 1 วินาที
 - สิ่งที่เกือบต้องเดา: วัด 1 วินาทีตั้งแต่ส่งคำขอเข้า handler จนได้ผล (ไม่รวมเครือข่าย) ตาม ASM-02 "นับจากเซิร์ฟเวอร์ได้รับคำขอจองจนตอบกลับ"
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-08` (005-class-booking)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/src/features/booking/types.ts`, `frontend/src/features/booking/api.ts`, `frontend/src/features/booking/api.test.ts`, `frontend/src/mocks/handlers.ts` (เพิ่ม handler จำลอง `GET /api/classes`, `POST /api/bookings`, `GET /api/bookings/:id` ใน `handlers` และ handler 503)
+- ผล test: `npx vitest run src/features/booking src/mocks` — 2 files, 20 tests PASS; ชุด frontend ทั้งหมดยังผ่าน; `npx tsc --noEmit` ผ่าน
+- Constraint ในโค้ด: CON-TECH-02 (`fetch` ฝั่งเว็บ); ส่ง `Authorization: Bearer` จาก `readToken()` ของ 001; แปลงรหัสเหตุผล 400/404/409 เป็น `rejected` (ASM-05) และ 503/เครือข่ายล้มเป็น `unavailable` (ASM-07)
+- สิ่งที่เกือบต้องเดา: รูปแบบผลลัพธ์ — ใช้ discriminated union (`kind`) แบบเดียวกับ `features/auth/api.ts` แทนการโยน error แบบ inventory

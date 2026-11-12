@@ -72,7 +72,7 @@
 - ไฟล์ที่แตะ: `frontend/src/features/booking/types.ts`, `frontend/src/features/booking/api.ts`, `frontend/src/features/booking/api.test.ts`, `frontend/src/mocks/handlers.ts`
 - ต้องทำหลัง: ไม่มี (ใช้สัญญา API ใน plan ข้อ 4)
 - เสร็จเมื่อ: vitest ของ `api.test.ts` ผ่าน — `fetchClasses`, `createBooking`, `fetchBooking` ส่ง `Authorization: Bearer <token>` จาก `readToken()` และแปลงผล `201` / `409` (รหัสเหตุผล) / `503` ได้ถูกต้อง และ msw มี handler จำลองทั้ง 3 endpoint
-- สถานะ: พร้อมทำ
+- สถานะ: เสร็จ รอทีมตรวจ
 
 ### T-09 สร้างหน้าเว็บจองคลาส /classes
 - รองรับ: FR-BKG-01, CON-TECH-02 (ASM-05, plan D7)
