@@ -1613,3 +1613,12 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (PostgreSQL จริง, `-race`): `TestAC_BKG_03_Roster` (เวลาเข้างานจริงของ 004 ศุกร์ 09:00–12:00: คลาส 08:30 → 409 `trainer_off_shift` ไม่บันทึก, 09:00–10:00 → 201), `TestAC_BKG_04_Roster` (11:30–12:30 → 409, 11:00–12:00 → 201) PASS
 - Constraint ในโค้ด: DOM-BKG-01/ASM-11 `RosterShifts` ห่อ `roster.Store.Covers` เป็น `ShiftChecker` (plan D6 — แทน `noShiftData` เมื่อประกอบใน T-11)
 - สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (005-class-booking)
+
+- ตรวจก่อนเริ่ม: T-05 และ T-10 ของ 005 เสร็จแล้ว
+- ไฟล์ที่แก้: `backend/cmd/api/main.go` (import `booking` และ `gin`; สร้าง `booking.NewService(booking.NewStore(pool), booking.NewRosterShifts(rosterStore), nil)` และลงทะเบียน route หลัง `auth.RequireSession(sessions, cfg.DependencyTimeout)`)
+- สภาพแวดล้อม: ติดตั้ง `redis-server` ผ่าน apt (เครื่องไม่มี Docker) เพื่อให้ล็อกอินของ 001 ใช้ได้ในการตรวจ
+- ผล: `go build ./...`, `go vet ./...` ผ่าน; เปิดเซิร์ฟเวอร์จริง (PostgreSQL 18 + Redis) แล้วตรวจ: `GET /api/classes` ไม่มี token → 401, มี token จากการล็อกอินจริง → 200; จองคลาสศุกร์ 10:00–11:00 ที่อยู่ในเวลาเข้างานจริงของ 004 → 201; คลาส 11:30–12:30 → 409 `trainer_off_shift`; ยกเลิกกะที่ครอบคลาสที่ถูกจอง → 409 `booked_class_outside_work` (004 ASM-07); SIGINT แล้วปิดเอง; ลบข้อมูลที่ใช้ตรวจทั้งหมด (สร้าง `pgcrypto` ในฐานข้อมูล `postgres` เพื่อสร้าง bcrypt hash ของสมาชิกทดสอบ ไม่ได้แตะ `gym_management`)
+- Constraint ในโค้ด: CON-TECH-01; precondition "สมาชิกล็อกอินแล้ว" — route อยู่หลัง `RequireSession`; DOM-BKG-01 ใช้กะจริงผ่าน `RosterShifts`
+- สิ่งที่เกือบต้องเดา: timeout ของ `RequireSession` ใช้ `cfg.DependencyTimeout` เดียวกับ endpoint ของ 001

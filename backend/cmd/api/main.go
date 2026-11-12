@@ -11,11 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
 	"gymapp/backend/internal/app"
 	"gymapp/backend/internal/auth"
+	"gymapp/backend/internal/booking"
 	"gymapp/backend/internal/config"
 	"gymapp/backend/internal/inventory"
 	"gymapp/backend/internal/occupancy"
@@ -29,8 +31,8 @@ func main() {
 	}
 }
 
-// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory, occupancy และ roster เข้ากับ Gin
-// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01, FR-ROST-01) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
+// run โหลด config ต่อ PostgreSQL (CON-DB-01) และ Redis (CON-CACHE-01) ประกอบ auth, inventory, occupancy, roster และ booking เข้ากับ Gin
+// (CON-TECH-01, FR-AUTH-01, FR-INV-01, FR-BI-01, FR-ROST-01, FR-BKG-01, FR-BKG-02) แล้วเปิดเซิร์ฟเวอร์จนได้รับสัญญาณหยุด ไม่รัน migration;
 // ตั้ง timeout ของ dependency จาก config (AC-AUTH-07, AC-AUTH-08, ASM-09).
 func run() error {
 	cfg, err := config.Load()
@@ -57,14 +59,20 @@ func run() error {
 	occupancyService := occupancy.NewService(occupancy.NewStore(pool), occupancy.NewBroadcaster(), nil)
 	occupancyHandler := occupancy.NewHandler(occupancyService)
 	// FR-ROST-01: ตารางงานเทรนเนอร์ใช้ PostgreSQL และนาฬิกาจริง ไม่ต้องล็อกอิน (004 ASM-06)
-	rosterHandler := roster.NewHandler(roster.NewStore(pool), nil)
+	rosterStore := roster.NewStore(pool)
+	rosterHandler := roster.NewHandler(rosterStore, nil)
+	// FR-BKG-01, FR-BKG-02: การจองอยู่หลัง RequireSession ของ 001 และตรวจกะจากเวลาเข้างานจริงของ 004 (005 ASM-11, plan D6)
+	bookingHandler := booking.NewHandler(booking.NewService(booking.NewStore(pool), booking.NewRosterShifts(rosterStore), nil))
+	registerBooking := func(r gin.IRouter) {
+		bookingHandler.Register(r, auth.RequireSession(sessions, cfg.DependencyTimeout))
+	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	srv := &http.Server{
 		Addr:    cfg.HTTPAddr,
-		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register, rosterHandler.Register),
+		Handler: app.NewRouter(handler.Register, inventoryHandler.Register, occupancyHandler.Register, rosterHandler.Register, registerBooking),
 		// context ของทุกคำขอมาจาก ctx: เมื่อได้รับสัญญาณหยุด การเชื่อมต่อ SSE ที่เปิดค้างจะจบเอง Shutdown จึงไม่ต้องรอจนหมดเวลา (NFR-PERF-02)
 		BaseContext: func(net.Listener) context.Context { return ctx },
 	}
