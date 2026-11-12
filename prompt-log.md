@@ -1399,3 +1399,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test: `go test -race ./internal/booking/` — `TestMigration0004CreatesClassBooking` PASS กับ PostgreSQL 18 (CHECK 23514, UNIQUE 23505, FK 23503, migrate down กลับ version 3)
 - Constraint ในโค้ด: CON-DB-01 ตาราง `classes`/`bookings`; ASM-06 `bookings.member_id REFERENCES members(id)`; ASM-05 UNIQUE `(class_id, member_id)`; plan D1 `trainer_id` ไม่มี FK
 - สิ่งที่เกือบต้องเดา: FK ของ `bookings` ใช้ค่าเริ่มต้น (ห้ามลบสมาชิก/คลาสที่มีการจอง) ไม่ใส่ `ON DELETE CASCADE` เพราะ plan ไม่ได้ระบุ
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-02` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/model.go`, `backend/internal/booking/model_test.go`
+- ผล test: `TestAC_BKG_02_Rules`, `TestAC_BKG_03_Rules`, `TestAC_BKG_04_Rules`, `TestReasonCodes` PASS (`-race`)
+- Constraint ในโค้ด: DOM-BKG-01 — `Interval.Overlaps` แบบช่วงปิด (ASM-12) และ `Interval.Within` ขอบพอดีนับว่าอยู่ใน (ASM-13); รหัสเหตุผลครบตาม plan ข้อ 4
+- สิ่งที่เกือบต้องเดา: ไม่มี (ขอบเขตช่วงเวลาถามทีมแล้วระหว่าง /plan เป็น ASM-12, ASM-13)
