@@ -9,8 +9,8 @@
 | ฟีเจอร์ | สถานะ |
 |---|---|
 | [001 auth-session](#001-auth-session) | พัฒนาแล้ว (2 endpoint + middleware) ยกเว้น AC-AUTH-07/08 ยังไม่มี test |
-| [004 trainer-roster](#004-trainer-roster) | ยังไม่ได้พัฒนา |
-| [005 class-booking](#005-class-booking) | โค้ด API 3 endpoint และ test ทุก AC ผ่านแล้ว แต่ **ยังไม่ได้ประกอบเข้า `main.go`** (รอ T-11 ซึ่งรอ 004) |
+| [004 trainer-roster](#004-trainer-roster) | พัฒนาแล้ว (6 endpoint ไม่ต้องล็อกอิน) — test กับ PostgreSQL จริงผ่าน, ยังไม่ได้ตรวจด้วยมือ |
+| [005 class-booking](#005-class-booking) | พัฒนาแล้ว (3 endpoint หลัง `RequireSession`, ตรวจกะจากตารางงานของ 004) — test กับ PostgreSQL จริงผ่าน, ยังไม่ได้ตรวจด้วยมือ |
 | [006 inventory](#006-inventory) | พัฒนาแล้ว (7 endpoints; backend integration tests และ frontend mocked API tests) |
 | [007 occupancy-dashboard](#007-occupancy-dashboard) | พัฒนาแล้ว (3 endpoint รวม SSE) — test กับ PostgreSQL จริงผ่านแล้ว |
 | 002 notification, 003 line-bot, 008 network-segmentation | ไม่อยู่ใน sprint นี้ |
@@ -128,14 +128,70 @@ go run ./cmd/api
 ---
 
 ## 004 trainer-roster
-**ยังไม่ได้พัฒนา** (ยังไม่มี `plan.md` / `tasks.md`) Spec: `specs/004-trainer-roster/spec.md` — FR-ROST-01 (เจ้าหน้าที่/ผู้จัดการจัดตารางเวลาเข้างานและเวลาสอนของเทรนเนอร์)
-ยังไม่มี endpoint ที่ตกลงกัน คำถามที่ต้องตอบก่อนออกแบบ API: การล็อกอินและสิทธิ์ของเจ้าหน้าที่/ผู้จัดการ, รูปแบบตารางงาน ดู spec
+Spec: [`specs/004-trainer-roster/spec.md`](../specs/004-trainer-roster/spec.md) (Draft v2 ผ่าน /clarify รอบ 2) — FR-ROST-01, CON-DB-01 | Backend: Go/Gin (CON-TECH-01) + PostgreSQL (CON-DB-01) | Web: React/Vite หน้า `/roster` (CON-TECH-02) | โค้ด: `backend/internal/roster/`
+
+> **สถานะการทดสอบ (12 พฤศจิกายน 2569):** test ทั้งหมดของ `backend/internal/roster` ผ่านกับ PostgreSQL จริง (`go test -race`) รวม `TestAC_ROST_01_HTTP`..`TestAC_ROST_04_HTTP`; ต่อเข้า `main.go` แล้วและตรวจกับเซิร์ฟเวอร์จริง; หน้าเว็บทดสอบด้วย API จำลอง (msw); **ยังไม่ได้ตรวจด้วยมือบนเบราว์เซอร์** (ดู `docs/test_report/004-trainer-roster/manual_test.md`)
+
+### ธรรมเนียม Roster API
+- **ไม่ต้องล็อกอินทุก endpoint** (ASM-06) — ใครเข้าถึงเซิร์ฟเวอร์ได้ก็แก้ตารางงานได้
+- **ตารางงานซ้ำทุกสัปดาห์** (ASM-03): `weekday` ISO (จันทร์ = 1 … อาทิตย์ = 7), `start_time`/`end_time` เป็น `"HH:MM"` เวลา Asia/Bangkok ในวันเดียว (เริ่มก่อนจบ ไม่ข้ามเที่ยงคืน)
+- **`kind`:** `work` = เวลาเข้างาน, `teach` = เวลาสอน (แยกกัน ASM-04)
+- **ยกเลิก vs ลบ** (ASM-01): ยกเลิก = ยังเก็บไว้ (`cancelled: true`) แต่ไม่นับเป็นเวลาเข้างาน/เวลาสอน, ลบ = หายจากระบบ
+- **ข้อมูลเทรนเนอร์เตรียมไว้ล่วงหน้า** ไม่มี API เพิ่ม/แก้/ลบเทรนเนอร์ (ASM-09) ตัวอย่างอยู่ใน `backend/seeds/004_trainers.sql`
+- **รูปแบบ error:** `{"error": "<รหัส>", "message": "<ข้อความภาษาไทย>"}`
+
+| Method | Path | รองรับ |
+|---|---|---|
+| GET | `/api/trainers` | FR-ROST-01 (เลือกเทรนเนอร์) |
+| GET | `/api/trainers/{id}/roster` | AC-ROST-01..04 (เรียกดู) |
+| POST | `/api/trainers/{id}/roster` | AC-ROST-01, AC-ROST-02 |
+| PATCH | `/api/roster/{entryId}` | AC-ROST-03, AC-ROST-04 |
+| POST | `/api/roster/{entryId}/cancel` | ASM-01 |
+| DELETE | `/api/roster/{entryId}` | ASM-01 |
+
+### รูปแบบ Trainer และ Entry
+```json
+{"id": 1001, "name": "ครูเอ (ตัวอย่าง)"}
+```
+```json
+{"id": 61, "trainer_id": 1001, "kind": "work", "weekday": 1, "start_time": "09:00", "end_time": "12:00", "cancelled": false}
+```
+
+### GET /api/trainers
+- **200:** JSON array ของ Trainer เรียงตาม `id` (ไม่มีได้ `[]`) | **503** `unavailable`
+
+### GET /api/trainers/{id}/roster
+- **200:** JSON array ของ Entry ทั้งหมดของเทรนเนอร์ **รวมที่ยกเลิก** เรียงตามวันและเวลาเริ่ม (plan D5)
+- **400** `invalid_request` (`{id}` ไม่ใช่จำนวนเต็มบวก) | **404** `trainer_not_found` | **503** `unavailable`
+
+### POST /api/trainers/{id}/roster
+Request: `{"kind": "work", "weekday": 1, "start_time": "09:00", "end_time": "12:00"}` → **201** Entry
+
+### PATCH /api/roster/{entryId}
+Request: `{"weekday": 1, "start_time": "09:00", "end_time": "13:00"}` (เปลี่ยน `kind` ไม่ได้) → **200** Entry
+
+### POST /api/roster/{entryId}/cancel และ DELETE /api/roster/{entryId}
+- cancel → **200** Entry ที่ `cancelled: true` (ยกเลิกซ้ำได้ผลเดิม) | delete → **204** ไม่มี body
+
+### Roster API errors
+| HTTP | `error` | เมื่อไร |
+|---|---|---|
+| 400 | `invalid_request` | body ไม่ใช่ JSON, ไม่มี `weekday`, `kind` ไม่ใช่ work/teach, `weekday` นอก 1–7, เวลาไม่ใช่ `HH:MM`, เวลาเริ่มไม่ก่อนเวลาจบ, หรือรหัสใน path ผิดรูป |
+| 404 | `trainer_not_found` / `entry_not_found` | ไม่มีเทรนเนอร์หรือรายการนั้น |
+| 409 | `overlap` | ทับกับรายการประเภทเดียวกันของเทรนเนอร์คนเดียวกันในวันเดียวกัน (ต่อกันพอดีไม่นับ ASM-02, ASM-10) |
+| 409 | `teach_outside_work` | หลังการเปลี่ยนแปลงมีเวลาสอนอยู่นอกเวลาเข้างาน (เวลาเข้างานที่ต่อกันนับรวมกัน ASM-04, ASM-10) |
+| 409 | `booked_class_outside_work` | แก้/ยกเลิก/ลบเวลาเข้างานแล้วคลาสของ 005 ที่มีผู้จองและยังไม่เริ่ม ซึ่งเคยอยู่ในกะ จะอยู่นอกกะ (ASM-07, Q-11) |
+| 503 | `unavailable` | ฐานข้อมูลไม่ตอบ ไม่บันทึกอะไรเลย (ASM-08) |
+
+- ตรวจตามลำดับ: รูปแบบ → ไม่พบ → ทับซ้อน → เวลาสอนนอกเวลาเข้างาน → คลาสที่ถูกจอง (plan D3)
+- การเปลี่ยนแปลงของเทรนเนอร์คนเดียวกันใช้ advisory lock key เดียวกับการจองของ 005 จึงไม่แทรกกัน (plan D2)
+- ฟังก์ชัน Go `(*roster.Store).Covers(ctx, trainerID, start, end)` (ไม่ใช่ endpoint) ให้ 005 ตรวจว่าคลาสอยู่ในเวลาเข้างาน
 
 ## 005 class-booking
 Spec: [`specs/005-class-booking/spec.md`](../specs/005-class-booking/spec.md) (Draft v2 ผ่าน /clarify รอบ 2) — FR-BKG-01, FR-BKG-02, NFR-PERF-01, DOM-BKG-01, CON-DB-01 | Backend: Go/Gin (CON-TECH-01) + PostgreSQL (CON-DB-01) | Web: React/Vite หน้า `/classes` (CON-TECH-02) | โค้ด: `backend/internal/booking/`
 
-> **ยังเรียกจากเซิร์ฟเวอร์จริงไม่ได้ (12 พฤศจิกายน 2569):** handler และ route มีแล้ว (`(*booking.Handler).Register(r, auth.RequireSession(...))`) แต่ยังไม่ได้ประกอบเข้า `backend/cmd/api/main.go` (T-11) เพราะต้องมีตัวอ่านเวลาเข้างานจากตารางของ 004 ก่อน (T-10 รอ Q-01, Q-02 ของ spec 004) ถ้าประกอบตอนนี้ทุกการจองจะถูกบล็อกว่านอกกะ (plan D6)
-> **สถานะการทดสอบ:** test ทั้งหมดของ `backend/internal/booking` ผ่านกับ PostgreSQL จริง (`go test -race`) รวม `TestAC_BKG_01_HTTP`, `TestAC_BKG_02_HTTP`, `TestAC_BKG_03_HTTP`, `TestAC_BKG_04_HTTP`, `TestAC_BKG_05` (20 รอบ ตอบภายใน 1 วินาที) — กะของเทรนเนอร์ใน test เป็นตัวจำลอง ส่วนหน้าเว็บทดสอบด้วย API จำลอง (msw)
+> **ต่อเข้าเซิร์ฟเวอร์แล้ว (12 พฤศจิกายน 2569, T-11):** route อยู่หลัง `auth.RequireSession` ใน `backend/cmd/api/main.go` และตรวจกะจากเวลาเข้างานจริงของ 004 ผ่าน `booking.NewRosterShifts(roster.Store)` — ตรวจกับเซิร์ฟเวอร์จริงแล้ว (ล็อกอินจริง → จองในกะ 201, นอกกะ 409)
+> **สถานะการทดสอบ:** test ทั้งหมดของ `backend/internal/booking` ผ่านกับ PostgreSQL จริง (`go test -race`) รวม `TestAC_BKG_01_HTTP`, `TestAC_BKG_02_HTTP`, `TestAC_BKG_03_HTTP`, `TestAC_BKG_04_HTTP`, `TestAC_BKG_05` (20 รอบ ตอบภายใน 1 วินาที) — test ระดับ API ส่วนใหญ่ใช้กะจำลอง และ `TestAC_BKG_03_Roster`/`_04_Roster` ใช้เวลาเข้างานจริงของ 004; หน้าเว็บทดสอบด้วย API จำลอง (msw); ยังไม่ได้ตรวจด้วยมือ (ดู `docs/test_report/005-class-booking/manual_test.md`)
 
 ### ธรรมเนียม Booking API
 - **ทุก endpoint ต้องล็อกอิน:** ห่อด้วย `auth.RequireSession` ของ 001 ไม่มี/ผิด token ได้ `401 {"error":"unauthorized"}` และ Redis ล่มได้ `503 {"error":"service_unavailable"}` จาก middleware
@@ -174,7 +230,7 @@ Request: `{"class_id": 11}`
 | 409 | `class_started` | ถึงเวลาเริ่มคลาสแล้ว (ASM-05, Q-12) |
 | 409 | `already_booked` | สมาชิกจองคลาสนี้ไว้แล้ว (ASM-05) |
 | 409 | `class_full` | ที่นั่งเต็ม (ASM-03, ASM-05) |
-| 409 | `trainer_off_shift` | คลาสไม่อยู่ในเวลาเข้างานของเทรนเนอร์ทั้งหมด ขอบพอดีนับว่าอยู่ในกะ หรือไม่มีข้อมูลกะ (DOM-BKG-01, ASM-08, ASM-11, ASM-13, plan D6) |
+| 409 | `trainer_off_shift` | คลาสไม่อยู่ในเวลาเข้างานของเทรนเนอร์ (ตารางงานของ 004) ทั้งหมด ขอบพอดีนับว่าอยู่ในกะ เวลาเข้างานที่ต่อกันนับรวม หรือเทรนเนอร์ไม่มีกะวันนั้น (DOM-BKG-01, ASM-08, ASM-11, ASM-13; 004 ASM-10) |
 | 409 | `trainer_busy` | เวลาทับกับคลาสอื่นของเทรนเนอร์คนเดียวกันที่มีผู้จองแล้ว ต่อกันพอดีนับว่าทับ (DOM-BKG-01, ASM-09, ASM-10, ASM-12) |
 | 503 | `unavailable` | ฐานข้อมูลหรือแหล่งข้อมูลกะไม่ตอบ ไม่บันทึกอะไรเลย ไม่ retry (ASM-07) |
 
@@ -197,7 +253,7 @@ curl -i -X POST http://localhost:8080/api/bookings \
 - **503 `unavailable`**
 
 ### ยังไม่ได้พัฒนา
-- ประกอบเข้า `main.go` (T-11), ตัวอ่านเวลาเข้างานจาก 004 (T-10), ข้อมูลคลาสตัวอย่างและตรวจด้วยมือ (T-12) — รอ Q-01, Q-02 ของ spec 004
+- ตรวจด้วยมือบนเบราว์เซอร์ (T-12) — ข้อมูลคลาสตัวอย่างอยู่ใน `backend/seeds/005_classes.sql` แล้ว
 - ยกเลิกการจอง / ดูรายการจองของตนเอง — Q-04 ยังเปิด ต้องเสนอ FR ใหม่ก่อน
 
 ## 006 inventory
