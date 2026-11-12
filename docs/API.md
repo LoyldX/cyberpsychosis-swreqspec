@@ -1,6 +1,6 @@
 # API — Sprint 1 (แบ่งตามฟีเจอร์)
 
-อัปเดต: 11 พฤศจิกายน 2569 | Source: `specs/00N-*/plan.md` และโค้ดใน `backend/` | Constraint: CON-TECH-01 (Go + Gin), CON-TECH-02 (React/Vite), CON-DB-01 (PostgreSQL), CON-CACHE-01 (Redis)
+อัปเดต: 12 พฤศจิกายน 2569 | Source: `specs/00N-*/plan.md` และโค้ดใน `backend/` | Constraint: CON-TECH-01 (Go + Gin), CON-TECH-02 (React/Vite), CON-DB-01 (PostgreSQL), CON-CACHE-01 (Redis)
 
 > เอกสารนี้บอก **สัญญา API ที่ทำเสร็จและมี test ยืนยันแล้ว** ของแต่ละฟีเจอร์ ฟีเจอร์ที่ยังไม่ได้ทำระบุไว้ว่า "ยังไม่ได้พัฒนา" ห้ามถือว่ามี endpoint
 > ถ้าเอกสารนี้ขัดกับโค้ดหรือ spec ให้ยึด spec (`docs/specs.md`) แล้วตรวจ implementation ก่อนแก้เอกสาร ตัวอย่างและ response ด้านล่างอ้างอิงโค้ดและ test ของแต่ละฟีเจอร์
@@ -12,7 +12,7 @@
 | [004 trainer-roster](#004-trainer-roster) | ยังไม่ได้พัฒนา |
 | [005 class-booking](#005-class-booking) | ยังไม่ได้พัฒนา |
 | [006 inventory](#006-inventory) | พัฒนาแล้ว (7 endpoints; backend integration tests และ frontend mocked API tests) |
-| [007 occupancy-dashboard](#007-occupancy-dashboard) | ยังไม่ได้พัฒนา |
+| [007 occupancy-dashboard](#007-occupancy-dashboard) | พัฒนาแล้ว (3 endpoint รวม SSE) — test ที่ใช้ PostgreSQL ยังไม่ได้รัน |
 | 002 notification, 003 line-bot, 008 network-segmentation | ไม่อยู่ใน sprint นี้ |
 
 ## ธรรมเนียมร่วมของทุก endpoint
@@ -302,5 +302,66 @@ curl -i -X POST 'http://localhost:8080/api/inventory/12/movements' \
 - Web UI แจ้งเตือนแบบ push/notification; ปัจจุบันหน้าเว็บอ่านรายการแจ้งเตือนจาก endpoint `/alerts` เท่านั้น (FR-INV-03)
 
 ## 007 occupancy-dashboard
-**ยังไม่ได้พัฒนา** Spec: `specs/007-occupancy-dashboard/spec.md` — FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01
-ยังไม่มี endpoint ที่ตกลงกัน คำถามที่ต้องตอบก่อน: ประตูบันทึกขาเข้า/ขาออกหรือไม่ (Q3), โปรโตคอลของ IF-GATE-01, รอบเวลาอัปเดตของ NFR-PERF-02
+Spec: [`specs/007-occupancy-dashboard/spec.md`](../specs/007-occupancy-dashboard/spec.md) (Draft v2) — FR-BI-01, NFR-PERF-02, DOM-CAP-01, IF-GATE-01 | Backend: Go/Gin (CON-TECH-01) + PostgreSQL (ASM-02 ทีมเลือกเอง; SRS ไม่ผูก 007 กับ CON-DB-01) | Web: React/Vite หน้า `/dashboard` (CON-TECH-02) | โค้ด: `backend/internal/occupancy/`
+
+> **สถานะการทดสอบ (12 พฤศจิกายน 2569):** test ที่ไม่ใช้ฐานข้อมูลผ่านแล้ว (กฎคำนวณ, 400/503, SSE กับ counter ในหน่วยความจำ, หน้าเว็บด้วย API จำลอง) แต่ **test ที่ใช้ PostgreSQL จริง (`TestAC_BI_01_HTTP`, `_02_`, `_03_`, `_05_`, `_07_`, `TestAC_BI_04`, `TestAC_BI_06`, store และ migration) ยังไม่ได้รัน** เพราะเครื่องที่ implement ไม่มี PostgreSQL ดู `specs/007-occupancy-dashboard/tasks.md`
+
+### ธรรมเนียม Occupancy API
+- **ไม่ต้องยืนยันตัวตนทุก endpoint** (ASM-07) — ใครเข้าถึงเซิร์ฟเวอร์ได้ก็อ่านจำนวนและยิงสัญญาณจำลองได้ (plan D4, D5)
+- **จำนวนปัจจุบัน** = เข้า +1, ออก -1, ไม่ต่ำกว่า 0 (DOM-CAP-01, ASM-04) นับเฉพาะสัญญาณตั้งแต่ 00:00 Asia/Bangkok ของวันนี้ (ASM-03) รับทุกสัญญาณตามลำดับที่ได้รับ ไม่กรองตัวซ้ำ (ASM-05)
+- รูปแบบ **Snapshot** ที่ทุก endpoint คืน:
+```json
+{ "count": 3, "as_of": "2026-11-12T12:00:00.123456+07:00" }
+```
+`as_of` คือเวลาที่เซิร์ฟเวอร์คำนวณจำนวนนี้ (RFC3339)
+
+### Endpoints ที่ implement แล้ว
+| Method | Path | รายละเอียด | สำเร็จ |
+|---|---|---|---|
+| `GET` | `/api/occupancy` | อ่านจำนวนปัจจุบัน (FR-BI-01) | `200` Snapshot |
+| `GET` | `/api/occupancy/stream` | Server-Sent Events ของจำนวนปัจจุบัน (NFR-PERF-02) | `200 text/event-stream` |
+| `POST` | `/api/gate/signals` | **ตัวจำลองสัญญาณประตูเท่านั้น** ไม่ใช่โปรโตคอลจริงของประตู (IF-GATE-01, Q-01) | `201` Snapshot |
+
+### GET /api/occupancy
+```sh
+curl http://localhost:8080/api/occupancy
+```
+**Response `200 OK`** — Snapshot เช่น `{"count":3,"as_of":"..."}` (ถ้าวันนี้ยังไม่มีสัญญาณ `count` เป็น `0`)
+
+### GET /api/occupancy/stream
+เปิดค้างไว้เพื่อรับจำนวนใหม่โดยไม่ต้องรีเฟรช (NFR-PERF-02, ASM-06: ภายใน 1 วินาทีหลังระบบรับสัญญาณ) ฝั่งเว็บใช้ `new EventSource("/api/occupancy/stream")`
+```sh
+curl -N http://localhost:8080/api/occupancy/stream
+```
+**Response `200`** headers: `Content-Type: text/event-stream`, `Cache-Control: no-cache`; เซิร์ฟเวอร์ส่ง event ชื่อ `occupancy` ซึ่ง `data` เป็น Snapshot
+```
+event:occupancy
+data:{"count":3,"as_of":"2026-11-12T12:00:00+07:00"}
+
+```
+ส่ง event เมื่อ: (1) เชื่อมต่อสำเร็จ (จำนวนปัจจุบัน) (2) ทุกครั้งที่บันทึกสัญญาณสำเร็จ (3) ตอน 00:00 Asia/Bangkok (จำนวนของวันใหม่ ปกติคือ `0`) — ผู้ฟังที่อ่านไม่ทันจะได้ค่าล่าสุด ไม่ได้ทุกค่า ไม่มี keep-alive ping
+
+### POST /api/gate/signals
+บันทึกสัญญาณผ่านประตู 1 ครั้ง ณ เวลาที่เซิร์ฟเวอร์ได้รับ แล้วกระจายจำนวนใหม่ให้ทุก stream (DOM-CAP-01, IF-GATE-01) — ใช้กับตัวจำลองและการทดสอบเท่านั้นจนกว่าจะรู้โปรโตคอลจริง (Q-01)
+
+**Request**
+```json
+{ "direction": "in" }
+```
+`direction` ต้องเป็น `"in"` หรือ `"out"` เท่านั้น (ตรงตามตัวพิมพ์)
+
+**Response `201 Created`** — Snapshot หลังสัญญาณนี้ เช่น `{"count":4,"as_of":"..."}`; สัญญาณ `out` ตอนจำนวนเป็น 0 ได้ `201` และ `count: 0` และยังถูกบันทึกไว้ (ASM-04)
+
+```sh
+curl -X POST -H 'Content-Type: application/json' -d '{"direction":"in"}' http://localhost:8080/api/gate/signals
+```
+
+### Occupancy API errors
+| HTTP | `error` | เมื่อไร |
+|---|---|---|
+| `400` | `invalid_direction` | `POST /api/gate/signals` ที่ body ไม่ใช่ JSON หรือ `direction` ไม่ใช่ `in`/`out` — ไม่บันทึกสัญญาณ |
+| `503` | `unavailable` | ฐานข้อมูลใช้ไม่ได้ ทั้ง 3 endpoint (stream ตอบ 503 แทนการเปิด stream) — สัญญาณที่ล้มเหลว **ไม่ถูกบันทึกและไม่มี retry** (plan D6 รอ Tech Lead ยืนยัน) |
+
+### ยังไม่ได้พัฒนา
+- Adapter รับสัญญาณจากประตูจริง และการแยกประตูหลายจุด (T-12 รอ Q-01)
+- การยืนยันตัวตน/สิทธิ์ของผู้จัดการ (Out of scope, ASM-07)

@@ -1284,3 +1284,14 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ไฟล์ที่สร้าง/แก้: `frontend/vite.config.ts` (เพิ่ม dev proxy `/api` → `http://localhost:8080`), `docs/test_report/007-occupancy-dashboard/manual_test.md`
 - ผล: `npx tsc --noEmit` ผ่าน; เปิด backend binary (ไม่มี PostgreSQL) + Vite dev server แล้วยิงผ่าน proxy: `GET /api/occupancy` → 503 จาก backend, `POST /api/gate/signals {"direction":"x"}` → 400, `GET /dashboard` → 200 — พิสูจน์ว่า proxy ต่อถึง backend; **ยังไม่ได้ตรวจด้วยมือ M-01..M-04 (AC-BI-01, AC-BI-04) เพราะไม่มีฐานข้อมูล**
 - สิ่งที่เกือบต้องเดา: ร่างแรกให้เปลี่ยนปลายทาง proxy ผ่าน env ได้ แต่ไม่มีใครขอ จึงตัดออก คงไว้แค่ค่าเดียวตาม `defaultHTTPAddr`
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-11` (007-occupancy-dashboard)
+
+- ไฟล์ที่แก้: `docs/API.md` (แถวสารบัญ 007, วันที่อัปเดต, หัวข้อ 007 ทั้งหมด)
+- ผล: เขียนสัญญา 3 endpoint (`GET /api/occupancy`, `GET /api/occupancy/stream`, `POST /api/gate/signals`) พร้อม Snapshot, รูปแบบ event SSE, ตาราง error 400/503 ตรงกับ `handler.go`; ตรวจรูปแบบ SSE กับ source ของ `gin-contrib/sse` แล้ว (`event:`/`data:` ไม่มีช่องว่าง)
+- ระบุชัดว่า `POST /api/gate/signals` เป็นตัวจำลอง (Q-01), ไม่ต้องยืนยันตัวตน (ASM-07) และ test ที่ใช้ PostgreSQL ยังไม่ได้รัน — เพราะหัวเอกสารบอกว่าเป็น "สัญญาที่มี test ยืนยันแล้ว"
+- สิ่งที่เกือบต้องเดา: ไม่มี
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-12` (007-occupancy-dashboard) — ปฏิเสธ
+
+- T-12 (adapter รับสัญญาณจากประตูจริง) มีสถานะ "รอ Q-01" ตาม `.claude/commands/implement.md` ขั้นที่ 0 ข้อ 1 ต้องปฏิเสธแม้ผู้ใช้สั่ง "implement all" — ต้องปิด Q-01 (รูปแบบสัญญาณและจำนวนประตู ถามฝ่ายอาคารสถานที่) ใน spec และเพิ่ม AC ของ IF-GATE-01 ก่อน ไม่ได้แตะไฟล์ใด
