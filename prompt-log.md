@@ -1278,3 +1278,9 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - Constraint ในโค้ด: ASM-07 — route `/dashboard` ไม่ครอบ `RequireAuth` และ test เปิดหน้าโดยไม่มี token; NFR-PERF-02 — ตัวเลขเปลี่ยนจาก event SSE ใน element เดิม
 - ต่างจาก plan: plan §2 ระบุ `@tanstack/react-query` แต่แอปยังไม่มี `QueryClientProvider` (ต้องแก้ `main.tsx` ซึ่งไม่อยู่ในไฟล์ของ task) และหน้าอื่นทั้งหมดใช้ `useEffect`/`useState` จึงใช้แบบเดียวกัน ไม่เพิ่ม/เปลี่ยนเทคโนโลยี — ทีมควรแก้ plan §2 ให้ตรง
 - สิ่งที่เกือบต้องเดา: ถ้าผลของ GET มาถึงหลัง event SSE ที่ใหม่กว่า ควรแสดงค่าไหน — เลือกค่าที่ `as_of` ใหม่กว่า (ตรงกับความหมาย "จำนวนปัจจุบัน" ใน spec) และมี test ยืนยัน
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-10` (007-occupancy-dashboard)
+
+- ไฟล์ที่สร้าง/แก้: `frontend/vite.config.ts` (เพิ่ม dev proxy `/api` → `http://localhost:8080`), `docs/test_report/007-occupancy-dashboard/manual_test.md`
+- ผล: `npx tsc --noEmit` ผ่าน; เปิด backend binary (ไม่มี PostgreSQL) + Vite dev server แล้วยิงผ่าน proxy: `GET /api/occupancy` → 503 จาก backend, `POST /api/gate/signals {"direction":"x"}` → 400, `GET /dashboard` → 200 — พิสูจน์ว่า proxy ต่อถึง backend; **ยังไม่ได้ตรวจด้วยมือ M-01..M-04 (AC-BI-01, AC-BI-04) เพราะไม่มีฐานข้อมูล**
+- สิ่งที่เกือบต้องเดา: ร่างแรกให้เปลี่ยนปลายทาง proxy ผ่าน env ได้ แต่ไม่มีใครขอ จึงตัดออก คงไว้แค่ค่าเดียวตาม `defaultHTTPAddr`
