@@ -1427,3 +1427,10 @@ T-12 ยากที่สุด เพราะต้องเชื่อม�
 - ผล test (`-race`): `TestAC_BKG_01_HTTP` (PostgreSQL จริง: POST 201 → GET 200 ตรงกัน, 1 แถว), `TestListClassesHTTP`, `TestCreateBookingErrorsHTTP` (400/404/409), `TestGetBookingOfOtherMemberHTTP` (404, 400), `TestBookingUnavailableHTTP` (503 ทั้ง 3 endpoint), `TestBookingRequiresSessionHTTP` (401) PASS
 - Constraint ในโค้ด: CON-TECH-01 Gin handler; `Register(r, requireSession)` ครอบทุก route ด้วย `auth.RequireSession` ของ 001; ผู้จองมาจาก session ไม่ใช่ body (ASM-06); error เป็น `{"error","message"}` ไทย (ASM-05); ปัญหาระบบตอบ 503 ไม่บันทึก (ASM-07)
 - สิ่งที่เกือบต้องเดา: (1) รูปแบบ body ของ error — ใช้ `{"error","message"}` แบบเดียวกับ 503 ของ 001; (2) `GET /api/bookings/abc` (id ไม่ใช่ตัวเลข) ตอบ 400 `invalid_request` ซึ่ง plan ไม่ได้ระบุ แต่ตรงกับ `400 invalid_request` ของ POST — ทีมควรตรวจ; (3) ข้อความภาษาไทยของแต่ละรหัสเป็นร่างของ AI
+
+## 12 พฤศจิกายน 2569 — คำสั่ง `/implement T-06` (005-class-booking)
+
+- ไฟล์ที่สร้าง: `backend/internal/booking/block_test.go`
+- ผล test (PostgreSQL จริง, `-race`): `TestAC_BKG_02_HTTP` (ทับกับคลาสที่มีผู้จอง → 409 `trainer_busy`, ต่อกันพอดี → 409, ทับกับคลาสที่ยังไม่มีผู้จอง → 201), `TestAC_BKG_03_HTTP` (เริ่ม 08:30 → 409 `trainer_off_shift`, เริ่ม 09:00 → 201), `TestAC_BKG_04_HTTP` (11:30–12:30 → 409, 11:00–12:00 → 201) PASS ทุกกรณีที่ถูกบล็อกไม่มีแถวใหม่
+- Constraint ในโค้ด: DOM-BKG-01 ตรวจทั้งทับซ้อนและนอกกะ (ASM-08) ผ่าน API จริง กะใช้ `ShiftChecker` จำลอง (ตัวจริงของ 004 อยู่ใน T-10)
+- สิ่งที่เกือบต้องเดา: ไม่มี
