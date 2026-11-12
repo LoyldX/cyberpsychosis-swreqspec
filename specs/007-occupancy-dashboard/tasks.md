@@ -19,7 +19,7 @@
 - สถานะ: เสร็จ รอทีมตรวจ (test กับ PostgreSQL 18 จริงผ่านแล้ว 12 พ.ย. 2569)
 
 ### T-02 เขียนกฎคำนวณจำนวนและจุดเริ่มวัน
-- รองรับ: DOM-CAP-01 (ASM-01, ASM-03, ASM-04)
+- รองรับ: FR-BI-01, DOM-CAP-01 (ASM-01, ASM-03, ASM-04)
 - ตรวจด้วย: AC-BI-02, AC-BI-03, AC-BI-05 (ส่วน unit ของกฎคำนวณ)
 - ไฟล์ที่แตะ: `backend/internal/occupancy/model.go`, `backend/internal/occupancy/model_test.go`
 - ต้องทำหลัง: ไม่มี
